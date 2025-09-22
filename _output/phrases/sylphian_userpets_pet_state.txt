@@ -1,0 +1,1 @@
+Current state: {pet_state}

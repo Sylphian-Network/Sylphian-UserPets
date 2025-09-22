@@ -1,0 +1,1 @@
+How long should a cooldown last between actions? Value should be in seconds.

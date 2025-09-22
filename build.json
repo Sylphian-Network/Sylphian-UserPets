@@ -1,0 +1,11 @@
+{
+  "additional_files": [
+    "js/sylphian/userpets"
+  ],
+  "minify": [
+    "js/sylphian/userpets/userpets-actions.js"
+  ],
+  "exec": [
+    "echo '{title} v{version_string} has been built successfully!'"
+  ]
+}

@@ -1,0 +1,86 @@
+{
+    "option.sylphian_userpets_cooldown_time.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "347fd244cd88edc668de9e60f43f43a7"
+    },
+    "option_explain.sylphian_userpets_cooldown_time.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "c757a48d4e55f8599f92a3f2363a17d2"
+    },
+    "option_group.sylphian_userpets.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "77e94f6e1b84c4c3490dbc85fdcdbc94"
+    },
+    "option_group_description.sylphian_userpets.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "sylphian_userpets_feed.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "a80425472d94ae02c836da5b6f205b7b"
+    },
+    "sylphian_userpets_happiness.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "edccf286ccd738e8c4fc1ed56e10aced"
+    },
+    "sylphian_userpets_hunger.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "5994ce026a62da8057fcb67f5ee60773"
+    },
+    "sylphian_userpets_pet_state.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "e99e633d7e6f468861f68067990b59bb"
+    },
+    "sylphian_userpets_play.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "de3c731be5633838089a07179d301d7b"
+    },
+    "sylphian_userpets_sleep.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "243924bfd56a682be235638b53961e09"
+    },
+    "sylphian_userpets_sleepiness.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "7d695c76230e3a4eb378bb2433375ef6"
+    },
+    "sylphian_userpets_your_pet.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "478bf4b8b3a190eda0c6ca35291d5cfd"
+    },
+    "widget_def.sylphian_userpets_widget.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "28ef06ad6a29b5866484a89492a048dd"
+    },
+    "widget_def_desc.sylphian_userpets_widget.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "3ce380bde56afebe418ca3ea9a2313b4"
+    }
+}

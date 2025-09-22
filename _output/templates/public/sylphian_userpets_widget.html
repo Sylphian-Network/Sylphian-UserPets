@@ -1,0 +1,122 @@
+<div class="block">
+    <div class="block-container">
+        <h3 class="block-header u-alignCenter">{{ phrase('sylphian_userpets_your_pet') }}</h3>
+        <div class="block-body" 
+			 data-xf-init="pet-actions" 
+			 data-action-url="{{ link('userpets/update') }}" 
+			 data-cooldown="{{ $xf.options.sylphian_userpets_cooldown_time }}"
+			 data-last-action-time="{{ $pet.last_action_time }}"
+			 data-current-time="{{ $xf.time }}">  
+			<div class="block-row u-alignCenter">
+                <!-- Pet stats display area -->
+                <div class="petStats">
+                    <div class="petState u-alignCenter">
+                        <span class="petStateIcon petStateIcon--{{ $pet.state }}"></span>
+                        <div class="petStateName">{{ phrase_dynamic('sylphian_userpets_pet_state', {'pet_state': $pet.state}) }}</div>
+                    </div>
+                    
+                    <div class="petStatBars">
+                        <!-- Hunger stat -->
+                        <div class="petStatBar">
+                            <div class="petStatLabel">{{ phrase('sylphian_userpets_hunger') }}:</div>
+                            <div class="petProgressBar" title="{{ $pet.hunger }}/100">
+                                <div class="petProgressBar-progress" style="width: {{ $pet.hunger }}%"></div>
+                                <div class="petProgressBar-label">{{ $pet.hunger }}/100</div>
+                            </div>
+                        </div>
+
+                        <!-- Happiness stat -->
+                        <div class="petStatBar">
+                            <div class="petStatLabel">{{ phrase('sylphian_userpets_happiness') }}:</div>
+                            <div class="petProgressBar" title="{{ $pet.happiness }}/100">
+                                <div class="petProgressBar-progress" style="width: {{ $pet.happiness }}%"></div>
+                                <div class="petProgressBar-label">{{ $pet.happiness }}/100</div>
+                            </div>
+                        </div>
+
+                        <!-- Sleepiness stat -->
+                        <div class="petStatBar">
+                            <div class="petStatLabel">{{ phrase('sylphian_userpets_sleepiness') }}:</div>
+                            <div class="petProgressBar" title="{{ $pet.sleepiness }}/100">
+                                <div class="petProgressBar-progress" style="width: {{ $pet.sleepiness }}%"></div>
+                                <div class="petProgressBar-label">{{ $pet.sleepiness }}/100</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="block-row block-row--minor u-alignCenter petStatActions">
+                <button type="button" class="button pet-action-button" data-action="feed">
+					<xf:fa icon="fad fa-utensils" />
+                    {{ phrase('sylphian_userpets_feed') }}
+                </button>
+                <button type="button" class="button pet-action-button" data-action="play">
+					<xf:fa icon="fad fa-joystick" />
+                    {{ phrase('sylphian_userpets_play') }}
+                </button>
+                <button type="button" class="button pet-action-button" data-action="sleep">
+					<xf:fa icon="fad fa-bed" />
+                    {{ phrase('sylphian_userpets_sleep') }}
+                </button>
+            </div>
+            
+            <div class="block-row block-row--minor u-alignCenter cooldown-timer" style="display: none;">
+                {{ phrase('sylphian_userpets_cooldown_timer') }}: <span class="js-pet-cooldown-timer">0</span> {{ phrase('sylphian_userpets_seconds') }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<xf:js src="sylphian/userpets/userpets-actions.js" min="1" addon="Sylphian/UserPets" />
+
+<xf:css>
+.petStatBar {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    gap: 8px; /* space between label and progress bar */
+}
+
+.petStatLabel {
+    font-weight: bold;
+    white-space: nowrap; /* keeps the label on one line */
+    min-width: 90px; /* ensures labels line up neatly */
+    text-align: right;
+}
+
+.petProgressBar {
+    position: relative;
+    flex: 1; /* makes the bar stretch to fill remaining space */
+    background: #ff5555;
+    border: @xf-borderSize solid @xf-borderColorFaint;
+    border-radius: @xf-borderRadiusSmall;
+    overflow: hidden;
+    height: 20px;
+}
+
+.petProgressBar-progress {
+    background: #4CAF50;
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+.petProgressBar-label {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 20px;
+    line-height: 20px;
+    color: #fff;
+    text-align: center;
+    font-weight: bold;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.petProgressBar:hover .petProgressBar-label {
+    opacity: 1;
+}
+</xf:css>

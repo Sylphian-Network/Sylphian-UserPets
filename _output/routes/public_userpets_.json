@@ -1,0 +1,11 @@
+{
+    "route_type": "public",
+    "route_prefix": "userpets",
+    "sub_name": "",
+    "format": "",
+    "build_class": "",
+    "build_method": "",
+    "controller": "Sylphian\\UserPets:UserPet",
+    "context": "userpets",
+    "action_prefix": ""
+}
