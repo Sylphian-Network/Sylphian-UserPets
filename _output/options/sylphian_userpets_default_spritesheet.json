@@ -1,0 +1,13 @@
+{
+    "edit_format": "callback",
+    "edit_format_params": "Sylphian\\UserPets\\Option\\SpriteSheet::renderOption",
+    "data_type": "string",
+    "sub_options": [],
+    "validation_class": "",
+    "validation_method": "",
+    "advanced": false,
+    "default_value": "slime_spritesheet.png",
+    "relations": {
+        "sylphian_userpets": 1
+    }
+}

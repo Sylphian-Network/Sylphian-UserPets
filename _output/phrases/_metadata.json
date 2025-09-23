@@ -5,11 +5,23 @@
         "version_string": "1.0.0 Alpha",
         "hash": "347fd244cd88edc668de9e60f43f43a7"
     },
+    "option.sylphian_userpets_default_spritesheet.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "55df0645953bd67798c9f10ac2d6c8df"
+    },
     "option_explain.sylphian_userpets_cooldown_time.txt": {
         "global_cache": false,
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
         "hash": "c757a48d4e55f8599f92a3f2363a17d2"
+    },
+    "option_explain.sylphian_userpets_default_spritesheet.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "97f80ac2a51be0234eafe3eb818b8646"
     },
     "option_group.sylphian_userpets.txt": {
         "global_cache": false,

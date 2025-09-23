@@ -1,5 +1,8 @@
 {
     "sylphian_userpets_cooldown_time.json": {
         "hash": "3c4573b0c1b3365100a1ae957c5b44f9"
+    },
+    "sylphian_userpets_default_spritesheet.json": {
+        "hash": "38510561144c6d1921e1614a0995e387"
     }
 }

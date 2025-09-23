@@ -1,0 +1,1 @@
+Choose the sprite sheet your users will use.

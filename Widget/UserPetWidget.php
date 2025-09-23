@@ -45,19 +45,14 @@ class UserPetWidget extends AbstractWidget
 
 		$actionUrl = $this->app()->router()->buildLink('userPets/actions');
 
-		$cooldownTime = 5 * 60;
-		$currentTime = \XF::$time;
-		$timeRemaining = max(0, ($pet->last_action_time + $cooldownTime) - $currentTime);
-		$canPerformAction = ($timeRemaining == 0);
-
-		$spriteSheetPath = \XF::app()->options()->publicPath . '/data/assets/sylphian/userpets/spritesheets/slime_spritesheet.png';
+		//TODO: When I figure out how replace the option `sylphian_userpets_default_spritesheet` with a user option, so users can select their own creature design.
+		$selectedSpritesheet = \XF::options()->sylphian_userpets_default_spritesheet;
+		$spriteSheetPath = $this->app()->options()->publicPath . '/data/assets/sylphian/userpets/spritesheets/' . $selectedSpritesheet;
 
 		return $this->renderer('sylphian_userpets_widget', [
 			'widget' => $widget,
 			'pet' => $pet,
 			'actionUrl' => $actionUrl,
-			'canPerformAction' => $canPerformAction,
-			'cooldownRemaining' => $timeRemaining,
 			'spriteSheetPath' => $spriteSheetPath,
 		]);
 	}
