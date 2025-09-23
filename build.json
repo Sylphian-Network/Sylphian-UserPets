@@ -1,6 +1,7 @@
 {
   "additional_files": [
-    "js/sylphian/userpets"
+    "js/sylphian/userpets",
+    "data/assets/sylphian/userpets"
   ],
   "minify": [
     "js/sylphian/userpets/userpets-actions.js"

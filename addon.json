@@ -1,14 +1,14 @@
 {
     "legacy_addon_id": "",
     "title": "Sylphian - User Pets",
-    "description": "",
+    "description": "Virtual pets for your forum.",
     "version_id": 1000010,
     "version_string": "1.0.0 Alpha",
-    "dev": "",
-    "dev_url": "",
+    "dev": "QuackieMackie",
+    "dev_url": "https://github.com/QuackieMackie",
     "faq_url": "",
-    "support_url": "",
+    "support_url": "https://github.com/Sylphian-Network/Sylphian-Library/issues",
     "extra_urls": [],
     "require": [],
-    "icon": ""
+    "icon": "fa-paw"
 }

@@ -81,17 +81,19 @@ XF.PetActions = XF.Element.newHandler({
     },
 
     disableButtons: function() {
-        for (let i = 0; i < this.buttons.length; i++) {
-            this.buttons[i].classList.add('button--disabled');
-            this.buttons[i].disabled = true;
-        }
+        this.buttons.forEach(button => {
+            button.classList.add('button--disabled');
+            button.disabled = true;
+            button.setAttribute('aria-disabled', 'true');
+        });
     },
 
     enableButtons: function() {
-        for (let i = 0; i < this.buttons.length; i++) {
-            this.buttons[i].classList.remove('button--disabled');
-            this.buttons[i].disabled = false;
-        }
+        this.buttons.forEach(button => {
+           button.classList.remove('button--disabled');
+           button.disabled = false;
+           button.removeAttribute('aria-disabled');
+        });
     },
 
     checkExistingCooldown: function() {

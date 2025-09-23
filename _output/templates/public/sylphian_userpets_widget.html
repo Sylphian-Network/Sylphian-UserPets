@@ -8,6 +8,13 @@
 			 data-last-action-time="{{ $pet.last_action_time }}"
 			 data-current-time="{{ $xf.time }}">  
 			<div class="block-row u-alignCenter">
+				<div id="petCanvasBorder">
+					<canvas id="petCanvas" width="128" height="128"
+						data-xf-init="userpets-renderer" 
+						data-pet-state="{{ $pet.state }}"
+						data-sprite-sheet-path="{{ $spriteSheetPath }}"></canvas>
+				</div>
+				
                 <!-- Pet stats display area -->
                 <div class="petStats">
                     <div class="petState u-alignCenter">
@@ -69,25 +76,38 @@
 </div>
 
 <xf:js src="sylphian/userpets/userpets-actions.js" min="1" addon="Sylphian/UserPets" />
+<xf:js src="sylphian/userpets/userpets-renderer.js" min="1" addon="Sylphian/UserPets" />
 
 <xf:css>
+#petCanvasBorder {
+    width: 100%;
+    max-width: 256px;
+    aspect-ratio: 2 / 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    outline: 3px solid hsla(var(--xf-paletteColor3));
+    border-radius: 12px;
+}
+	
 .petStatBar {
     display: flex;
     align-items: center;
     margin-bottom: 8px;
-    gap: 8px; /* space between label and progress bar */
+    gap: 8px;
 }
 
 .petStatLabel {
     font-weight: bold;
-    white-space: nowrap; /* keeps the label on one line */
-    min-width: 90px; /* ensures labels line up neatly */
+    white-space: nowrap;
+    min-width: 90px;
     text-align: right;
 }
 
 .petProgressBar {
     position: relative;
-    flex: 1; /* makes the bar stretch to fill remaining space */
+    flex: 1;
     background: #ff5555;
     border: @xf-borderSize solid @xf-borderColorFaint;
     border-radius: @xf-borderRadiusSmall;
