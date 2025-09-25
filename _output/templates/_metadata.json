@@ -1,7 +1,12 @@
 {
-    "public/sylphian_userpets_widget.html": {
+    "public/sylphian_userpets_other_widget.html": {
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
-        "hash": "284d4b23e0c82f83d9efdce76ab06b5a"
+        "hash": "28ea0565113b01ad1a084a5210a9d0f5"
+    },
+    "public/sylphian_userpets_own_widget.html": {
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "adec8d5614e0e480a3c78e5fab46bd60"
     }
 }

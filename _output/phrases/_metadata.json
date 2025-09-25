@@ -77,11 +77,11 @@
         "version_string": "1.0.0 Alpha",
         "hash": "7d695c76230e3a4eb378bb2433375ef6"
     },
-    "sylphian_userpets_your_pet.txt": {
+    "sylphian_userpets_widget_title.txt": {
         "global_cache": false,
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
-        "hash": "478bf4b8b3a190eda0c6ca35291d5cfd"
+        "hash": "3b481299b1fe2ec9eb8bdcddf6f6a8df"
     },
     "widget_def.sylphian_userpets_widget.txt": {
         "global_cache": false,

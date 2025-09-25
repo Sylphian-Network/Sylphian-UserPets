@@ -1,6 +1,6 @@
 <div class="block">
     <div class="block-container">
-        <h3 class="block-header u-alignCenter">{{ phrase('sylphian_userpets_your_pet') }}</h3>
+        <h3 class="block-header u-alignCenter">{{ phrase_dynamic('sylphian_userpets_widget_title', {'username': $pet.user_id}) }}</h3>
         <div class="block-body" 
 			 data-xf-init="pet-actions" 
 			 data-action-url="{{ link('userpets/update') }}" 
@@ -52,30 +52,10 @@
                     </div>
                 </div>
             </div>
-            
-            <div class="block-row block-row--minor u-alignCenter petStatActions">
-                <button type="button" class="button pet-action-button" data-action="feed">
-					<xf:fa icon="fad fa-utensils" />
-                    {{ phrase('sylphian_userpets_feed') }}
-                </button>
-                <button type="button" class="button pet-action-button" data-action="play">
-					<xf:fa icon="fad fa-joystick" />
-                    {{ phrase('sylphian_userpets_play') }}
-                </button>
-                <button type="button" class="button pet-action-button" data-action="sleep">
-					<xf:fa icon="fad fa-bed" />
-                    {{ phrase('sylphian_userpets_sleep') }}
-                </button>
-            </div>
-            
-            <div class="block-row block-row--minor u-alignCenter cooldown-timer" style="display: none;">
-                {{ phrase('sylphian_userpets_cooldown_timer') }}: <span class="js-pet-cooldown-timer">0</span> {{ phrase('sylphian_userpets_seconds') }}
-            </div>
         </div>
     </div>
 </div>
 
-<xf:js src="sylphian/userpets/userpets-actions.js" min="1" addon="Sylphian/UserPets" />
 <xf:js src="sylphian/userpets/userpets-renderer.js" min="1" addon="Sylphian/UserPets" />
 
 <xf:css>

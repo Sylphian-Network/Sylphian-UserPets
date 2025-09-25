@@ -2,7 +2,7 @@
 
 namespace Sylphian\UserPets\Option;
 
-use Sylphian\Library\Logger\Logger;
+use Sylphian\UserPets\Repository\UserPetsRepository;
 use XF\Entity\Option;
 use XF\Option\AbstractOption;
 
@@ -32,34 +32,17 @@ class SpriteSheet extends AbstractOption
 
 	public static function getSpritesheetOptions(Option $option, array &$htmlParams): array
 	{
-		$spritesheetDir = \XF::getRootDirectory() . '/data/assets/sylphian/userpets/spritesheets';
+		/** @var UserPetsRepository $repository */
+		$repository = \XF::repository('Sylphian\UserPets:UserPets');
+		$spriteSheets = $repository->getAvailableSpriteSheets();
 
 		$options = [];
-
-		if (is_dir($spritesheetDir))
+		foreach ($spriteSheets AS $file => $label)
 		{
-			$files = array_diff(scandir($spritesheetDir), ['.', '..']);
-			foreach ($files AS $file)
-			{
-				if (preg_match('/.png$/i', $file))
-				{
-					$options[] = [
-						'value' => $file,
-						'label' => $file,
-					];
-				}
-			}
-		}
-		else
-		{
-			Logger::error('Spritesheet directory not found', [
-				'spritesheetDir' => $spritesheetDir,
-			]);
-		}
-
-		if (empty($options))
-		{
-			$options['slime_spritesheet.png'] = 'slime_spritesheet.png';
+			$options[] = [
+				'value' => $file,
+				'label' => $label,
+			];
 		}
 
 		return $options;

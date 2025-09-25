@@ -9,6 +9,11 @@
     "faq_url": "",
     "support_url": "https://github.com/Sylphian-Network/Sylphian-Library/issues",
     "extra_urls": [],
-    "require": [],
+    "require": {
+        "Sylphian/Library": [
+            1000510,
+            "Sylphian - Library [1.0.5] by QuackieMackie"
+        ]
+    },
     "icon": "fa-paw"
 }
