@@ -1,6 +1,6 @@
 <div class="block">
     <div class="block-container">
-        <h3 class="block-header u-alignCenter">{{ phrase_dynamic('sylphian_userpets_widget_title', {'username': $pet.user_id}) }}</h3>
+        <h3 class="block-header u-alignCenter">{{ phrase_dynamic('sylphian_userpets_widget_title', {'username': $pet.User.username}) }}</h3>
         <div class="block-body" 
 			 data-xf-init="pet-actions" 
 			 data-action-url="{{ link('userpets/update') }}" 

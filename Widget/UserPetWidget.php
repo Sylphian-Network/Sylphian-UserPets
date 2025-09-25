@@ -2,9 +2,9 @@
 
 namespace Sylphian\UserPets\Widget;
 
-use Sylphian\Library\Logger\Logger;
 use Sylphian\UserPets\Entity\UserPets;
 use Sylphian\UserPets\Service\PetManager;
+use XF\Entity\User;
 use XF\Entity\Widget;
 use XF\Widget\AbstractWidget;
 use XF\Widget\WidgetRenderer;
@@ -19,52 +19,70 @@ class UserPetWidget extends AbstractWidget
 			return null; // Guests can't have pets
 		}
 
-        //TODO: When I figure out how replace the option `sylphian_userpets_default_spritesheet` with a user option, so users can select their own creature design.
-        $selectedSpritesheet = \XF::options()->sylphian_userpets_default_spritesheet;
-        $spriteSheetPath = $this->app()->options()->publicPath . '/data/assets/sylphian/userpets/spritesheets/' . $selectedSpritesheet;
-
-        $profileViewing = $this->contextParams['user']['user_id'] ?? null;
+		$profileViewing = $this->contextParams['user']['user_id'] ?? null;
 
 		if ($profileViewing === null || $profileViewing === $visitor->user_id)
 		{
 			// Viewing own pet
 			$pet = $this->getOrCreatePet($visitor->user_id);
 
-            $actionUrl = $this->app()->router()->buildLink('userPets/actions');
+			$spriteSheetPath = $this->getSpriteSheetPathForUser($visitor);
 
-            $petManager = new PetManager($pet);
-            $petManager->updateStats();
+			$actionUrl = $this->app()->router()->buildLink('userPets/actions');
 
-            Logger::debug('Test pet', [
-                'pet' => $pet->toArray(),
-            ]);
+			$petManager = new PetManager($pet);
+			$petManager->updateStats();
 
-            return $this->renderer('sylphian_userpets_own_widget', [
-                'widget' => $widget,
-                'pet' => $pet,
-                'actionUrl' => $actionUrl,
-                'spriteSheetPath' => $spriteSheetPath,
-            ]);
+			return $this->renderer('sylphian_userpets_own_widget', [
+				'widget' => $widget,
+				'pet' => $pet,
+				'actionUrl' => $actionUrl,
+				'spriteSheetPath' => $spriteSheetPath,
+			]);
 		}
 		else
 		{
 			// Viewing someone else's profile
 			$pet = $this->getExistingPet($profileViewing);
 
-            if (!$pet)
-            {
-                return null;
-            }
+			if (!$pet)
+			{
+				return null;
+			}
 
-            $petManager = new PetManager($pet);
-            $petManager->updateStats();
+			$profileUser = $this->em()->find('XF:User', $profileViewing);
+			$spriteSheetPath = $this->getSpriteSheetPathForUser($profileUser);
 
-            return $this->renderer('sylphian_userpets_other_widget', [
-                'widget' => $widget,
-                'pet' => $pet,
-                'spriteSheetPath' => $spriteSheetPath,
-            ]);
+			$petManager = new PetManager($pet);
+			$petManager->updateStats();
+
+			return $this->renderer('sylphian_userpets_other_widget', [
+				'widget' => $widget,
+				'pet' => $pet,
+				'spriteSheetPath' => $spriteSheetPath,
+			]);
 		}
+	}
+
+	/**
+	 * Gets the sprite sheet path for a specific user
+	 * Uses their custom field value if set, falls back to default
+	 */
+	protected function getSpriteSheetPathForUser(?User $user): string
+	{
+		$defaultSpritesheet = \XF::options()->sylphian_userpets_default_spritesheet;
+
+		$customSpritesheet = null;
+
+		if ($user->user_id)
+		{
+			$customFields = $user->Profile->custom_fields;
+			$customSpritesheet = $customFields['syl_userpets_spritesheet'] ?? null;
+		}
+
+		$selectedSpritesheet = $customSpritesheet ?: $defaultSpritesheet;
+
+		return $this->app()->options()->publicPath . '/data/assets/sylphian/userpets/spritesheets/' . $selectedSpritesheet . '.png';
 	}
 
 	/**
