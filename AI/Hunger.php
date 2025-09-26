@@ -2,20 +2,32 @@
 
 namespace Sylphian\UserPets\AI;
 
+/**
+ * Represents a pet's hunger stat.
+ */
 class Hunger extends Stat
 {
-	public function update(int $elapsedMinutes): void
-	{
-		$this->setValue($this->value - ($this->rate * $elapsedMinutes));
-	}
+	/** Amount the hunger stat increases when the pet is fed */
+	public const int FEED_AMOUNT = 20;
 
+	/** Name of the critical state when hunger is too low */
+	protected string $criticalState = 'Hungry';
+
+	/**
+	 * Feed the pet, increasing the hunger stat.
+	 */
 	public function feed(): void
 	{
-		$this->increase(20);
+		$this->increase(self::FEED_AMOUNT);
 	}
 
-	public function isStarving(): bool
+	/**
+	 * Determine if the hunger stat is in a critical state.
+	 *
+	 * @return bool True if the pet is starving
+	 */
+	public function isCritical(): bool
 	{
-		return $this->value <= 20;
+		return $this->value <= $this->criticalThreshold;
 	}
 }

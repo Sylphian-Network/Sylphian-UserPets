@@ -6,85 +6,140 @@ use Sylphian\UserPets\AI\Happiness;
 use Sylphian\UserPets\AI\Hunger;
 use Sylphian\UserPets\AI\Sleepiness;
 use Sylphian\UserPets\Entity\UserPets;
+use XF\PrintableException;
 
+/**
+ * Manages a user's pet, including stat updates, actions, and state determination.
+ */
 class PetManager
 {
+	/**
+	 * The pet entity being managed.
+	 *
+	 * @var UserPets
+	 */
 	protected UserPets $pet;
-	protected Hunger $hunger;
-	protected Sleepiness $sleepiness;
-	protected Happiness $happiness;
 
+	/**
+	 * Array of stat objects keyed by stat name (e.g., 'hunger', 'sleepiness', 'happiness').
+	 *
+	 * @var array<string, Hunger|Sleepiness|Happiness>
+	 */
+	protected array $stats = [];
+
+
+	/**
+	 * Map of action names to callable functions that perform them.
+	 *
+	 * @var array<string, callable>
+	 */
+	protected array $actionMap = [];
+
+	/**
+	 * Constructor.
+	 *
+	 * Initializes stats and sets up the action map for the pet.
+	 *
+	 * @param UserPets $pet The pet entity to manage
+	 */
 	public function __construct(UserPets $pet)
 	{
 		$this->pet = $pet;
 
-		$this->hunger = new Hunger($pet->hunger, 2);
-		$this->sleepiness = new Sleepiness($pet->sleepiness, 1);
-		$this->happiness = new Happiness($pet->happiness, 1);
+		$this->stats = [
+			'hunger' => new Hunger($pet->hunger, 2),
+			'sleepiness' => new Sleepiness($pet->sleepiness, 1),
+			'happiness' => new Happiness($pet->happiness, 1),
+		];
+
+		$this->actionMap = [
+			'feed' => fn () => $this->stats['hunger']->feed(),
+			'sleep' => fn () => $this->stats['sleepiness']->sleep(),
+			'play' => fn () => $this->stats['happiness']->play($this->stats['hunger']),
+		];
 	}
 
+	/**
+	 * Updates all pet stats based on the elapsed time.
+	 *
+	 * Stats are only updated if the elapsed time exceeds the configured update interval.
+	 * After updating, the pet's state is determined and the entity is saved.
+	 *
+	 * @throws PrintableException If saving the pet fails
+	 */
 	public function updateStats(): void
 	{
 		$elapsed = floor((\XF::$time - $this->pet->last_update) / 60);
+		$interval = max(1, \XF::options()->sylphian_userpets_stat_update_interval);
 
-		if ($elapsed > 0)
+		if ($elapsed < $interval)
 		{
-			$this->hunger->update($elapsed);
-			$this->sleepiness->update($elapsed);
-			$this->happiness->update($elapsed);
-
-			$this->pet->hunger = $this->hunger->getValue();
-			$this->pet->sleepiness = $this->sleepiness->getValue();
-			$this->pet->happiness = $this->happiness->getValue();
-
-			$this->determineState();
-			$this->pet->last_update = \XF::$time;
-			$this->pet->save();
+			return;
 		}
+
+		foreach ($this->stats AS $key => $stat)
+		{
+			$stat->update($elapsed);
+			$this->pet->$key = $stat->getValue();
+		}
+
+		$this->determineState();
+		$this->pet->last_update = \XF::$time;
+		$this->pet->save();
 	}
 
+	/**
+	 * Determines the pet's current state based on critical stats.
+	 *
+	 * If multiple stats are critical, their states are combined into a comma-separated string.
+	 * Defaults to 'Idle' if no stat is critical.
+	 */
 	protected function determineState(): void
 	{
-		if ($this->hunger->isStarving())
+		$activeStates = [];
+
+		foreach ($this->stats AS $stat)
 		{
-			$this->pet->state = 'hungry';
+			if ($stat->isCritical())
+			{
+				$activeStates[] = $stat->getCriticalState();
+			}
 		}
-		else if ($this->sleepiness->isExhausted())
+
+		$this->pet->state = $activeStates ? implode(', ', $activeStates) : 'Idle';
+	}
+
+	/**
+	 * Syncs all stat objects back to the pet entity.
+	 *
+	 * This ensures that the pet entity always reflects the current values of all stats.
+	 */
+	protected function syncStats(): void
+	{
+		foreach ($this->stats AS $key => $stat)
 		{
-			$this->pet->state = 'sleeping';
-		}
-		else if ($this->happiness->isSad())
-		{
-			$this->pet->state = 'sad';
-		}
-		else
-		{
-			$this->pet->state = 'idle';
+			$this->pet->$key = $stat->getValue();
 		}
 	}
 
+	/**
+	 * Performs a pet action.
+	 *
+	 * Updates the stats first, executes the action if it exists, syncs stats, determines state, and saves the pet.
+	 *
+	 * @param string $action The action to perform (e.g., 'feed', 'sleep', 'play')
+	 * @throws PrintableException If saving the pet fails
+	 */
 	public function performAction(string $action): void
 	{
 		$this->updateStats();
 
-		switch ($action)
+		if (isset($this->actionMap[$action]))
 		{
-			case 'feed':
-				$this->hunger->feed();
-				$this->pet->hunger = $this->hunger->getValue();
-				break;
-			case 'sleep':
-				$this->sleepiness->sleep();
-				$this->pet->sleepiness = $this->sleepiness->getValue();
-				break;
-			case 'play':
-				$this->happiness->play($this->hunger);
-				$this->pet->happiness = $this->happiness->getValue();
-				$this->pet->hunger = $this->hunger->getValue();
-				break;
+			($this->actionMap[$action])();
+			$this->syncStats();
+			$this->determineState();
+			$this->pet->save();
 		}
-
-		$this->determineState();
-		$this->pet->save();
 	}
 }

@@ -1,0 +1,1 @@
+The number of minutes between automatic updates of your pet's stats. For example, setting this to 1 updates every minute, while 30 updates every 30 minutes.

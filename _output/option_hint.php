@@ -13,6 +13,7 @@ namespace XF;
 /**
  * @property string|null $sylphian_userpets_cooldown_time Cooldown time
  * @property string|null $sylphian_userpets_default_spritesheet Default Spritesheet
+ * @property int|null $sylphian_userpets_stat_update_interval Stat update interval
  */
 class Options
 {

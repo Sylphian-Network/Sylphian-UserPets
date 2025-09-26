@@ -2,10 +2,12 @@
 
 namespace Sylphian\UserPets\Widget;
 
+use Sylphian\Library\Logger\Logger;
 use Sylphian\UserPets\Entity\UserPets;
 use Sylphian\UserPets\Service\PetManager;
 use XF\Entity\User;
 use XF\Entity\Widget;
+use XF\PrintableException;
 use XF\Widget\AbstractWidget;
 use XF\Widget\WidgetRenderer;
 
@@ -27,11 +29,20 @@ class UserPetWidget extends AbstractWidget
 			$pet = $this->getOrCreatePet($visitor->user_id);
 
 			$spriteSheetPath = $this->getSpriteSheetPathForUser($visitor);
-
 			$actionUrl = $this->app()->router()->buildLink('userPets/actions');
 
 			$petManager = new PetManager($pet);
-			$petManager->updateStats();
+			try
+			{
+				$petManager->updateStats();
+			}
+			catch (PrintableException $e)
+			{
+				Logger::error(
+					'Failed to update pet stats for user_id ' . $visitor->user_id,
+					['error' => $e->getMessage(), 'trace' => $e->getTrace()]
+				);
+			}
 
 			return $this->renderer('sylphian_userpets_own_widget', [
 				'widget' => $widget,
@@ -44,17 +55,26 @@ class UserPetWidget extends AbstractWidget
 		{
 			// Viewing someone else's profile
 			$pet = $this->getExistingPet($profileViewing);
-
 			if (!$pet)
 			{
-				return null;
+				return null; // No pet exists for this user
 			}
 
 			$profileUser = $this->em()->find('XF:User', $profileViewing);
 			$spriteSheetPath = $this->getSpriteSheetPathForUser($profileUser);
 
 			$petManager = new PetManager($pet);
-			$petManager->updateStats();
+			try
+			{
+				$petManager->updateStats();
+			}
+			catch (PrintableException $e)
+			{
+				Logger::error(
+					'Failed to update pet stats for user_id ' . $profileViewing,
+					['error' => $e->getMessage(), 'trace' => $e->getTrace()]
+				);
+			}
 
 			return $this->renderer('sylphian_userpets_other_widget', [
 				'widget' => $widget,
@@ -65,29 +85,36 @@ class UserPetWidget extends AbstractWidget
 	}
 
 	/**
-	 * Gets the sprite sheet path for a specific user
-	 * Uses their custom field value if set, falls back to default
+	 * Gets the sprite sheet path for a specific user.
+	 *
+	 * Uses the user's custom field value if set, otherwise falls back to default.
+	 *
+	 * @param User|null $user User entity or null
+	 * @return string Full path to the sprite sheet PNG
 	 */
 	protected function getSpriteSheetPathForUser(?User $user): string
 	{
 		$defaultSpritesheet = \XF::options()->sylphian_userpets_default_spritesheet;
-
 		$customSpritesheet = null;
 
-		if ($user->user_id)
+		if ($user?->user_id)
 		{
-			$customFields = $user->Profile->custom_fields;
+			$customFields = $user->Profile->custom_fields ?? [];
 			$customSpritesheet = $customFields['syl_userpets_spritesheet'] ?? null;
 		}
 
 		$selectedSpritesheet = $customSpritesheet ?: $defaultSpritesheet;
-
-		return $this->app()->options()->publicPath . '/data/assets/sylphian/userpets/spritesheets/' . $selectedSpritesheet . '.png';
+		return $this->app()->options()->publicPath
+			. '/data/assets/sylphian/userpets/spritesheets/' . $selectedSpritesheet . '.png';
 	}
 
 	/**
 	 * Fetch an existing pet or create one if missing.
-	 * Used for the visitor's own pet.
+	 *
+	 * Ensures the visitor always has a pet.
+	 *
+	 * @param int $userId User ID to fetch/create pet for
+	 * @return UserPets The pet entity
 	 */
 	protected function getOrCreatePet(int $userId): UserPets
 	{
@@ -107,7 +134,18 @@ class UserPetWidget extends AbstractWidget
 			$pet->last_update = \XF::$time;
 			$pet->last_action_time = 0;
 			$pet->created_at = \XF::$time;
-			$pet->save();
+
+			try
+			{
+				$pet->save();
+			}
+			catch (\Exception $e)
+			{
+				Logger::error(
+					"Failed to create pet for user_id {$userId}.",
+					['error' => $e->getMessage(), 'trace' => $e->getTrace()]
+				);
+			}
 		}
 
 		return $pet;
@@ -115,12 +153,17 @@ class UserPetWidget extends AbstractWidget
 
 	/**
 	 * Fetch a pet for another user but NEVER create it.
-	 * Returns null if no pet exists.
+	 *
+	 * @param int $userId User ID to fetch pet for
+	 * @return UserPets|null The pet entity, or null if none exists
 	 */
 	protected function getExistingPet(int $userId): ?UserPets
 	{
-		return $this->finder('Sylphian\UserPets:UserPets')
+        /** @var UserPets|null $pet */
+		$pet = $this->finder('Sylphian\UserPets:UserPets')
 			->where('user_id', $userId)
 			->fetchOne();
+
+        return $pet;
 	}
 }
