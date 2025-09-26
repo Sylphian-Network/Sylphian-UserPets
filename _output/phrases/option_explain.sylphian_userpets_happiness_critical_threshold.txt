@@ -1,0 +1,1 @@
+The value below which a pet is considered unhappy. Lower values make pets more resilient to boredom, higher values make them reach “Unhappy” sooner.

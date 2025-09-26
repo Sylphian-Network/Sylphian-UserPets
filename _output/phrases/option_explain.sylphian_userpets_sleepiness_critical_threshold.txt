@@ -1,0 +1,1 @@
+The value below which a pet is considered tired. Lower values let pets stay awake longer, higher values make them reach “Tired” sooner.

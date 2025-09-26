@@ -1,1 +1,1 @@
-The number of minutes between automatic updates of your pet's stats. For example, setting this to 1 updates every minute, while 30 updates every 30 minutes.
+The number of minutes between update of pet's stats. For example, setting this to 1 means intervals occur every minute, while 30 means intervals occur every 30 minutes.

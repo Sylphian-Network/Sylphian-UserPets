@@ -67,6 +67,16 @@ abstract class Stat
 	}
 
 	/**
+	 * Get the rate value
+	 *
+	 * @return int
+	 */
+	public function getRate(): int
+	{
+		return $this->rate;
+	}
+
+	/**
 	 * Increase the stat by a given amount.
 	 *
 	 * @param int $amount Amount to increase
@@ -92,9 +102,9 @@ abstract class Stat
 	 *
 	 * @param int $elapsedMinutes Number of minutes since last update
 	 */
-	public function update(int $elapsedMinutes): void
+	public function update(int $intervals = 1): void
 	{
-		$this->decrease($this->rate * $elapsedMinutes);
+		$this->decrease($this->rate * $intervals);
 	}
 
 	/**

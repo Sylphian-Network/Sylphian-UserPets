@@ -1,0 +1,1 @@
+How many happiness points your pet loses each time the stat update interval passes. Higher values make pets become unhappy faster.

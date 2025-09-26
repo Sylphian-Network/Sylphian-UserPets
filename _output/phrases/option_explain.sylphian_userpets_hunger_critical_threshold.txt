@@ -1,0 +1,1 @@
+The value below which a pet is considered hungry and in a critical state. Lower values make pets tolerate hunger longer, higher values make them reach “Hungry” sooner.

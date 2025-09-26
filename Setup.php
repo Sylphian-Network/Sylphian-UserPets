@@ -20,7 +20,8 @@ class Setup extends AbstractSetup
 
 	public function installStep1(): void
 	{
-		$this->schemaManager()->createTable('xf_user_pets', function (Create $table) {
+		$this->schemaManager()->createTable('xf_user_pets', function (Create $table)
+		{
 			$table->addColumn('pet_id', 'int')->autoIncrement();
 			$table->addColumn('user_id', 'int')->nullable(false);
 			$table->addColumn('hunger', 'int')->setDefault(100);
@@ -38,7 +39,8 @@ class Setup extends AbstractSetup
 
 	public function installStep2(): void
 	{
-		try {
+		try
+		{
 			/** @var UserPetsRepository $repository */
 			$repository = $this->app()->repository('Sylphian\UserPets:UserPets');
 			$spriteSheets = $repository->getAvailableSpriteSheets();
@@ -60,7 +62,9 @@ class Setup extends AbstractSetup
 				]
 			);
 
-		} catch (\Exception $e) {
+		}
+		catch (\Exception $e)
+		{
 			Logger::error('Unexpected error in installStep2', [
 				'exception' => $e->getMessage(),
 				'trace' => $e->getTraceAsString(),

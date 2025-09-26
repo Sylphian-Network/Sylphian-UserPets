@@ -47,9 +47,9 @@ class PetManager
 		$this->pet = $pet;
 
 		$this->stats = [
-			'hunger' => new Hunger($pet->hunger, 2),
-			'sleepiness' => new Sleepiness($pet->sleepiness, 1),
-			'happiness' => new Happiness($pet->happiness, 1),
+			'hunger' => new Hunger($pet->hunger, \XF::options()->sylphian_userpets_hunger_decay),
+			'sleepiness' => new Sleepiness($pet->sleepiness, \XF::options()->sylphian_userpets_sleepiness_decay),
+			'happiness' => new Happiness($pet->happiness, \XF::options()->sylphian_userpets_happiness_decay),
 		];
 
 		$this->actionMap = [
@@ -72,12 +72,16 @@ class PetManager
 		$elapsed = floor((\XF::$time - $this->pet->last_update) / 60);
 		$interval = max(1, \XF::options()->sylphian_userpets_stat_update_interval);
 
-		if ($elapsed < $interval) {
+		if ($elapsed < $interval)
+		{
 			return;
 		}
 
-		foreach ($this->stats as $key => $stat) {
-			$stat->update($elapsed);
+		$intervals = floor($elapsed / $interval);
+
+		foreach ($this->stats AS $key => $stat)
+		{
+			$stat->update($intervals);
 			$this->pet->$key = $stat->getValue();
 		}
 
@@ -96,8 +100,10 @@ class PetManager
 	{
 		$activeStates = [];
 
-		foreach ($this->stats as $stat) {
-			if ($stat->isCritical()) {
+		foreach ($this->stats AS $stat)
+		{
+			if ($stat->isCritical())
+			{
 				$activeStates[] = $stat->getCriticalState();
 			}
 		}
@@ -112,7 +118,8 @@ class PetManager
 	 */
 	protected function syncStats(): void
 	{
-		foreach ($this->stats as $key => $stat) {
+		foreach ($this->stats AS $key => $stat)
+		{
 			$this->pet->$key = $stat->getValue();
 		}
 	}
@@ -129,7 +136,8 @@ class PetManager
 	{
 		$this->updateStats();
 
-		if (isset($this->actionMap[$action])) {
+		if (isset($this->actionMap[$action]))
+		{
 			($this->actionMap[$action])();
 			$this->syncStats();
 			$this->determineState();

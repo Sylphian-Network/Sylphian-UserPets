@@ -18,7 +18,8 @@ class UserPet extends AbstractController
 		/** @var UserPets $pet */
 		$pet = $this->em()->find('Sylphian\UserPets:UserPets', $visitor->user_id);
 
-		if (!$pet) {
+		if (!$pet)
+		{
 			return $this->error(\XF::phrase('sylphian_userpets_pet_not_found'));
 		}
 
@@ -27,7 +28,8 @@ class UserPet extends AbstractController
 		$currentTime = \XF::$time;
 		$timeSinceLastAction = $currentTime - $lastActionTime;
 
-		if ($timeSinceLastAction < $cooldownTime) {
+		if ($timeSinceLastAction < $cooldownTime)
+		{
 			$cooldownRemaining = $cooldownTime - $timeSinceLastAction;
 
 			return $this->error(\XF::phrase('sylphian_userpets_cooldown_active'), [
@@ -38,7 +40,8 @@ class UserPet extends AbstractController
 		$action = $this->filter('action', 'str');
 		$validActions = ['feed', 'play', 'sleep'];
 
-		if (!in_array($action, $validActions)) {
+		if (!in_array($action, $validActions))
+		{
 			return $this->error(\XF::phrase('sylphian_userpets_invalid_action'));
 		}
 

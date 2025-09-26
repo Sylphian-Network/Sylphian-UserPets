@@ -16,13 +16,15 @@ class UserPetWidget extends AbstractWidget
 	public function render(?Widget $widget = null): ?WidgetRenderer
 	{
 		$visitor = \XF::visitor();
-		if (!$visitor->user_id) {
+		if (!$visitor->user_id)
+		{
 			return null; // Guests can't have pets
 		}
 
 		$profileViewing = $this->contextParams['user']['user_id'] ?? null;
 
-		if ($profileViewing === null || $profileViewing === $visitor->user_id) {
+		if ($profileViewing === null || $profileViewing === $visitor->user_id)
+		{
 			// Viewing own pet
 			$pet = $this->getOrCreatePet($visitor->user_id);
 
@@ -30,9 +32,12 @@ class UserPetWidget extends AbstractWidget
 			$actionUrl = $this->app()->router()->buildLink('userPets/actions');
 
 			$petManager = new PetManager($pet);
-			try {
+			try
+			{
 				$petManager->updateStats();
-			} catch (PrintableException $e) {
+			}
+			catch (PrintableException $e)
+			{
 				Logger::error(
 					'Failed to update pet stats for user_id ' . $visitor->user_id,
 					['error' => $e->getMessage(), 'trace' => $e->getTrace()]
@@ -45,10 +50,13 @@ class UserPetWidget extends AbstractWidget
 				'actionUrl' => $actionUrl,
 				'spriteSheetPath' => $spriteSheetPath,
 			]);
-		} else {
+		}
+		else
+		{
 			// Viewing someone else's profile
 			$pet = $this->getExistingPet($profileViewing);
-			if (!$pet) {
+			if (!$pet)
+			{
 				return null; // No pet exists for this user
 			}
 
@@ -56,9 +64,12 @@ class UserPetWidget extends AbstractWidget
 			$spriteSheetPath = $this->getSpriteSheetPathForUser($profileUser);
 
 			$petManager = new PetManager($pet);
-			try {
+			try
+			{
 				$petManager->updateStats();
-			} catch (PrintableException $e) {
+			}
+			catch (PrintableException $e)
+			{
 				Logger::error(
 					'Failed to update pet stats for user_id ' . $profileViewing,
 					['error' => $e->getMessage(), 'trace' => $e->getTrace()]
@@ -86,7 +97,8 @@ class UserPetWidget extends AbstractWidget
 		$defaultSpritesheet = \XF::options()->sylphian_userpets_default_spritesheet;
 		$customSpritesheet = null;
 
-		if ($user?->user_id) {
+		if ($user?->user_id)
+		{
 			$customFields = $user->Profile->custom_fields ?? [];
 			$customSpritesheet = $customFields['syl_userpets_spritesheet'] ?? null;
 		}
@@ -110,7 +122,8 @@ class UserPetWidget extends AbstractWidget
 			->where('user_id', $userId)
 			->fetchOne();
 
-		if (!$pet) {
+		if (!$pet)
+		{
 			/** @var UserPets $pet */
 			$pet = $this->em()->create('Sylphian\UserPets:UserPets');
 			$pet->user_id = $userId;
@@ -122,9 +135,12 @@ class UserPetWidget extends AbstractWidget
 			$pet->last_action_time = 0;
 			$pet->created_at = \XF::$time;
 
-			try {
+			try
+			{
 				$pet->save();
-			} catch (\Exception $e) {
+			}
+			catch (\Exception $e)
+			{
 				Logger::error(
 					"Failed to create pet for user_id {$userId}.",
 					['error' => $e->getMessage(), 'trace' => $e->getTrace()]
