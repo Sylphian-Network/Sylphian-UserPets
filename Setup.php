@@ -20,14 +20,13 @@ class Setup extends AbstractSetup
 
 	public function installStep1(): void
 	{
-		$this->schemaManager()->createTable('xf_user_pets', function (Create $table)
-		{
+		$this->schemaManager()->createTable('xf_user_pets', function (Create $table) {
 			$table->addColumn('pet_id', 'int')->autoIncrement();
 			$table->addColumn('user_id', 'int')->nullable(false);
 			$table->addColumn('hunger', 'int')->setDefault(100);
 			$table->addColumn('sleepiness', 'int')->setDefault(100);
 			$table->addColumn('happiness', 'int')->setDefault(100);
-			$table->addColumn('state', 'varchar', 20)->setDefault('idle');
+			$table->addColumn('state', 'varchar', 30)->setDefault('idle');
 			$table->addColumn('last_update', 'int')->setDefault(\XF::$time);
 			$table->addColumn('last_action_time', 'int')->setDefault(0);
 			$table->addColumn('created_at', 'int')->setDefault(\XF::$time);
@@ -39,8 +38,7 @@ class Setup extends AbstractSetup
 
 	public function installStep2(): void
 	{
-		try
-		{
+		try {
 			/** @var UserPetsRepository $repository */
 			$repository = $this->app()->repository('Sylphian\UserPets:UserPets');
 			$spriteSheets = $repository->getAvailableSpriteSheets();
@@ -62,9 +60,7 @@ class Setup extends AbstractSetup
 				]
 			);
 
-		}
-		catch (\Exception $e)
-		{
+		} catch (\Exception $e) {
 			Logger::error('Unexpected error in installStep2', [
 				'exception' => $e->getMessage(),
 				'trace' => $e->getTraceAsString(),

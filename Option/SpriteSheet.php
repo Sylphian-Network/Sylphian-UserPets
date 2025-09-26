@@ -37,8 +37,7 @@ class SpriteSheet extends AbstractOption
 		$spriteSheets = $repository->getAvailableSpriteSheets();
 
 		$options = [];
-		foreach ($spriteSheets AS $file => $label)
-		{
+		foreach ($spriteSheets as $file => $label) {
 			$options[] = [
 				'value' => $file,
 				'label' => $label,

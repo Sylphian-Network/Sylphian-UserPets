@@ -72,13 +72,11 @@ class PetManager
 		$elapsed = floor((\XF::$time - $this->pet->last_update) / 60);
 		$interval = max(1, \XF::options()->sylphian_userpets_stat_update_interval);
 
-		if ($elapsed < $interval)
-		{
+		if ($elapsed < $interval) {
 			return;
 		}
 
-		foreach ($this->stats AS $key => $stat)
-		{
+		foreach ($this->stats as $key => $stat) {
 			$stat->update($elapsed);
 			$this->pet->$key = $stat->getValue();
 		}
@@ -98,10 +96,8 @@ class PetManager
 	{
 		$activeStates = [];
 
-		foreach ($this->stats AS $stat)
-		{
-			if ($stat->isCritical())
-			{
+		foreach ($this->stats as $stat) {
+			if ($stat->isCritical()) {
 				$activeStates[] = $stat->getCriticalState();
 			}
 		}
@@ -116,8 +112,7 @@ class PetManager
 	 */
 	protected function syncStats(): void
 	{
-		foreach ($this->stats AS $key => $stat)
-		{
+		foreach ($this->stats as $key => $stat) {
 			$this->pet->$key = $stat->getValue();
 		}
 	}
@@ -134,8 +129,7 @@ class PetManager
 	{
 		$this->updateStats();
 
-		if (isset($this->actionMap[$action]))
-		{
+		if (isset($this->actionMap[$action])) {
 			($this->actionMap[$action])();
 			$this->syncStats();
 			$this->determineState();

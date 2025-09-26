@@ -34,7 +34,7 @@ class UserPets extends Entity
 			'hunger'     => ['type' => self::UINT, 'default' => 100, 'max' => 100],
 			'sleepiness' => ['type' => self::UINT, 'default' => 100, 'max' => 100],
 			'happiness'  => ['type' => self::UINT, 'default' => 100, 'max' => 100],
-			'state'      => ['type' => self::STR, 'default' => 'idle', 'maxLength' => 20],
+			'state'      => ['type' => self::STR, 'default' => 'idle', 'maxLength' => 30],
 			'last_update' => ['type' => self::UINT, 'default' => 0],
 			'last_action_time' => ['type' => self::UINT, 'default' => 0],
 			'created_at' => ['type' => self::UINT, 'default' => \XF::$time],
