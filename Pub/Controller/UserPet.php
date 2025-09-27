@@ -16,8 +16,10 @@ class UserPet extends AbstractController
 		$this->assertPostOnly();
 
 		$visitor = \XF::visitor();
-		/** @var UserPets $pet */
-		$pet = $this->em()->find('Sylphian\UserPets:UserPets', $visitor->user_id);
+        /** @var UserPets $pet */
+        $pet = $this->finder('Sylphian\UserPets:UserPets')
+            ->where('user_id', $visitor->user_id)
+            ->fetchOne();
 
 		if (!$pet)
 		{
