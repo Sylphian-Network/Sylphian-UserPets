@@ -3,6 +3,7 @@
 namespace Sylphian\UserPets\Pub\Controller;
 
 use Sylphian\UserPets\Entity\UserPets;
+use Sylphian\UserPets\Service\PetLeveling;
 use Sylphian\UserPets\Service\PetManager;
 use XF\Mvc\Reply\Error;
 use XF\Mvc\Reply\View;
@@ -51,6 +52,10 @@ class UserPet extends AbstractController
 		$pet->last_action_time = $currentTime;
 		$pet->save();
 
+		$petLeveling = new PetLeveling();
+		$levelProgress = $petLeveling->getLevelProgressPercentage($pet);
+		$expNeeded = $petLeveling->getExperienceNeededToLevelUp($pet);
+
 		$message = \XF::phrase("sylphian_userpets_{$action}_success");
 
 		$view = $this->view();
@@ -61,6 +66,15 @@ class UserPet extends AbstractController
 			'happiness' => $pet->happiness,
 			'sleepiness' => $pet->sleepiness,
 			'state' => $pet->state,
+			// Pre-formatted phrases
+			'levelText' => \XF::phrase('sylphian_userpets_level', ['level' => $pet->level]),
+			'expNeededText' => \XF::phrase('sylphian_userpets_exp_to_level', ['exp' => $expNeeded]),
+			// Experience-related data
+			'level' => $pet->level,
+			'experience' => $pet->experience,
+			'levelProgress' => $levelProgress,
+			'expNeeded' => $expNeeded,
+			// Timing data
 			'cooldownTime' => \XF::options()->sylphian_userpets_cooldown_time,
 			'last_action_time' => $currentTime,
 			'server_time' => \XF::$time,

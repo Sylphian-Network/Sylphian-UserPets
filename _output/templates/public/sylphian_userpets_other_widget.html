@@ -17,6 +17,10 @@
 				
                 <!-- Pet stats display area -->
                 <div class="petStats">
+					<div class="u-alignCenter">
+						<div class="">{{ phrase_dynamic('sylphian_userpets_level', {'level': $pet.level }) }}</div>
+					</div>
+					
                     <div class="petState u-alignCenter">
                         <span class="petStateIcon petStateIcon--{{ $pet.state }}"></span>
                         <div class="petStateName">{{ phrase_dynamic('sylphian_userpets_pet_state', {'pet_state': $pet.state}) }}</div>

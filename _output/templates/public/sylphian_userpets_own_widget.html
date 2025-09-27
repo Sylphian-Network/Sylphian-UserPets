@@ -6,7 +6,8 @@
 			 data-action-url="{{ link('userpets/update') }}" 
 			 data-cooldown="{{ $xf.options.sylphian_userpets_cooldown_time }}"
 			 data-last-action-time="{{ $pet.last_action_time }}"
-			 data-current-time="{{ $xf.time }}">  
+			 data-current-time="{{ $xf.time }}">
+			
 			<div class="block-row u-alignCenter">
 				<div id="petCanvasBorder">
 					<canvas id="petCanvas" width="128" height="128"
@@ -17,11 +18,21 @@
 				
                 <!-- Pet stats display area -->
                 <div class="petStats">
+					<div class="u-alignCenter">
+						<div>{{ phrase_dynamic('sylphian_userpets_level', {'level': $pet.level }) }}</div>
+						<div class="petLevelInfo">{{ phrase_dynamic('sylphian_userpets_exp_to_level', {'exp': $expNeeded}) }}</div>
+						<div class="petLevelBar">
+							<div class="petProgressBar levelProgressBar" title="{{ phrase('sylphian_userpets_exp_needed', {'exp': $expNeeded}) }}">
+								<div class="petProgressBar-progress" style="width: {{ $levelProgress }}%"></div>
+								<div class="petProgressBar-label">{{ $pet.experience }} / {{ $pet.experience + $expNeeded }}</div>
+							</div>
+						</div>
+					</div>
+					
                     <div class="petState u-alignCenter">
-                        <span class="petStateIcon petStateIcon--{{ $pet.state }}"></span>
                         <div class="petStateName">{{ phrase_dynamic('sylphian_userpets_pet_state', {'pet_state': $pet.state}) }}</div>
                     </div>
-                    
+					
                     <div class="petStatBars">
                         <!-- Hunger stat -->
                         <div class="petStatBar">
@@ -138,5 +149,58 @@
 
 .petProgressBar:hover .petProgressBar-label {
     opacity: 1;
+}
+	
+.petLevelBar {
+    margin: 8px auto;
+    max-width: 80%;
+}
+
+.levelProgressBar {
+    height: 20px;
+    background: #e9c46a;
+    
+    .petProgressBar-progress {
+        background: linear-gradient(to right, #f4a261, #e76f51);
+    }
+    
+    .petProgressBar-label {
+        font-size: 0.85em;
+    }
+}
+
+.petLevelInfo {
+    font-size: 0.8em;
+    color: @xf-textColorMuted;
+    text-align: center;
+    margin-top: 3px;
+}
+	
+.petLevelUpNotification {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    background: linear-gradient(to right, #f4a261, #e76f51);
+    color: white;
+    padding: 15px 25px;
+    border-radius: 10px;
+    font-weight: bold;
+    text-align: center;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 100;
+    box-shadow: 0 0 20px rgba(231, 111, 81, 0.5);
+    transition: all 0.3s ease-out;
+    
+    div {
+        font-size: 18px;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+    }
+    
+    &--visible {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
 }
 </xf:css>

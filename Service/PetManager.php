@@ -47,9 +47,21 @@ class PetManager
 		$this->pet = $pet;
 
 		$this->stats = [
-			'hunger' => new Hunger($pet->hunger, \XF::options()->sylphian_userpets_hunger_decay),
-			'sleepiness' => new Sleepiness($pet->sleepiness, \XF::options()->sylphian_userpets_sleepiness_decay),
-			'happiness' => new Happiness($pet->happiness, \XF::options()->sylphian_userpets_happiness_decay),
+			'hunger' => new Hunger(
+				$pet->hunger,
+				\XF::options()->sylphian_userpets_hunger_decay,
+				\XF::options()->sylphian_userpets_hunger_critical_threshold
+			),
+			'sleepiness' => new Sleepiness(
+				$pet->sleepiness,
+				\XF::options()->sylphian_userpets_sleepiness_decay,
+				\XF::options()->sylphian_userpets_sleepiness_critical_threshold
+			),
+			'happiness' => new Happiness(
+				$pet->happiness,
+				\XF::options()->sylphian_userpets_happiness_decay,
+				\XF::options()->sylphian_userpets_happiness_critical_threshold
+			),
 		];
 
 		$this->actionMap = [
@@ -141,6 +153,10 @@ class PetManager
 			($this->actionMap[$action])();
 			$this->syncStats();
 			$this->determineState();
+
+			$petLeveling = new PetLeveling();
+			$petLeveling->addExperience($this->pet);
+
 			$this->pet->save();
 		}
 	}

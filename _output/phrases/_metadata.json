@@ -125,6 +125,12 @@
         "version_string": "1.0.0 Alpha",
         "hash": "6546ab407ad1c3715a30ab88d4661eb4"
     },
+    "sylphian_userpets_exp_to_level.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "7195d28c9fadbb8da602d6aa4fe1349a"
+    },
     "sylphian_userpets_feed.txt": {
         "global_cache": false,
         "version_id": 1000010,
@@ -142,6 +148,12 @@
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
         "hash": "5994ce026a62da8057fcb67f5ee60773"
+    },
+    "sylphian_userpets_level.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "87f033039ec3fc888ff1445147836981"
     },
     "sylphian_userpets_pet_state.txt": {
         "global_cache": false,

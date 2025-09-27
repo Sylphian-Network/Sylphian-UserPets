@@ -10,6 +10,8 @@ use XF\Mvc\Entity\Structure;
  * COLUMNS
  * @property int    $pet_id
  * @property int    $user_id
+ * @property int    $level
+ * @property int    $experience
  * @property int    $hunger
  * @property int    $sleepiness
  * @property int    $happiness
@@ -31,6 +33,8 @@ class UserPets extends Entity
 		$structure->columns = [
 			'pet_id'     => ['type' => self::UINT, 'autoIncrement' => true],
 			'user_id'    => ['type' => self::UINT, 'required' => true],
+			'level'      => ['type' => self::UINT, 'default' => 1],
+			'experience' => ['type' => self::UINT, 'default' => 0],
 			'hunger'     => ['type' => self::UINT, 'default' => 100, 'max' => 100],
 			'sleepiness' => ['type' => self::UINT, 'default' => 100, 'max' => 100],
 			'happiness'  => ['type' => self::UINT, 'default' => 100, 'max' => 100],

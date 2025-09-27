@@ -24,6 +24,8 @@ class Setup extends AbstractSetup
 		{
 			$table->addColumn('pet_id', 'int')->autoIncrement();
 			$table->addColumn('user_id', 'int')->nullable(false);
+			$table->addColumn('level', 'int')->setDefault(1);
+			$table->addColumn('experience', 'int')->setDefault(0);
 			$table->addColumn('hunger', 'int')->setDefault(100);
 			$table->addColumn('sleepiness', 'int')->setDefault(100);
 			$table->addColumn('happiness', 'int')->setDefault(100);

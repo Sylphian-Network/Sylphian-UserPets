@@ -5,7 +5,7 @@ XF.PetRenderer = XF.Element.newHandler({
             'idle': 0,
             'feed': 1,
             'play': 2,
-            'sleep': 3
+            'sleep': 3,
         },
         frameWidth: 128,
         frameHeight: 128,

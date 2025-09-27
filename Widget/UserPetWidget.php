@@ -4,6 +4,7 @@ namespace Sylphian\UserPets\Widget;
 
 use Sylphian\Library\Logger\Logger;
 use Sylphian\UserPets\Entity\UserPets;
+use Sylphian\UserPets\Service\PetLeveling;
 use Sylphian\UserPets\Service\PetManager;
 use XF\Entity\User;
 use XF\Entity\Widget;
@@ -44,11 +45,17 @@ class UserPetWidget extends AbstractWidget
 				);
 			}
 
+			$petLeveling = new PetLeveling();
+			$levelProgress = $petLeveling->getLevelProgressPercentage($pet);
+			$expNeeded = $petLeveling->getExperienceNeededToLevelUp($pet);
+
 			return $this->renderer('sylphian_userpets_own_widget', [
 				'widget' => $widget,
 				'pet' => $pet,
 				'actionUrl' => $actionUrl,
 				'spriteSheetPath' => $spriteSheetPath,
+				'levelProgress' => $levelProgress,
+				'expNeeded' => $expNeeded,
 			]);
 		}
 		else
@@ -76,10 +83,16 @@ class UserPetWidget extends AbstractWidget
 				);
 			}
 
+			$petLeveling = new PetLeveling();
+			$levelProgress = $petLeveling->getLevelProgressPercentage($pet);
+			$expNeeded = $petLeveling->getExperienceNeededToLevelUp($pet);
+
 			return $this->renderer('sylphian_userpets_other_widget', [
 				'widget' => $widget,
 				'pet' => $pet,
 				'spriteSheetPath' => $spriteSheetPath,
+				'levelProgress' => $levelProgress,
+				'expNeeded' => $expNeeded,
 			]);
 		}
 	}
