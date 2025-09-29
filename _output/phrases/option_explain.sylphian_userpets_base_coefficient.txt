@@ -1,0 +1,1 @@
+Base multiplier for XP curve. Increasing this makes each level require more XP.

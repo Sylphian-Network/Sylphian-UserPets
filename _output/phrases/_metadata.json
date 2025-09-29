@@ -1,4 +1,10 @@
 {
+    "option.sylphian_userpets_base_coefficient.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "dcc18417b23a9b76dcd5cce92fef16ee"
+    },
     "option.sylphian_userpets_cooldown_time.txt": {
         "global_cache": false,
         "version_id": 1000010,
@@ -10,6 +16,12 @@
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
         "hash": "55df0645953bd67798c9f10ac2d6c8df"
+    },
+    "option.sylphian_userpets_experience_per_action.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "f0561e0380ee079ba94573d52219ffd9"
     },
     "option.sylphian_userpets_happiness_critical_threshold.txt": {
         "global_cache": false,
@@ -35,6 +47,12 @@
         "version_string": "1.0.0 Alpha",
         "hash": "ebab36a682dffd962a61d258831c0d92"
     },
+    "option.sylphian_userpets_polynomial_power.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "0c7d95439ae991a2c8fc753056c4b516"
+    },
     "option.sylphian_userpets_sleepiness_critical_threshold.txt": {
         "global_cache": false,
         "version_id": 1000010,
@@ -53,6 +71,12 @@
         "version_string": "1.0.0 Alpha",
         "hash": "8fac21d40453b9807aefd4476982e309"
     },
+    "option_explain.sylphian_userpets_base_coefficient.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "48ace56b72521e4c229305eb307cd9d0"
+    },
     "option_explain.sylphian_userpets_cooldown_time.txt": {
         "global_cache": false,
         "version_id": 1000010,
@@ -63,7 +87,13 @@
         "global_cache": false,
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
-        "hash": "97f80ac2a51be0234eafe3eb818b8646"
+        "hash": "1ae4abc6f7c33a430e069af46db99f32"
+    },
+    "option_explain.sylphian_userpets_experience_per_action.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "75c22b50483aa6ed07123fe404d4c555"
     },
     "option_explain.sylphian_userpets_happiness_critical_threshold.txt": {
         "global_cache": false,
@@ -88,6 +118,12 @@
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
         "hash": "cb6370a99c62f08ea815a0344cdffdd7"
+    },
+    "option_explain.sylphian_userpets_polynomial_power.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "ad22b71a0aa4642b4ea4a25863b03059"
     },
     "option_explain.sylphian_userpets_sleepiness_critical_threshold.txt": {
         "global_cache": false,
@@ -155,6 +191,12 @@
         "version_string": "1.0.0 Alpha",
         "hash": "87f033039ec3fc888ff1445147836981"
     },
+    "sylphian_userpets_level_curve_graph_explain.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "02c93212f90d1bcfe2c8261f7b119e7c"
+    },
     "sylphian_userpets_pet_state.txt": {
         "global_cache": false,
         "version_id": 1000010,
@@ -166,6 +208,12 @@
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
         "hash": "de3c731be5633838089a07179d301d7b"
+    },
+    "sylphian_userpets_required_experience.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "fee364f4eae9465fc5aa6fc8d98e69bc"
     },
     "sylphian_userpets_sleep.txt": {
         "global_cache": false,

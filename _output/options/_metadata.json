@@ -1,29 +1,38 @@
 {
+    "sylphian_userpets_base_coefficient.json": {
+        "hash": "788d733dddb7937660a51f58b72689d8"
+    },
     "sylphian_userpets_cooldown_time.json": {
-        "hash": "bc14a6a708d33f3e8eb8bf500e54afda"
+        "hash": "f439b1f4e2b2e0d81d9aa418ad019f5e"
     },
     "sylphian_userpets_default_spritesheet.json": {
         "hash": "38510561144c6d1921e1614a0995e387"
     },
+    "sylphian_userpets_experience_per_action.json": {
+        "hash": "f4a01bd88a1179dd1d24d3b92534b26a"
+    },
     "sylphian_userpets_happiness_critical_threshold.json": {
-        "hash": "61e85c671bf117accc550f18b29cf123"
+        "hash": "c68a6c7198fd7d7c7b0b7f95e0baf5f1"
     },
     "sylphian_userpets_happiness_decay.json": {
-        "hash": "9a955b22243fd9bccbce9b8faedd97fe"
+        "hash": "5af507cb3c920526a4faf003b525ca6a"
     },
     "sylphian_userpets_hunger_critical_threshold.json": {
-        "hash": "daef6c5f467a3093914d62a3ef003710"
+        "hash": "ead80bfe9067ad424c209dca57f79949"
     },
     "sylphian_userpets_hunger_decay.json": {
-        "hash": "7f5b757311db056f34c378455e635de8"
+        "hash": "7fef02f7e8a13a37bca56bb476d5d813"
+    },
+    "sylphian_userpets_polynomial_power.json": {
+        "hash": "b7bd1ea04c8fcc35dd32d1520630f282"
     },
     "sylphian_userpets_sleepiness_critical_threshold.json": {
-        "hash": "648c5e30411041a8306529dd3ae3abd7"
+        "hash": "50a12e1dce6fe6f1f8e2250e483829b5"
     },
     "sylphian_userpets_sleepiness_decay.json": {
-        "hash": "d70196763c169b27c497097eb3e4ebf2"
+        "hash": "1e7033257c52f1167d74aafb897e5292"
     },
     "sylphian_userpets_stat_update_interval.json": {
-        "hash": "b0c142a86cc4e18b29821b2c4e0d7020"
+        "hash": "c4f511b80f5b3d19fc178f28da3457a5"
     }
 }

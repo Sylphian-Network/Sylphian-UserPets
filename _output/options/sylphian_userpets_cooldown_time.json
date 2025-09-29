@@ -8,6 +8,6 @@
     "advanced": false,
     "default_value": "300",
     "relations": {
-        "sylphian_userpets": 50
+        "sylphian_userpets": 2001
     }
 }

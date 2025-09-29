@@ -36,26 +36,13 @@ class PetLeveling
 	 * @param float|null $polynomialPower Optional custom polynomial power
 	 * @param int|null $experiencePerAction Optional custom experience per action
 	 */
-	public function __construct(
-		?float $baseCoefficient = null,
-		?float $polynomialPower = null,
-		?int $experiencePerAction = null
-	)
+	public function __construct(?float $baseCoefficient = null, ?float $polynomialPower = null, ?int $experiencePerAction = null)
 	{
-		if ($baseCoefficient !== null)
-		{
-			$this->baseCoefficient = $baseCoefficient;
-		}
+		$options = \XF::options();
 
-		if ($polynomialPower !== null)
-		{
-			$this->polynomialPower = $polynomialPower;
-		}
-
-		if ($experiencePerAction !== null)
-		{
-			$this->experiencePerAction = $experiencePerAction;
-		}
+		$this->baseCoefficient = $baseCoefficient ?? (float) ($options->sylphian_userpets_base_coefficient);
+		$this->polynomialPower = $polynomialPower ?? (float) ($options->sylphian_userpets_polynomial_power);
+		$this->experiencePerAction = $experiencePerAction ?? (int) ($options->sylphian_userpets_experience_per_action);
 	}
 
 	/**

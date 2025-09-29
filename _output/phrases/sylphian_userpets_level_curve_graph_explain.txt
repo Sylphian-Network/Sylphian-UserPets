@@ -1,0 +1,1 @@
+This chart shows the leveling curve of the current saved settings.

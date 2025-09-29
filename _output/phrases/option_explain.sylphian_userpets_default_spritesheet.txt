@@ -1,1 +1,1 @@
-Choose the sprite sheet your users will use.
+Choose the sprite sheet your users will use by default.

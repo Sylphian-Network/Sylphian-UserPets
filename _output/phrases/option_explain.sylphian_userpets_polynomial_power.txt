@@ -1,0 +1,1 @@
+Controls how steeply XP requirements increase at higher levels.<br>Example: 1.0 = linear growth, 2.0 = very steep growth.

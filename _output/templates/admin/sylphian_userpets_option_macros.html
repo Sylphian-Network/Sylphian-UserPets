@@ -1,0 +1,78 @@
+<xf:macro name="option_form_block"
+    arg-group=""
+    arg-options="!"
+    arg-containerBeforeHtml=""
+    arg-preCalculatedExpData=""
+    arg-experienceLabels="">
+    
+    <xf:set var="$hundred" value="0" />
+    <xf:css src="public:chartist.css" />
+    <xf:css src="stats.less" />
+    <xf:js prod="xf/stats-compiled.js" dev="vendor/chartist/chartist.min.js, xf/stats.js" />
+
+    <xf:if is="$options is not empty">
+        <xf:form action="{{ link('options/update') }}" ajax="true" class="block">
+            {{ $containerBeforeHtml|raw }}
+            <div class="block-container">
+                <!-- General Options Section -->
+                <div class="block-body">
+                    <xf:foreach loop="$options" value="$option">
+                        <xf:if is="$option.Relations.sylphian_userpets.display_order < 3000">
+                            <xf:if is="$group">
+                                <xf:set var="$curHundred" value="{{ floor($option.Relations.{$group.group_id}.display_order / 100) }}" />
+                                <xf:if is="{{ $curHundred > $hundred }}">
+                                    <xf:set var="$hundred" value="{$curHundred}" />
+                                    <hr class="formRowSep" />
+                                </xf:if>
+                            </xf:if>
+
+                            <xf:macro template="option_macros" name="option_row" arg-group="{$group}" arg-option="{$option}" />
+                        </xf:if>
+                    </xf:foreach>
+                </div>
+				
+                <hr class="formRowSep" />
+				
+                <!-- Leveling Options Section -->
+                <div class="block-body">
+                    <div class="block-row">
+                        <div class="block-rowMessage block-rowMessage--info">
+                            {{ phrase('sylphian_userpets_level_curve_graph_explain') }}
+                        </div>
+                    </div>
+
+                    <div class="block-row">
+                        <div data-xf-init="stats" data-max-ticks="6" data-show-area="true">
+                            <script class="js-statsData" type="application/json">
+                                {{ $preCalculatedExpData|json|raw }}
+                            </script>
+                            <script class="js-statsSeriesLabels" type="application/json">
+                                {{ $experienceLabels|json|raw }}
+                            </script>
+                            <div class="ct-chart ct-chart--medium ct-major-tenth js-statsChart"></div>
+                            <ul class="ct-legend js-statsLegend"></ul>
+                        </div>
+                    </div>
+
+
+                    <xf:foreach loop="$options" value="$option">
+                        <xf:if is="$option.Relations.sylphian_userpets.display_order >= 3000">
+                            <xf:if is="$group">
+                                <xf:set var="$curHundred" value="{{ floor($option.Relations.{$group.group_id}.display_order / 100) }}" />
+                                <xf:if is="{{ $curHundred > $hundred }}">
+                                    <xf:set var="$hundred" value="{$curHundred}" />
+                                    <hr class="formRowSep" />
+                                </xf:if>
+                            </xf:if>
+
+                            <xf:macro template="option_macros" name="option_row" arg-group="{$group}" arg-option="{$option}" />
+                        </xf:if>
+                    </xf:foreach>
+                </div>
+
+                <xf:submitrow sticky="true" icon="save" />
+
+            </div>
+        </xf:form>
+    </xf:if>
+</xf:macro>
