@@ -20,7 +20,11 @@ XF.PetRenderer = XF.Element.newHandler({
     currentState: 'idle',
     currentFrame: 0,
     animationInterval: null,
-    lastFrameTime: 0,
+
+    petLevel: 1,
+    targetScale: 0.5,
+    currentScale: 0.5,
+    scaleAnimationActive: false,
 
     /**
      * Initialize the pet renderer
@@ -43,11 +47,58 @@ XF.PetRenderer = XF.Element.newHandler({
             this.currentState = petState;
         }
 
+        this.readPetLevel();
+
         this.loadSpriteSheet();
-
         this.startAnimation();
-
         this.listenForStateChanges();
+        this.listenForLevelChanges();
+    },
+
+    /**
+     * Read the pet level from the DOM
+     */
+    readPetLevel: function() {
+        const petStatsContainer = this.canvas.closest('.block-body');
+        if (petStatsContainer) {
+            const levelText = petStatsContainer.querySelector('.petStats .u-alignCenter div:first-child');
+            if (levelText) {
+                const levelMatch = levelText.textContent.match(/\d+/);
+                if (levelMatch) {
+                    this.petLevel = parseInt(levelMatch[0]);
+                    this.targetScale = this.calculateScale(this.petLevel);
+                    this.currentScale = this.targetScale;
+                }
+            }
+        }
+    },
+
+    /**
+     * Calculate scale based on level.
+     *
+     * Growth is smooth and continuous using a logarithmic progression:
+     * - Level 1 = minScale (0.75x)
+     * - Level 100 = maxScale (1.5x)
+     *
+     * Values in between are calculated using:
+     *   scale = minScale + (log(level) / log(maxLevel)) * (maxScale - minScale)
+     *
+     * This gives faster growth at lower levels and slower growth at higher levels,
+     * creating a more natural RPG-style curve instead of stepwise jumps.
+     *
+     * @param {number} level Pet's current level
+     * @return {number} Scale factor to apply
+     */
+    calculateScale: function(level) {
+        level = Math.max(1, parseInt(level));
+
+        const minScale = 0.75;
+        const maxScale = 1.5;
+        const maxLevel = 100;
+
+        const progress = Math.log(level) / Math.log(maxLevel);
+
+        return minScale + progress * (maxScale - minScale);
     },
 
     /**
@@ -89,6 +140,16 @@ XF.PetRenderer = XF.Element.newHandler({
     update: function() {
         this.currentFrame = (this.currentFrame + 1) % this.options.framesPerAnimation;
 
+        if (this.scaleAnimationActive && this.currentScale !== this.targetScale) {
+            const diff = this.targetScale - this.currentScale;
+            this.currentScale += diff * 0.1;
+
+            if (Math.abs(diff) < 0.01) {
+                this.currentScale = this.targetScale;
+                this.scaleAnimationActive = false;
+            }
+        }
+
         this.render();
     },
 
@@ -107,12 +168,36 @@ XF.PetRenderer = XF.Element.newHandler({
         const sx = this.currentFrame * this.options.frameWidth;
         const sy = rowIndex * this.options.frameHeight;
 
+        const spriteWidth = this.options.frameWidth * this.currentScale;
+        const spriteHeight = this.options.frameHeight * this.currentScale;
+
+        const maxWidth = this.canvas.width * 0.95;
+        const maxHeight = this.canvas.height * 0.95;
+
+        let finalWidth = spriteWidth;
+        let finalHeight = spriteHeight;
+
+        if (spriteWidth > maxWidth) {
+            const scale = maxWidth / spriteWidth;
+            finalWidth *= scale;
+            finalHeight *= scale;
+        }
+
+        if (finalHeight > maxHeight) {
+            const scale = maxHeight / finalHeight;
+            finalWidth *= scale;
+            finalHeight *= scale;
+        }
+
+        const x = (this.canvas.width - finalWidth) / 2;
+        const y = this.canvas.height - finalHeight;
+
         this.context.drawImage(
             this.spriteSheet,
             sx, sy,
             this.options.frameWidth, this.options.frameHeight,
-            0, 0,
-            this.canvas.width, this.canvas.height
+            x, y,
+            finalWidth, finalHeight
         );
     },
 
@@ -153,6 +238,40 @@ XF.PetRenderer = XF.Element.newHandler({
                     }, this), 3000);
                 }
             }, this));
+        }
+    },
+
+    /**
+     * Listen for pet level changes
+     */
+    listenForLevelChanges: function() {
+        document.addEventListener('petLevelChanged', XF.proxy(function(e) {
+            if (e.detail && e.detail.level) {
+                this.petLevel = parseInt(e.detail.level);
+                this.targetScale = this.calculateScale(this.petLevel);
+                this.scaleAnimationActive = true;
+            }
+        }, this));
+
+        const petStatsContainer = this.canvas.closest('.block-body');
+        if (petStatsContainer) {
+            const levelText = petStatsContainer.querySelector('.petStats .u-alignCenter div:first-child');
+            if (levelText) {
+                const observer = new MutationObserver(XF.proxy(function(mutations) {
+                    for (let mutation of mutations) {
+                        if (mutation.type === 'characterData' || mutation.type === 'childList') {
+                            this.readPetLevel();
+                            this.scaleAnimationActive = true;
+                        }
+                    }
+                }, this));
+
+                observer.observe(levelText, {
+                    childList: true,
+                    characterData: true,
+                    subtree: true
+                });
+            }
         }
     }
 });

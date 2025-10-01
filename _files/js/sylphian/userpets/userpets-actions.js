@@ -130,6 +130,12 @@ XF.PetActions = XF.Element.newHandler({
                 console.error('Could not play level up sound', e);
             }
         }
+
+        document.dispatchEvent(new CustomEvent('petLevelChanged', {
+            detail: {
+                level: this.currentLevel
+            }
+        }));
     },
 
     disableButtons: function() {
