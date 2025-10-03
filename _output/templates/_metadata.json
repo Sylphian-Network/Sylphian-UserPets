@@ -12,11 +12,11 @@
     "public/sylphian_userpets_other_widget.html": {
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
-        "hash": "4644d7d15775e7d32cf1813c25252e8b"
+        "hash": "d64001a311b7e9806df3466b784dda94"
     },
     "public/sylphian_userpets_own_widget.html": {
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
-        "hash": "4cdb2bdc6da146af9f6d154d655653ee"
+        "hash": "18b3e1792c39a6e56820fbd943ae6f6d"
     }
 }
