@@ -85,38 +85,25 @@ XF.PetActions = XF.Element.newHandler({
             sleepinessBar.querySelector('.petProgressBar-label').textContent = data.sleepiness + '/100';
         }
 
-        if (data.levelProgress !== undefined && data.experience !== undefined) {
-            const levelBar = this.container.querySelector('.levelProgressBar');
-            if (levelBar) {
-                levelBar.querySelector('.petProgressBar-progress').style.width = data.levelProgress + '%';
+        if (data.level !== undefined && data.levelText) {
+            const levelText = this.container.querySelector('.petStats .u-alignCenter div:first-child');
+            if (levelText) {
+                levelText.textContent = data.levelText;
 
-                const expNeeded = data.expNeeded || 0;
-                const totalExpForNextLevel = data.experience + expNeeded;
-
-                levelBar.querySelector('.petProgressBar-label').textContent = data.experience + ' / ' + totalExpForNextLevel;
-
-                levelBar.setAttribute('title', XF.phrase('sylphian_userpets_exp_needed', {exp: expNeeded}));
-
-                if (data.level !== undefined) {
-                    const levelText = this.container.querySelector('.petStats .u-alignCenter div:first-child');
-                    if (levelText) {
-                        levelText.textContent = data.levelText;
-
-                        const newLevel = parseInt(data.level);
-                        if (newLevel > this.currentLevel) {
-                            this.currentLevel = newLevel;
-
-                            this.triggerLevelUp();
-                        } else {
-                            this.currentLevel = newLevel;
-                        }
-                    }
+                const newLevel = parseInt(data.level);
+                if (newLevel > this.currentLevel) {
+                    this.currentLevel = newLevel;
+                    this.triggerLevelUp();
+                } else {
+                    this.currentLevel = newLevel;
                 }
+            }
+        }
 
-                const levelInfo = this.container.querySelector('.petLevelInfo');
-                if (levelInfo && data.expNeededText) {
-                    levelInfo.textContent = data.expNeededText;
-                }
+        if (data.expNeededText) {
+            const levelInfo = this.container.querySelector('.petLevelInfo');
+            if (levelInfo) {
+                levelInfo.textContent = data.expNeededText;
             }
         }
     },
