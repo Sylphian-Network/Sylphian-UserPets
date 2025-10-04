@@ -1,0 +1,1 @@
+How much XP a pet earns when a user posts a message.

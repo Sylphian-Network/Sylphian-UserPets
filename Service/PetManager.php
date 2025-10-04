@@ -155,7 +155,7 @@ class PetManager
 			$this->determineState();
 
 			$petLeveling = new PetLeveling();
-			$petLeveling->addExperience($this->pet);
+			$petLeveling->addExperience($this->pet, $action);
 
 			$this->pet->save();
 		}

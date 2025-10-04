@@ -1,0 +1,9 @@
+{
+    "event_id": "entity_post_save",
+    "execute_order": 10,
+    "callback_class": "Sylphian\\UserPets\\Listener\\EntityEvents",
+    "callback_method": "threadSave",
+    "active": true,
+    "hint": "XF\\Entity\\Thread",
+    "description": "Award pet experience when a user creates a thread"
+}

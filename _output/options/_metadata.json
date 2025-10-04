@@ -8,8 +8,20 @@
     "sylphian_userpets_default_spritesheet.json": {
         "hash": "38510561144c6d1921e1614a0995e387"
     },
-    "sylphian_userpets_experience_per_action.json": {
-        "hash": "f4a01bd88a1179dd1d24d3b92534b26a"
+    "sylphian_userpets_experience_per_feed.json": {
+        "hash": "b637f73be5a669e5826aec9a6be36f3a"
+    },
+    "sylphian_userpets_experience_per_play.json": {
+        "hash": "b0783c2f8f38d1204fab9cbeb5e759d7"
+    },
+    "sylphian_userpets_experience_per_post.json": {
+        "hash": "6167097c893a425e95c85e7509cbdddb"
+    },
+    "sylphian_userpets_experience_per_sleep.json": {
+        "hash": "3b48c5168c9ef2bbf862f5bccc892125"
+    },
+    "sylphian_userpets_experience_per_thread.json": {
+        "hash": "dcd59256d70feed4c57da46efacb9485"
     },
     "sylphian_userpets_happiness_critical_threshold.json": {
         "hash": "c68a6c7198fd7d7c7b0b7f95e0baf5f1"

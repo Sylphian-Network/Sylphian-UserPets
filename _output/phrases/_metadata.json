@@ -17,11 +17,35 @@
         "version_string": "1.0.0 Alpha",
         "hash": "55df0645953bd67798c9f10ac2d6c8df"
     },
-    "option.sylphian_userpets_experience_per_action.txt": {
+    "option.sylphian_userpets_experience_per_feed.txt": {
         "global_cache": false,
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
-        "hash": "f0561e0380ee079ba94573d52219ffd9"
+        "hash": "eb83268e201b92cec92e5a7d6d84e1b8"
+    },
+    "option.sylphian_userpets_experience_per_play.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "d32e6b022f425930f1b1b1d5dccb473e"
+    },
+    "option.sylphian_userpets_experience_per_post.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "bcb7e7feb56b0577aab802c034348915"
+    },
+    "option.sylphian_userpets_experience_per_sleep.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "d538198cccf188dcc0b07f1fcac9932d"
+    },
+    "option.sylphian_userpets_experience_per_thread.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "99c9f084304758beb51b293bf8abcf2c"
     },
     "option.sylphian_userpets_happiness_critical_threshold.txt": {
         "global_cache": false,
@@ -89,11 +113,35 @@
         "version_string": "1.0.0 Alpha",
         "hash": "1ae4abc6f7c33a430e069af46db99f32"
     },
-    "option_explain.sylphian_userpets_experience_per_action.txt": {
+    "option_explain.sylphian_userpets_experience_per_feed.txt": {
         "global_cache": false,
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
-        "hash": "75c22b50483aa6ed07123fe404d4c555"
+        "hash": "ca3ed6b16dfd63e25d6b3509d16f3a24"
+    },
+    "option_explain.sylphian_userpets_experience_per_play.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "044d127cff9787373b8063e215c7f7a5"
+    },
+    "option_explain.sylphian_userpets_experience_per_post.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "69a2debcb8a70874a32369014fbfc6ad"
+    },
+    "option_explain.sylphian_userpets_experience_per_sleep.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "3bbfe5d01175c6034f681a7664c0b1a1"
+    },
+    "option_explain.sylphian_userpets_experience_per_thread.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "b23364a2638096c75ad76d9e641611b4"
     },
     "option_explain.sylphian_userpets_happiness_critical_threshold.txt": {
         "global_cache": false,

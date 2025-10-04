@@ -23,11 +23,32 @@ class PetLeveling
 	protected float $polynomialPower = 1.5;
 
 	/**
-	 * The flat rate of experience gained per action.
+	 * The experience gained for feed actions.
 	 *
 	 * @var int
 	 */
-	protected int $experiencePerAction = 10;
+	protected int $experiencePerFeed = 10;
+
+	/**
+	 * The experience gained for sleep actions.
+	 *
+	 * @var int
+	 */
+	protected int $experiencePerSleep = 10;
+
+	/**
+	 * The experience gained for play actions.
+	 *
+	 * @var int
+	 */
+	protected int $experiencePerPlay = 10;
+
+	/**
+	 * Map of action types to their corresponding experience values
+	 *
+	 * @var array
+	 */
+	protected array $actionExpMap;
 
 	/**
 	 * Constructor.
@@ -42,7 +63,17 @@ class PetLeveling
 
 		$this->baseCoefficient = $baseCoefficient ?? (float) ($options->sylphian_userpets_base_coefficient);
 		$this->polynomialPower = $polynomialPower ?? (float) ($options->sylphian_userpets_polynomial_power);
-		$this->experiencePerAction = $experiencePerAction ?? (int) ($options->sylphian_userpets_experience_per_action);
+
+		$this->experiencePerFeed = (int) ($options->sylphian_userpets_experience_per_action_feed ?? 10);
+		$this->experiencePerSleep = (int) ($options->sylphian_userpets_experience_per_action_sleep ?? 10);
+		$this->experiencePerPlay = (int) ($options->sylphian_userpets_experience_per_action_play ?? 10);
+
+		$this->actionExpMap = [
+			'feed' => $this->experiencePerFeed,
+			'sleep' => $this->experiencePerSleep,
+			'play' => $this->experiencePerPlay,
+			'default' => 10,
+		];
 	}
 
 	/**
@@ -101,14 +132,15 @@ class PetLeveling
 	 * Add experience to the pet and handle level ups.
 	 *
 	 * @param UserPets $pet The pet entity
-	 * @param int $amount The amount of experience to add (defaults to the standard action amount)
+	 * @param string|null $actionType The type of action performed (feed, sleep, play)
+	 * @param int|null $amount The specific amount of experience to add (overrides action type)
 	 * @return bool True if the pet leveled up, false otherwise
 	 */
-	public function addExperience(UserPets $pet, ?int $amount = null): bool
+	public function addExperience(UserPets $pet, ?string $actionType = null, ?int $amount = null): bool
 	{
 		if ($amount === null)
 		{
-			$amount = $this->experiencePerAction;
+			$amount = $this->getExperienceForAction($actionType);
 		}
 
 		$oldLevel = $pet->level;
@@ -122,6 +154,22 @@ class PetLeveling
 		}
 
 		return false;
+	}
+
+	/**
+	 * Get the experience amount for a specific action type
+	 *
+	 * @param string|null $actionType The type of action (feed, sleep, play)
+	 * @return int The experience amount for this action
+	 */
+	public function getExperienceForAction(?string $actionType = null): int
+	{
+		if (!$actionType || !isset($this->actionExpMap[$actionType]))
+		{
+			return $this->actionExpMap['default'];
+		}
+
+		return $this->actionExpMap[$actionType];
 	}
 
 	/**

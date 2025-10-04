@@ -3,10 +3,27 @@
 namespace Sylphian\UserPets\Repository;
 
 use Sylphian\Library\Logger\Logger;
+use Sylphian\UserPets\Entity\UserPets;
 use XF\Mvc\Entity\Repository;
 
 class UserPetsRepository extends Repository
 {
+	/**
+	 * Get a user's pet
+	 *
+	 * @param int $userId The user ID
+	 * @return UserPets|null The pet entity or null if not found
+	 */
+	public function getUserPet(int $userId): ?UserPets
+	{
+		/** @var UserPets|null $pet */
+		$pet = $this->finder('Sylphian\UserPets:UserPets')
+			->where('user_id', $userId)
+			->fetchOne();
+
+		return $pet;
+	}
+
 	/**
 	 * Get available sprite sheet options
 	 *
