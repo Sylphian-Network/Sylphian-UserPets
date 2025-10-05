@@ -40,13 +40,15 @@ class EntityEvents
 			return;
 		}
 
+        $xpPerPost = (int) \XF::options()->sylphian_userpets_experience_per_post;
+        if ($xpPerPost <= 0)
+        {
+            return;
+        }
+
 		try
 		{
-			self::awardPetExperience(
-				$userId,
-				\XF::options()->sylphian_userpets_experience_per_post,
-				false
-			);
+			self::awardPetExperience($userId, $xpPerPost, false);
 		}
 		catch (\Exception $e)
 		{
@@ -81,13 +83,15 @@ class EntityEvents
 			return;
 		}
 
+        $xpPerThread = (int) \XF::options()->sylphian_userpets_experience_per_thread;
+        if ($xpPerThread <= 0)
+        {
+            return;
+        }
+
 		try
 		{
-			self::awardPetExperience(
-				$userId,
-				\XF::options()->sylphian_userpets_experience_per_thread,
-				false
-			);
+			self::awardPetExperience($userId, $xpPerThread, false);
 		}
 		catch (\Exception $e)
 		{
@@ -107,7 +111,12 @@ class EntityEvents
 	 */
 	protected static function awardPetExperience(int $userId, int $amountOfExp, bool $updateActionTime = true): void
 	{
-		$app = \XF::app();
+		if ($amountOfExp <= 0)
+        {
+            return;
+        }
+
+        $app = \XF::app();
 
 		/** @var UserPetsRepository $petsRepo */
 		$petsRepo = $app->repository('Sylphian\UserPets:UserPets');
