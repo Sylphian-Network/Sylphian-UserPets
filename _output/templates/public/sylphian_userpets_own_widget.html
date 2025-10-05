@@ -1,10 +1,7 @@
-<xf:if is="$xf.options.sylphian_userpets_enable_tutorial && $tutorial">
+<xf:if is="$tutorial">
 	<div class="block block-container">
 		<h3 class="block-header u-alignCenter">{{ phrase('sylphian_userpets_tutorial_title') }}</h3>
 		<div class="block-body block-row">
-			<xf:comment>
-				all of the profile tutorial quests will be displayed here with a box, the box will be checked if it's completed else it will show just the box.
-			</xf:comment>
 			<xf:foreach loop="$tutorial" value="$tut">
 				<div class="block-row">
 					<label class="tutorialItem">

@@ -50,24 +50,28 @@ class UserPetWidget extends AbstractWidget
 			$levelProgress = $petLeveling->getLevelProgressPercentage($pet);
 			$expNeeded = $petLeveling->getExperienceNeededToLevelUp($pet);
 
-			/** @var UserPetsTutorialRepository $tutorialRepo */
-			$tutorialRepo = $this->repository('Sylphian\UserPets:UserPetsTutorial');
-			$tutorials = $tutorialRepo->getUserTutorials($visitor->user_id);
+            $tutorials = [];
+            $allCompleted = true;
+            if (\XF::options()->sylphian_userpets_enable_tutorial)
+            {
+                /** @var UserPetsTutorialRepository $tutorialRepo */
+                $tutorialRepo = $this->repository('Sylphian\UserPets:UserPetsTutorial');
+                $tutorials = $tutorialRepo->getUserTutorials($visitor->user_id);
 
-			$allCompleted = true;
-			foreach ($tutorials AS $tutorial)
-			{
-				if (!$tutorial['completed'])
-				{
-					$allCompleted = false;
-					break;
-				}
-			}
+                foreach ($tutorials AS $tutorial)
+                {
+                    if (!$tutorial['completed'])
+                    {
+                        $allCompleted = false;
+                        break;
+                    }
+                }
 
-			if ($allCompleted && !empty($tutorials))
-			{
-				$tutorials = [];
-			}
+                if ($allCompleted && !empty($tutorials))
+                {
+                    $tutorials = [];
+                }
+            }
 
 			return $this->renderer('sylphian_userpets_own_widget', [
 				'widget' => $widget,
