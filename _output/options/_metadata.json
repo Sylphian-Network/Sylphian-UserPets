@@ -8,6 +8,9 @@
     "sylphian_userpets_default_spritesheet.json": {
         "hash": "38510561144c6d1921e1614a0995e387"
     },
+    "sylphian_userpets_enable_tutorial.json": {
+        "hash": "a5d252afc13e066ba35471e793e4b881"
+    },
     "sylphian_userpets_experience_per_feed.json": {
         "hash": "b637f73be5a669e5826aec9a6be36f3a"
     },
@@ -46,5 +49,17 @@
     },
     "sylphian_userpets_stat_update_interval.json": {
         "hash": "c4f511b80f5b3d19fc178f28da3457a5"
+    },
+    "sylphian_userpets_tutorial_exp_complete_action.json": {
+        "hash": "220eff43f38b71a3ab40e4d49f5bcadb"
+    },
+    "sylphian_userpets_tutorial_exp_post_first_message.json": {
+        "hash": "9875d8ca0a688edd78290ba25249800a"
+    },
+    "sylphian_userpets_tutorial_exp_react_to_post.json": {
+        "hash": "8afb51ab4639ebb706f62ee1a2ed7ec1"
+    },
+    "sylphian_userpets_tutorial_exp_upload_pfp.json": {
+        "hash": "dcae9ddb4853a1438ae551c024ef712a"
     }
 }

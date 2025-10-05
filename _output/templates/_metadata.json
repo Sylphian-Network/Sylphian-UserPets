@@ -2,7 +2,7 @@
     "admin/sylphian_userpets_option_macros.html": {
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
-        "hash": "b2afe0e740547b979fc1b6c9e1345760"
+        "hash": "245bf30f08d75e325f449737b55f4337"
     },
     "admin/widget_def_options_sylphian_userpets_widget.html": {
         "version_id": 1000010,
@@ -17,6 +17,6 @@
     "public/sylphian_userpets_own_widget.html": {
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
-        "hash": "18b3e1792c39a6e56820fbd943ae6f6d"
+        "hash": "ed4c05ee0ace03664afdb094aef1947a"
     }
 }

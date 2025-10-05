@@ -85,7 +85,7 @@
 
 
                     <xf:foreach loop="$options" value="$option">
-                        <xf:if is="$option.Relations.sylphian_userpets.display_order >= 3000">
+                        <xf:if is="$option.Relations.sylphian_userpets.display_order >= 3000 && $option.Relations.sylphian_userpets.display_order < 4000">
                             <xf:if is="$group">
                                 <xf:set var="$curHundred" value="{{ floor($option.Relations.{$group.group_id}.display_order / 100) }}" />
                                 <xf:if is="{{ $curHundred > $hundred }}">
@@ -97,6 +97,29 @@
                             <xf:macro template="option_macros" name="option_row" arg-group="{$group}" arg-option="{$option}" />
                         </xf:if>
                     </xf:foreach>
+					</div>
+					
+					<xf:submitrow sticky="true" icon="save" />
+				</div>
+			</div>
+			
+			<div class="block">
+				<div class="block-container">
+					<h3 class="block-header">Tutorial Options</h3>
+					<div class="block-body">
+						<xf:foreach loop="$options" value="$option">
+							<xf:if is="$option.Relations.sylphian_userpets.display_order >= 4000 && $option.Relations.sylphian_userpets.display_order < 5000">
+								<xf:if is="$group">
+									<xf:set var="$curHundred" value="{{ floor($option.Relations.{$group.group_id}.display_order / 100) }}" />
+									<xf:if is="{{ $curHundred > $hundred }}">
+										<xf:set var="$hundred" value="{$curHundred}" />
+										<hr class="formRowSep" />
+									</xf:if>
+								</xf:if>
+
+								<xf:macro template="option_macros" name="option_row" arg-group="{$group}" arg-option="{$option}" />
+							</xf:if>
+						</xf:foreach>
 					</div>
 					
 					<xf:submitrow sticky="true" icon="save" />

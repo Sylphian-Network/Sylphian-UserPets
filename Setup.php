@@ -74,6 +74,23 @@ class Setup extends AbstractSetup
 		}
 	}
 
+	public function installStep3(): void
+	{
+		$this->schemaManager()->createTable('xf_user_pets_tutorials', function (Create $table)
+		{
+			$table->addColumn('tutorial_id', 'int')->autoIncrement();
+			$table->addColumn('user_id', 'int')->nullable(false);
+			$table->addColumn('tutorial_key', 'varchar', 50)->nullable(false);
+			$table->addColumn('completed', 'bool')->setDefault(0);
+			$table->addColumn('completed_date', 'int')->nullable(true);
+
+			$table->addPrimaryKey('tutorial_id');
+			$table->addUniqueKey(['user_id', 'tutorial_key'], 'user_tutorial');
+			$table->addKey('user_id');
+			$table->addKey(['user_id', 'completed'], 'user_completed');
+		});
+	}
+
 	public function uninstallStep1(): void
 	{
 		$this->schemaManager()->dropTable('xf_user_pets');
@@ -82,5 +99,10 @@ class Setup extends AbstractSetup
 	public function uninstallStep2(): void
 	{
 		$this->removeUserField('syl_userpets_spritesheet');
+	}
+
+	public function uninstallStep3(): void
+	{
+		$this->schemaManager()->dropTable('xf_user_pets_tutorials');
 	}
 }

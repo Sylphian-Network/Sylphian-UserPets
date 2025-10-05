@@ -17,6 +17,12 @@
         "version_string": "1.0.0 Alpha",
         "hash": "55df0645953bd67798c9f10ac2d6c8df"
     },
+    "option.sylphian_userpets_enable_tutorial.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "0fe70dd8d33abda7865738f9264187e0"
+    },
     "option.sylphian_userpets_experience_per_feed.txt": {
         "global_cache": false,
         "version_id": 1000010,
@@ -95,6 +101,30 @@
         "version_string": "1.0.0 Alpha",
         "hash": "8fac21d40453b9807aefd4476982e309"
     },
+    "option.sylphian_userpets_tutorial_exp_complete_action.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "c74334917bcc61cd95c3b0909db42465"
+    },
+    "option.sylphian_userpets_tutorial_exp_post_first_message.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "0dafc9c88fb1b1d53e5440fb967fbbc9"
+    },
+    "option.sylphian_userpets_tutorial_exp_react_to_post.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "f8447ebcc95c19610cd41b8ae7a18dae"
+    },
+    "option.sylphian_userpets_tutorial_exp_upload_pfp.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "13c8278a9b2cbd9776bcf88fb4f4c811"
+    },
     "option_explain.sylphian_userpets_base_coefficient.txt": {
         "global_cache": false,
         "version_id": 1000010,
@@ -112,6 +142,12 @@
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
         "hash": "1ae4abc6f7c33a430e069af46db99f32"
+    },
+    "option_explain.sylphian_userpets_enable_tutorial.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "f4d61b98df08cfda0dc4b9d541a47541"
     },
     "option_explain.sylphian_userpets_experience_per_feed.txt": {
         "global_cache": false,
@@ -190,6 +226,30 @@
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
         "hash": "049a5c5b9bf17da98fabe34f938e1843"
+    },
+    "option_explain.sylphian_userpets_tutorial_exp_complete_action.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "b63163a71693b55d52387661c3e9d47a"
+    },
+    "option_explain.sylphian_userpets_tutorial_exp_post_first_message.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "ae57a7264d5136a077579c147a63a742"
+    },
+    "option_explain.sylphian_userpets_tutorial_exp_react_to_post.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "a477527c34a4e75bfa5194a6d6532d12"
+    },
+    "option_explain.sylphian_userpets_tutorial_exp_upload_pfp.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "118d48487e15de484b19c496335ea6e6"
     },
     "option_group.sylphian_userpets.txt": {
         "global_cache": false,
@@ -274,6 +334,12 @@
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
         "hash": "7d695c76230e3a4eb378bb2433375ef6"
+    },
+    "sylphian_userpets_tutorial_title.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "23233554b14ffb1e2e9cf6b14f1ee97a"
     },
     "sylphian_userpets_widget_title.txt": {
         "global_cache": false,

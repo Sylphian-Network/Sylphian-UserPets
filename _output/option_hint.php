@@ -14,6 +14,7 @@ namespace XF;
  * @property int|null $sylphian_userpets_base_coefficient Base XP Coefficient
  * @property string|null $sylphian_userpets_cooldown_time Cooldown time
  * @property string|null $sylphian_userpets_default_spritesheet Default Spritesheet
+ * @property bool|null $sylphian_userpets_enable_tutorial Enable tutorial
  * @property int|null $sylphian_userpets_experience_per_feed XP per action feed
  * @property int|null $sylphian_userpets_experience_per_play XP per action play
  * @property int|null $sylphian_userpets_experience_per_post XP Per Post
@@ -27,6 +28,10 @@ namespace XF;
  * @property int|null $sylphian_userpets_sleepiness_critical_threshold Sleepiness Critical Threshold
  * @property int|null $sylphian_userpets_sleepiness_decay Sleepiness Decay
  * @property int|null $sylphian_userpets_stat_update_interval Stat update interval
+ * @property int|null $sylphian_userpets_tutorial_exp_complete_action Tutorial Goal: Complete action
+ * @property int|null $sylphian_userpets_tutorial_exp_post_first_message Tutorial Goal: Post first message
+ * @property int|null $sylphian_userpets_tutorial_exp_react_to_post Tutorial Goal: React to post
+ * @property int|null $sylphian_userpets_tutorial_exp_upload_pfp Tutorial Goal: Upload PFP
  */
 class Options
 {

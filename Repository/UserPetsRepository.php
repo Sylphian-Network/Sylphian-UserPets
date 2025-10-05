@@ -4,7 +4,9 @@ namespace Sylphian\UserPets\Repository;
 
 use Sylphian\Library\Logger\Logger;
 use Sylphian\UserPets\Entity\UserPets;
+use Sylphian\UserPets\Service\PetLeveling;
 use XF\Mvc\Entity\Repository;
+use XF\PrintableException;
 
 class UserPetsRepository extends Repository
 {
@@ -76,5 +78,50 @@ class UserPetsRepository extends Repository
 		}
 
 		return $options;
+	}
+
+	/**
+	 * Award experience to a user's pet
+	 *
+	 * @param int $userId The user ID to award experience to
+	 * @param bool $updateActionTime Whether to update the last_action_time field
+	 */
+	public function awardPetExperience(int $userId, int $amountOfExp, bool $updateActionTime = true): void
+	{
+		if ($amountOfExp <= 0)
+		{
+			return;
+		}
+
+		$app = \XF::app();
+
+		/** @var UserPetsRepository $petsRepo */
+		$petsRepo = $app->repository('Sylphian\UserPets:UserPets');
+		$pet = $petsRepo->getUserPet($userId);
+
+		if (!$pet)
+		{
+			return; // User doesn't have a pet
+		}
+
+		$petLevelingService = new PetLeveling();
+		$petLevelingService->addExperience($pet, $amountOfExp);
+
+		if ($updateActionTime)
+		{
+			$pet->last_action_time = \XF::$time;
+		}
+
+		try
+		{
+			$pet->save();
+		}
+		catch (PrintableException|\Exception $e)
+		{
+			Logger::error('Could not award pet exp: ' . $e->getMessage(), [
+				'exception' => $e->getMessage(),
+				'trace' => $e->getTrace(),
+			]);
+		}
 	}
 }

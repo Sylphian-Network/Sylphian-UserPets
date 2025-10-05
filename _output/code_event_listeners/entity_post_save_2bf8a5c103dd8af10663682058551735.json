@@ -1,0 +1,9 @@
+{
+    "event_id": "entity_post_save",
+    "execute_order": 50,
+    "callback_class": "Sylphian\\UserPets\\Listener\\TutorialEvents",
+    "callback_method": "userPetsAction",
+    "active": true,
+    "hint": "Sylphian\\UserPets\\Entity\\UserPets",
+    "description": "Tutorial Goal: complete_action"
+}
