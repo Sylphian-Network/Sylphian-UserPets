@@ -9,6 +9,16 @@
         "version_string": "1.0.0 Alpha",
         "hash": "d41d8cd98f00b204e9800998ecf8427e"
     },
+    "public/alert_syl_userpet_levelup.html": {
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "21d4760f302e72200be0e81ff87b542e"
+    },
+    "public/alert_syl_userpet_tutorial.html": {
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "3cd8995711ed5b08de62e524854a6521"
+    },
     "public/sylphian_userpets_other_widget.html": {
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",

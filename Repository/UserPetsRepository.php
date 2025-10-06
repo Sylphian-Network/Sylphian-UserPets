@@ -5,8 +5,10 @@ namespace Sylphian\UserPets\Repository;
 use Sylphian\Library\Logger\Logger;
 use Sylphian\UserPets\Entity\UserPets;
 use Sylphian\UserPets\Service\PetLeveling;
+use XF\Entity\User;
 use XF\Mvc\Entity\Repository;
 use XF\PrintableException;
+use XF\Repository\UserAlertRepository;
 
 class UserPetsRepository extends Repository
 {
@@ -105,7 +107,8 @@ class UserPetsRepository extends Repository
 		}
 
 		$petLevelingService = new PetLeveling();
-		$petLevelingService->addExperience($pet, $amountOfExp);
+		$oldLevel = $pet->level;
+		$leveledUp = $petLevelingService->addExperience($pet, $amountOfExp);
 
 		if ($updateActionTime)
 		{
@@ -115,6 +118,32 @@ class UserPetsRepository extends Repository
 		try
 		{
 			$pet->save();
+
+			if ($leveledUp)
+			{
+				/** @var UserAlertRepository $alertRepo */
+				$alertRepo = $app->repository('XF:UserAlert');
+
+				/** @var User $user */
+				$user = $app->em()->find('XF:User', $userId);
+
+				if ($user)
+				{
+					$alertRepo->alertFromUser(
+						$user,
+						$user,
+						'syl_userpet',
+						$pet->pet_id,
+						'levelup',
+						[
+							'old_level' => $oldLevel,
+							'new_level' => $pet->level,
+							'exp_amount' => $amountOfExp,
+						],
+						['autoRead' => true]
+					);
+				}
+			}
 		}
 		catch (PrintableException|\Exception $e)
 		{

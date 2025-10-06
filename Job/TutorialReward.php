@@ -4,8 +4,11 @@ namespace Sylphian\UserPets\Job;
 
 use Sylphian\Library\Logger\Logger;
 use Sylphian\UserPets\Repository\UserPetsRepository;
+use Sylphian\UserPets\Tutorial\TutorialRegistry;
+use XF\Entity\User;
 use XF\Job\AbstractJob;
 use XF\Job\JobResult;
+use XF\Repository\UserAlertRepository;
 
 class TutorialReward extends AbstractJob
 {
@@ -34,6 +37,7 @@ class TutorialReward extends AbstractJob
 
 		$userId = $this->data['user_id'];
 		$expAmount = $this->data['exp_amount'];
+		$tutorialKey = $this->data['tutorial_key'];
 
 		try
 		{
@@ -42,10 +46,34 @@ class TutorialReward extends AbstractJob
 
 			$petsRepo->awardPetExperience($userId, $expAmount, false);
 
+			/** @var UserAlertRepository $alertRepo */
+			$alertRepo = $this->app->repository('XF:UserAlert');
+
+			/** @var User $user */
+			$user = $this->app->em()->find('XF:User', $userId);
+
+			$tutorial = TutorialRegistry::get($tutorialKey);
+			$tutorialTitle = $tutorial ? $tutorial->getTitle() : 'Unknown Tutorial';
+
+			$alertRepo->alertFromUser(
+				$user,
+				$user,
+				'syl_userpet',
+				$petsRepo->getUserPet($userId)->pet_id,
+				'tutorial',
+				[
+					'exp_amount' => $expAmount,
+					'tutorial_key' => $tutorialKey,
+					'tutorial_title' => $tutorialTitle,
+				],
+				['autoRead' => true]
+			);
+
 			Logger::notice('Awarded tutorial reward', [
 				'user_id' => $userId,
 				'exp_amount' => $expAmount,
-				'tutorial_key' => $this->data['tutorial_key'],
+				'tutorial_key' => $tutorialKey,
+				'tutorial_title' => $tutorialTitle,
 			]);
 
 			return $this->complete();

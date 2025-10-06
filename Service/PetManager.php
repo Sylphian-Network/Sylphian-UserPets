@@ -6,6 +6,7 @@ use Sylphian\UserPets\AI\Happiness;
 use Sylphian\UserPets\AI\Hunger;
 use Sylphian\UserPets\AI\Sleepiness;
 use Sylphian\UserPets\Entity\UserPets;
+use Sylphian\UserPets\Repository\UserPetsRepository;
 use XF\PrintableException;
 
 /**
@@ -155,9 +156,11 @@ class PetManager
 			$this->determineState();
 
 			$petLeveling = new PetLeveling();
-			$petLeveling->addExperience($this->pet, $action);
+			$expAmount = $petLeveling->getExperienceForAction($action);
 
-			$this->pet->save();
+			/** @var UserPetsRepository $petsRepo */
+			$petsRepo = \XF::repository('Sylphian\UserPets:UserPets');
+			$petsRepo->awardPetExperience($this->pet->user_id, $expAmount);
 		}
 	}
 }

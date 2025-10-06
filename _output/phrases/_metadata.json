@@ -1,4 +1,16 @@
 {
+    "alert_opt_out.syl_userpet_levelup.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "79a0c8c87ec3877a3c1f6ae0efaceb6a"
+    },
+    "alert_opt_out.syl_userpet_tutorial.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "2ffb3e981030a77aadc4c5627ff35d34"
+    },
     "option.sylphian_userpets_base_coefficient.txt": {
         "global_cache": false,
         "version_id": 1000010,
