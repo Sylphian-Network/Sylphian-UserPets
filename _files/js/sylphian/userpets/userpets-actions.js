@@ -51,7 +51,7 @@ XF.PetActions = XF.Element.newHandler({
             const cooldownTime = data.cooldownTime || this.options.cooldown;
             this.startCooldownTimer(cooldownTime);
 
-            XF.flashMessage(data.message || XF.phrase('sylphian_userpets_action_success'), 3000);
+            //XF.flashMessage(data.message || XF.phrase('sylphian_userpets_action_success'), 3000);
         } else {
             XF.alert(data.message || XF.phrase('sylphian_userpets_action_error'));
 

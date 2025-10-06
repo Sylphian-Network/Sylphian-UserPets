@@ -1,5 +1,5 @@
 <xf:if is="$tutorial">
-	<div class="block block-container">
+	<div class="block block-container tutorialBlock">
 		<h3 class="block-header u-alignCenter">{{ phrase('sylphian_userpets_tutorial_title') }}</h3>
 		<div class="block-body block-row">
 			<xf:foreach loop="$tutorial" value="$tut">
@@ -213,5 +213,40 @@
 
 .p-body-sidebar .petStats {
     padding: 2px 10px;
+}
+	
+.tutorialItem {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.tutorialItem input[type="checkbox"] {
+	width: 18px;
+	height: 18px;
+}
+
+.tutorialItem span {
+	flex: 1;
+	font-size: 14px;
+	color: var(--xf-textColor);
+	line-height: 1.4;
+}
+
+.tutorialBlock .block-body.block-row {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+
+.tutorialBlock .block-body.block-row .block-row {
+	flex: 1 1 45%;
+	min-width: 200px;
+	box-sizing: border-box;
+}
+
+.tutorialItem input[checked] + span {
+	text-decoration: line-through;
+	opacity: 0.7;
 }
 </xf:css>

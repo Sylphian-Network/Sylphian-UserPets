@@ -12,7 +12,7 @@
     "public/alert_syl_userpet_levelup.html": {
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
-        "hash": "21d4760f302e72200be0e81ff87b542e"
+        "hash": "acad9275281f9ad0ace6260a12e0a398"
     },
     "public/alert_syl_userpet_tutorial.html": {
         "version_id": 1000010,
@@ -27,6 +27,6 @@
     "public/sylphian_userpets_own_widget.html": {
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
-        "hash": "1c4ecf3521f378e38d53defcef97e86a"
+        "hash": "8553ac082623d68bff38abc6d768d5d0"
     }
 }
