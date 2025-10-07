@@ -1,0 +1,14 @@
+{
+    "group_name": "syl_userpets",
+    "title": "Canvas border width",
+    "description": "Outline width",
+    "property_type": "value",
+    "css_components": [],
+    "value_type": "unit",
+    "value_parameters": "",
+    "has_variations": false,
+    "depends_on": "",
+    "value_group": "Canvas",
+    "property_value": "3px",
+    "display_order": 202
+}

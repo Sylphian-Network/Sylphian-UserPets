@@ -94,8 +94,8 @@
     align-items: center;
     margin-bottom: 5px;
     
-    outline: 3px solid {{ property('sylUserPetsCanvasBorder') }};
-    border-radius: 12px;
+    outline: {{ property('sylUserPetsCanvasBorderWidth') }} solid {{ property('sylUserPetsCanvasBorder') }};
+    border-radius: {{ property('sylUserPetsCanvasBorderRadius') }};
 }
 
 .petStats {
@@ -144,7 +144,7 @@
     top: 0;
     height: 20px;
     line-height: 20px;
-    color: #fff;
+    color: {{ property('sylUserPetsProgressBarTextColor') }};
     text-align: center;
     font-weight: bold;
     text-shadow: 1px 1px 0 rgba(0,0,0,0.5);

@@ -1,6 +1,6 @@
 {
     "group_name": "syl_userpets",
-    "title": "Canvas border color",
+    "title": "Progress bar text color",
     "description": "",
     "property_type": "value",
     "css_components": [],
@@ -8,9 +8,9 @@
     "value_parameters": "",
     "has_variations": true,
     "depends_on": "",
-    "value_group": "Canvas",
+    "value_group": "Progress_bar",
     "property_value": {
-        "default": "@xf-paletteColor2"
+        "default": "@xf-paletteNeutral1"
     },
-    "display_order": 201
+    "display_order": 303
 }

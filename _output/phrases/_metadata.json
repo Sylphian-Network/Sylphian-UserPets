@@ -279,7 +279,19 @@
         "global_cache": false,
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
-        "hash": "1bf3917e4886a9b4d21ea08a03b4df67"
+        "hash": "dd4999385c7c018750f38b5dcd6e81b7"
+    },
+    "style_prop.sylUserPetsCanvasBorderRadius.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "3c433f9c59a284d128146053dacbc33e"
+    },
+    "style_prop.sylUserPetsCanvasBorderWidth.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "d7cd304a365bbc56d237492c462327b5"
     },
     "style_prop.sylUserPetsProgressBarBackground.txt": {
         "global_cache": false,
@@ -293,11 +305,29 @@
         "version_string": "1.0.0 Alpha",
         "hash": "5406f062b37558747a64285818010f84"
     },
+    "style_prop.sylUserPetsProgressBarTextColor.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "835453184d79a3efb6443bba2697e33b"
+    },
     "style_prop_desc.sylUserPetsCanvasBorder.txt": {
         "global_cache": false,
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
         "hash": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "style_prop_desc.sylUserPetsCanvasBorderRadius.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "b4f3520f898a2f2f86a679c08aa4f286"
+    },
+    "style_prop_desc.sylUserPetsCanvasBorderWidth.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "d7d5908c0e3f3b5dd1674ca42647dfb1"
     },
     "style_prop_desc.sylUserPetsProgressBarBackground.txt": {
         "global_cache": false,
@@ -306,6 +336,12 @@
         "hash": "d41d8cd98f00b204e9800998ecf8427e"
     },
     "style_prop_desc.sylUserPetsProgressBarFill.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "style_prop_desc.sylUserPetsProgressBarTextColor.txt": {
         "global_cache": false,
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
