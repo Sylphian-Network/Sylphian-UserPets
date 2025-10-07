@@ -76,6 +76,7 @@ class UserPetWidget extends AbstractWidget
 			return $this->renderer('sylphian_userpets_own_widget', [
 				'widget' => $widget,
 				'pet' => $pet,
+				'custom_pet_name' => $this->getCustomName($visitor),
 				'actionUrl' => $actionUrl,
 				'spriteSheetPath' => $spriteSheetPath,
 				'levelProgress' => $levelProgress,
@@ -94,6 +95,7 @@ class UserPetWidget extends AbstractWidget
 
 			$profileUser = $this->em()->find('XF:User', $profileViewing);
 			$spriteSheetPath = $this->getSpriteSheetPathForUser($profileUser);
+			$customName = $this->getCustomName($profileUser);
 
 			$petManager = new PetManager($pet);
 			try
@@ -115,6 +117,7 @@ class UserPetWidget extends AbstractWidget
 			return $this->renderer('sylphian_userpets_other_widget', [
 				'widget' => $widget,
 				'pet' => $pet,
+				'custom_pet_name' => $customName,
 				'spriteSheetPath' => $spriteSheetPath,
 				'levelProgress' => $levelProgress,
 				'expNeeded' => $expNeeded,
@@ -144,6 +147,27 @@ class UserPetWidget extends AbstractWidget
 		$selectedSpritesheet = $customSpritesheet ?: $defaultSpritesheet;
 		return $this->app()->options()->publicPath
 			. '/data/assets/sylphian/userpets/spritesheets/' . $selectedSpritesheet . '.png';
+	}
+
+	/**
+	 * Gets the custom pet name for that user.
+	 *
+	 * Uses the user's custom field value if set, otherwise falls back to null.
+	 *
+	 * @param User|null $user User entity or null
+	 * @return string|null The custom name or null
+	 */
+	protected function getCustomName(?User $user): string|null
+	{
+		$customName = null;
+
+		if ($user?->user_id)
+		{
+			$customFields = $user->Profile->custom_fields ?? [];
+			$customName = $customFields['syl_userpets_custom_name'] ?? null;
+		}
+
+		return $customName;
 	}
 
 	/**

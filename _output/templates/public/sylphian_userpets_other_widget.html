@@ -1,7 +1,14 @@
 <div class="block">
     <div class="block-container">
-        <h3 class="block-header u-alignCenter">{{ phrase_dynamic('sylphian_userpets_widget_title', {'username': $pet.User.username}) }}</h3>
-        <div class="block-body">
+        <xf:if is="$custom_pet_name != null">
+			<h3 class="block-header u-alignCenter">{{ $custom_pet_name }}<br>
+				<span class="petSubTitle">{{ phrase_dynamic('sylphian_userpets_widget_title', {'username': $pet.User.username}) }}</span>
+			</h3>
+		<xf:else />
+        	<h3 class="block-header u-alignCenter">{{ phrase_dynamic('sylphian_userpets_widget_title', {'username': $pet.User.username}) }}</h3>
+		</xf:if>
+		
+		<div class="block-body">
             <div class="block-row">
                 <div class="petWidgetContainer">
                     <div class="petCanvasContainer">
@@ -164,5 +171,10 @@
 
 .p-body-sidebar .petStats {
     padding: 2px 10px;
+}
+
+.petSubTitle {
+	font-size: 12px;
+	opacity: 0.6;
 }
 </xf:css>

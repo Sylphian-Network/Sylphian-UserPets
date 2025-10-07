@@ -91,6 +91,37 @@ class Setup extends AbstractSetup
 		});
 	}
 
+	public function installStep4(): void
+	{
+		try
+		{
+			$this->createUserField(
+				'syl_userpets_custom_name',
+				'Custom pet name',
+				"Write your custom name into this field, if you don't want a custom name set this to blank.",
+				[
+					'field_type' => 'textbox',
+					'display_group' => 'preferences',
+					'display_order' => 501,
+					'max_length' => 15,
+					'user_editable' => 'yes',
+					'required' => false,
+					'show_registration' => false,
+					'viewable_profile' => false,
+					'viewable_message' => false,
+				]
+			);
+
+		}
+		catch (\Exception $e)
+		{
+			Logger::error('Unexpected error in installStep4', [
+				'exception' => $e->getMessage(),
+				'trace' => $e->getTraceAsString(),
+			]);
+		}
+	}
+
 	public function uninstallStep1(): void
 	{
 		$this->schemaManager()->dropTable('xf_user_pets');
@@ -104,5 +135,10 @@ class Setup extends AbstractSetup
 	public function uninstallStep3(): void
 	{
 		$this->schemaManager()->dropTable('xf_user_pets_tutorials');
+	}
+
+	public function uninstallStep4(): void
+	{
+		$this->removeUserField('syl_userpets_custom_name');
 	}
 }

@@ -25,7 +25,14 @@
          data-cooldown="{{ $xf.options.sylphian_userpets_cooldown_time }}"
          data-last-action-time="{{ $pet.last_action_time }}"
          data-current-time="{{ $xf.time }}">
-        <h3 class="block-header u-alignCenter">{{ phrase_dynamic('sylphian_userpets_widget_title', {'username': $pet.User.username}) }}</h3>
+		
+		<xf:if is="$custom_pet_name != null">
+			<h3 class="block-header u-alignCenter">{{ $custom_pet_name }}<br>
+				<span class="petSubTitle">{{ phrase_dynamic('sylphian_userpets_widget_title', {'username': $pet.User.username}) }}</span>
+			</h3>
+		<xf:else />
+        	<h3 class="block-header u-alignCenter">{{ phrase_dynamic('sylphian_userpets_widget_title', {'username': $pet.User.username}) }}</h3>
+		</xf:if>
         
         <div class="block-body">
             <div class="block-row">
@@ -213,6 +220,11 @@
 
 .p-body-sidebar .petStats {
     padding: 2px 10px;
+}
+	
+.petSubTitle {
+	font-size: 12px;
+	opacity: 0.6;
 }
 	
 .tutorialItem {
