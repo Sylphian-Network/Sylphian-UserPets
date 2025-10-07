@@ -143,7 +143,7 @@
     align-items: center;
     margin-bottom: 5px;
     
-    outline: 3px solid hsla(var(--xf-paletteColor3));
+    outline: 3px solid {{ property('sylUserPetsCanvasBorder') }};
     border-radius: 12px;
 }
 
@@ -171,7 +171,7 @@
 .petProgressBar {
     position: relative;
     flex: 1;
-    background: #ff5555;
+    background: {{ property('sylUserPetsProgressBarBackground') }};
     border: @xf-borderSize solid @xf-borderColorFaint;
     border-radius: @xf-borderRadiusSmall;
     overflow: hidden;
@@ -181,7 +181,7 @@
 }
 
 .petProgressBar-progress {
-    background: #4CAF50;
+    background: {{ property('sylUserPetsProgressBarFill') }};
     height: 100%;
     transition: width 0.3s ease;
 }

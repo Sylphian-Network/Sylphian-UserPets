@@ -1,0 +1,16 @@
+{
+    "group_name": "syl_userpets",
+    "title": "Progress bar fill",
+    "description": "",
+    "property_type": "value",
+    "css_components": [],
+    "value_type": "color",
+    "value_parameters": "",
+    "has_variations": true,
+    "depends_on": "",
+    "value_group": "Progress_bar",
+    "property_value": {
+        "default": "@xf-paletteAccent2"
+    },
+    "display_order": 301
+}

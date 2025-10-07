@@ -275,6 +275,54 @@
         "version_string": "1.0.0 Alpha",
         "hash": "d41d8cd98f00b204e9800998ecf8427e"
     },
+    "style_prop.sylUserPetsCanvasBorder.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "1bf3917e4886a9b4d21ea08a03b4df67"
+    },
+    "style_prop.sylUserPetsProgressBarBackground.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "876dab5b0f795408904d537e08a30ab0"
+    },
+    "style_prop.sylUserPetsProgressBarFill.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "5406f062b37558747a64285818010f84"
+    },
+    "style_prop_desc.sylUserPetsCanvasBorder.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "style_prop_desc.sylUserPetsProgressBarBackground.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "style_prop_desc.sylUserPetsProgressBarFill.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "style_prop_group.syl_userpets.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "ce9c0b4b2b88e2f2dce062523f5d574f"
+    },
+    "style_prop_group_desc.syl_userpets.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "1cf5ef17902d61fcd314109a0e528bda"
+    },
     "sylphian_userpets_cooldown_timer.txt": {
         "global_cache": false,
         "version_id": 1000010,
