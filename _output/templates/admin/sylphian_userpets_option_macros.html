@@ -126,6 +126,29 @@
 				</div>
 			</div>
 			
+			<div class="block">
+				<div class="block-container">
+					<h3 class="block-header">Duel Options</h3>
+					<div class="block-body">
+						<xf:foreach loop="$options" value="$option">
+							<xf:if is="$option.Relations.sylphian_userpets.display_order >= 5000 && $option.Relations.sylphian_userpets.display_order < 6000">
+								<xf:if is="$group">
+									<xf:set var="$curHundred" value="{{ floor($option.Relations.{$group.group_id}.display_order / 100) }}" />
+									<xf:if is="{{ $curHundred > $hundred }}">
+										<xf:set var="$hundred" value="{$curHundred}" />
+										<hr class="formRowSep" />
+									</xf:if>
+								</xf:if>
+
+								<xf:macro template="option_macros" name="option_row" arg-group="{$group}" arg-option="{$option}" />
+							</xf:if>
+						</xf:foreach>
+					</div>
+					
+					<xf:submitrow sticky="true" icon="save" />
+				</div>
+			</div>
+			
         </xf:form>
     </xf:if>
 </xf:macro>

@@ -29,6 +29,43 @@ class UserPetsRepository extends Repository
 	}
 
 	/**
+	 * Create a new pet for a user
+	 *
+	 * @param int $userId The user ID
+	 * @return UserPets The newly created pet
+	 */
+	public function createPet(int $userId): UserPets
+	{
+		/** @var UserPets $pet */
+		$pet = $this->em->create('Sylphian\UserPets:UserPets');
+		$pet->user_id = $userId;
+		$pet->level = 1;
+		$pet->experience = 0;
+		$pet->hunger = 100;
+		$pet->sleepiness = 100;
+		$pet->happiness = 100;
+		$pet->state = 'idle';
+		$pet->last_update = \XF::$time;
+		$pet->last_action_time = 0;
+		$pet->last_duel_time = 0;
+		$pet->created_at = \XF::$time;
+
+		try
+		{
+			$pet->save();
+		}
+		catch (\Exception $e)
+		{
+			Logger::error(
+				"Failed to create pet for user_id {$userId}.",
+				['error' => $e->getMessage()]
+			);
+		}
+
+		return $pet;
+	}
+
+	/**
 	 * Get available sprite sheet options
 	 *
 	 * @return array List of available sprite sheets as field_choices array

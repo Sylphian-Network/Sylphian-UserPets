@@ -32,6 +32,7 @@ class Setup extends AbstractSetup
 			$table->addColumn('state', 'varchar', 30)->setDefault('idle');
 			$table->addColumn('last_update', 'int')->setDefault(\XF::$time);
 			$table->addColumn('last_action_time', 'int')->setDefault(0);
+			$table->addColumn('last_duel_time', 'int')->setDefault(0);
 			$table->addColumn('created_at', 'int')->setDefault(\XF::$time);
 
 			$table->addPrimaryKey('pet_id');
@@ -41,6 +42,8 @@ class Setup extends AbstractSetup
 
 	public function installStep2(): void
 	{
+		//TODO: This needs to read the spritesheets available rather than hardcoding them on installation.
+
 		try
 		{
 			/** @var UserPetsRepository $repository */
@@ -122,6 +125,25 @@ class Setup extends AbstractSetup
 		}
 	}
 
+	public function installStep5(): void
+	{
+		$this->schemaManager()->createTable('xf_user_pets_duels', function (Create $table)
+		{
+			$table->addColumn('duel_id', 'int')->autoIncrement();
+			$table->addColumn('challenger_pet_id', 'int')->nullable(false);
+			$table->addColumn('opponent_pet_id', 'int')->nullable(false);
+			$table->addColumn('status', 'enum')->values(['pending', 'accepted', 'declined', 'completed'])->setDefault('pending');
+			$table->addColumn('winner_pet_id', 'int')->setDefault(0);
+			$table->addColumn('loser_pet_id', 'int')->setDefault(0);
+			$table->addColumn('created_at', 'int')->setDefault(\XF::$time);
+			$table->addColumn('completed_at', 'int')->setDefault(0);
+
+			$table->addPrimaryKey('duel_id');
+			$table->addKey(['challenger_pet_id', 'opponent_pet_id'], 'challenger_opponent');
+			$table->addKey('status');
+		});
+	}
+
 	public function uninstallStep1(): void
 	{
 		$this->schemaManager()->dropTable('xf_user_pets');
@@ -140,5 +162,10 @@ class Setup extends AbstractSetup
 	public function uninstallStep4(): void
 	{
 		$this->removeUserField('syl_userpets_custom_name');
+	}
+
+	public function uninstallStep5(): void
+	{
+		$this->schemaManager()->dropTable('xf_user_pets_duels');
 	}
 }

@@ -15,8 +15,12 @@ class UserPetHandler extends AbstractHandler
 	public function getOptOutActions(): array
 	{
 		return [
-			'levelup',  // Pet leveled up
-			'tutorial', // Pet tutorial completed
+			'levelup',          // Pet leveled up
+			'tutorial',         // Pet tutorial completed
+			'duel_challenge',   // Pet duel challenge received
+			'duel_declined',    // Pet duel challenge declined
+			'duel_win',         // Pet won a duel
+			'duel_loss',        // Pet lost a duel
 		];
 	}
 

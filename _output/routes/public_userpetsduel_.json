@@ -1,11 +1,11 @@
 {
     "route_type": "public",
-    "route_prefix": "userpets",
+    "route_prefix": "userpetsduel",
     "sub_name": "",
     "format": "",
     "build_class": "",
     "build_method": "",
-    "controller": "Sylphian\\UserPets:UserPet",
+    "controller": "Sylphian\\UserPets:UserPetDuel",
     "context": "userpets",
     "action_prefix": ""
 }

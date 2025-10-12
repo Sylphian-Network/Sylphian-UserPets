@@ -4,7 +4,8 @@
     "data/assets/sylphian/userpets"
   ],
   "minify": [
-    "js/sylphian/userpets/userpets-actions.js"
+    "js/sylphian/userpets/userpets-actions.js",
+    "js/sylphian/userpets/userpets-renderer.js"
   ],
   "exec": [
     "echo '{title} v{version_string} has been built successfully!'"

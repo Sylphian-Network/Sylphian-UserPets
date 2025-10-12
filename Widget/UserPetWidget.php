@@ -4,6 +4,7 @@ namespace Sylphian\UserPets\Widget;
 
 use Sylphian\Library\Logger\Logger;
 use Sylphian\UserPets\Entity\UserPets;
+use Sylphian\UserPets\Repository\UserPetsRepository;
 use Sylphian\UserPets\Repository\UserPetsTutorialRepository;
 use Sylphian\UserPets\Service\PetLeveling;
 use Sylphian\UserPets\Service\PetManager;
@@ -87,7 +88,10 @@ class UserPetWidget extends AbstractWidget
 		else
 		{
 			// Viewing someone else's profile
-			$pet = $this->getExistingPet($profileViewing);
+			/** @var UserPetsRepository $repo */
+			$repo = $this->repository('Sylphian\UserPets:UserPets');
+			$pet = $repo->getUserPet($profileViewing);
+
 			if (!$pet)
 			{
 				return null; // No pet exists for this user
@@ -180,51 +184,14 @@ class UserPetWidget extends AbstractWidget
 	 */
 	protected function getOrCreatePet(int $userId): UserPets
 	{
-		$pet = $this->finder('Sylphian\UserPets:UserPets')
-			->where('user_id', $userId)
-			->fetchOne();
+		/** @var UserPetsRepository $repo */
+		$repo = $this->repository('Sylphian\UserPets:UserPets');
+		$pet = $repo->getUserPet($userId);
 
 		if (!$pet)
 		{
-			/** @var UserPets $pet */
-			$pet = $this->em()->create('Sylphian\UserPets:UserPets');
-			$pet->user_id = $userId;
-			$pet->hunger = 100;
-			$pet->sleepiness = 100;
-			$pet->happiness = 100;
-			$pet->state = 'idle';
-			$pet->last_update = \XF::$time;
-			$pet->last_action_time = 0;
-			$pet->created_at = \XF::$time;
-
-			try
-			{
-				$pet->save();
-			}
-			catch (\Exception $e)
-			{
-				Logger::error(
-					"Failed to create pet for user_id {$userId}.",
-					['error' => $e->getMessage(), 'trace' => $e->getTrace()]
-				);
-			}
+			$pet = $repo->createPet($userId);
 		}
-
-		return $pet;
-	}
-
-	/**
-	 * Fetch a pet for another user but NEVER create it.
-	 *
-	 * @param int $userId User ID to fetch pet for
-	 * @return UserPets|null The pet entity, or null if none exists
-	 */
-	protected function getExistingPet(int $userId): ?UserPets
-	{
-		/** @var UserPets|null $pet */
-		$pet = $this->finder('Sylphian\UserPets:UserPets')
-			->where('user_id', $userId)
-			->fetchOne();
 
 		return $pet;
 	}

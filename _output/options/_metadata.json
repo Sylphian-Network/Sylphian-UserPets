@@ -8,6 +8,15 @@
     "sylphian_userpets_default_spritesheet.json": {
         "hash": "38510561144c6d1921e1614a0995e387"
     },
+    "sylphian_userpets_duel_cooldown_time.json": {
+        "hash": "f08443c250d440ab5deaad656d343e5b"
+    },
+    "sylphian_userpets_duel_lose_stats.json": {
+        "hash": "d7b5d0fe57788afe4d4ca994689156bc"
+    },
+    "sylphian_userpets_duel_win_exp.json": {
+        "hash": "ec9b81b8da0dda71de8d8f70e2fb97bc"
+    },
     "sylphian_userpets_enable_tutorial.json": {
         "hash": "a5d252afc13e066ba35471e793e4b881"
     },

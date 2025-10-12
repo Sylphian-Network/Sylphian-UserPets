@@ -1,11 +1,14 @@
 <div class="block">
     <div class="block-container">
         <xf:if is="$custom_pet_name != null">
-			<h3 class="block-header u-alignCenter">{{ $custom_pet_name }}<br>
+			<h3 class="block-header u-alignCenter">
+				{{ $custom_pet_name }}<br>
 				<span class="petSubTitle">{{ phrase_dynamic('sylphian_userpets_widget_title', {'username': $pet.User.username}) }}</span>
 			</h3>
 		<xf:else />
-        	<h3 class="block-header u-alignCenter">{{ phrase_dynamic('sylphian_userpets_widget_title', {'username': $pet.User.username}) }}</h3>
+        	<h3 class="block-header u-alignCenter">
+				{{ phrase_dynamic('sylphian_userpets_widget_title', {'username': $pet.User.username}) }}
+			</h3>
 		</xf:if>
 		
 		<div class="block-body">
@@ -60,7 +63,15 @@
                 </div>
             </div>
         </div>
-    </div>
+    	<div class="block-footer u-alignCenter">
+			<xf:button href="{{ link('userpetsduel/challenge', null, {'opponent_pet_id': $pet.pet_id}) }}" 
+					   class="button--small button--primary" 
+					   overlay="true">
+				<xf:fa icon="fa-swords" />
+				{{ phrase('challenge') }}
+			</xf:button>
+		</div>
+	</div>
 </div>
 
 <xf:js src="sylphian/userpets/userpets-renderer.js" min="1" addon="Sylphian/UserPets" />
@@ -154,11 +165,6 @@
 
 .petProgressBar:hover .petProgressBar-label {
     opacity: 1;
-}
-
-.petLevelBar {
-    margin: 6px auto;
-    max-width: 95%;
 }
 
 .petState {

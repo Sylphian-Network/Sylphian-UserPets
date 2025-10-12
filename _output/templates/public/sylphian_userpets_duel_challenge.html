@@ -1,0 +1,80 @@
+<xf:title>{{ phrase('sylphian_userpets_duel_challenge_title') }}</xf:title>
+
+<div class="block">
+    <div class="block-container">
+        <div class="block-body">
+            <xf:form action="{{ link('userpetsduel/challengeconfirm') }}" ajax="true">
+				<xf:hiddenval name="my_pet_id">{{ $myPet.pet_id }}</xf:hiddenval>
+				<xf:hiddenval name="opponent_pet_id">{{ $opponentPet.pet_id }}</xf:hiddenval>
+				
+                <div class="u-alignCenter">
+                    <div class="block-row">
+                        <div class="petDuelPreview">
+                            <div class="petDuelChallenger">
+                                <h3>{{ phrase('sylphian_userpets_your_pet') }}</h3>
+                                <div class="petDuelStats">
+                                    <div>{{ phrase_dynamic('sylphian_userpets_level', {'level': $myPet.level}) }}</div>
+                                    <div>{{ phrase('sylphian_userpets_hunger') }}: {{ $myPet.hunger }}/100</div>
+                                    <div>{{ phrase('sylphian_userpets_happiness') }}: {{ $myPet.happiness }}/100</div>
+                                    <div>{{ phrase('sylphian_userpets_sleepiness') }}: {{ $myPet.sleepiness }}/100</div>
+                                </div>
+                            </div>
+                            
+                            <div class="petDuelVersus">
+                                <span class="petDuelVersusText">VS</span>
+                            </div>
+                            
+                            <div class="petDuelOpponent">
+                                <h3>{{ phrase_dynamic('sylphian_userpets_opponent_pet', {'username': $opponentPet.User.username}) }}</h3>
+                                <div class="petDuelStats">
+                                    <div>{{ phrase_dynamic('sylphian_userpets_level', {'level': $opponentPet.level}) }}</div>
+                                    <div>{{ phrase('sylphian_userpets_hunger') }}: {{ $opponentPet.hunger }}/100</div>
+                                    <div>{{ phrase('sylphian_userpets_happiness') }}: {{ $opponentPet.happiness }}/100</div>
+                                    <div>{{ phrase('sylphian_userpets_sleepiness') }}: {{ $opponentPet.sleepiness }}/100</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+					
+					<xf:if is="$xf.options.sylphian_userpets_duel_win_exp > 0 && $xf.options.sylphian_userpets_duel_lose_stats > 0">
+						<div class="blockMessage blockMessage--warning blockMessage--iconic">
+							<p>
+								{{ phrase_dynamic('sylphian_userpets_duel_challenge_confirmation_text', {'expReward': $xf.options.sylphian_userpets_duel_win_exp, 'statLoss': $xf.options.sylphian_userpets_duel_lose_stats}) }}
+							</p>
+						</div>
+					</xf:if>
+				</div>
+                
+				<xf:submitrow icon="fa-swords" submit="{{ phrase('sylphian_userpets_confirm_challenge') }}" />
+            </xf:form>
+        </div>
+    </div>
+</div>
+
+<xf:css>
+.petDuelPreview {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    margin: 20px auto;
+    max-width: 800px;
+}
+
+.petDuelChallenger, .petDuelOpponent {
+    flex: 1;
+    padding: 15px;
+    border: 1px solid @xf-borderColor;
+    border-radius: @xf-borderRadiusMedium;
+    background: @xf-contentAltBg;
+}
+
+.petDuelVersus {
+    margin: 0 20px;
+    font-weight: bold;
+    font-size: 24px;
+}
+
+.petDuelStats {
+    margin-top: 10px;
+}
+</xf:css>

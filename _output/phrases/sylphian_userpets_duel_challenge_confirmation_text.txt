@@ -1,0 +1,1 @@
+Challenging another pet to a duel could earn you {expReward} EXP, but you may lose up to {statLoss}% of your stats if you’re defeated.

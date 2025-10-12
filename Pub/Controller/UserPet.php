@@ -2,7 +2,7 @@
 
 namespace Sylphian\UserPets\Pub\Controller;
 
-use Sylphian\UserPets\Entity\UserPets;
+use Sylphian\UserPets\Repository\UserPetsRepository;
 use Sylphian\UserPets\Service\PetLeveling;
 use Sylphian\UserPets\Service\PetManager;
 use XF\Mvc\Reply\Error;
@@ -16,10 +16,9 @@ class UserPet extends AbstractController
 		$this->assertPostOnly();
 
 		$visitor = \XF::visitor();
-		/** @var UserPets $pet */
-		$pet = $this->finder('Sylphian\UserPets:UserPets')
-			->where('user_id', $visitor->user_id)
-			->fetchOne();
+		/** @var UserPetsRepository $repo */
+		$repo = $this->repository('Sylphian\UserPets:UserPets');
+		$pet = $repo->getUserPet($visitor->user_id);
 
 		if (!$pet)
 		{

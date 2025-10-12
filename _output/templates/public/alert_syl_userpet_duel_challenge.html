@@ -1,0 +1,13 @@
+{{ $extra.challenger_name }} has challenged your pet to a duel!<br>
+<div class="u-mTop5">
+    <a href="{{ link('userpetsduel/acceptchallenge', null, {'duel_id': $extra.duel_id}) }}" 
+       class="button button--primary button--small"
+       data-xf-click="ajax">
+        {{ phrase('accept') }}
+    </a>
+    <a href="{{ link('userpetsduel/rejectchallenge', null, {'duel_id': $extra.duel_id}) }}" 
+       class="button button--small"
+       data-xf-click="ajax">
+        {{ phrase('decline') }}
+    </a>
+</div>

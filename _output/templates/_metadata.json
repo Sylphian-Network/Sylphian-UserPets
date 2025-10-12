@@ -2,12 +2,32 @@
     "admin/sylphian_userpets_option_macros.html": {
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
-        "hash": "245bf30f08d75e325f449737b55f4337"
+        "hash": "8d2dcf379a9e79c58f27de9eaf989861"
     },
     "admin/widget_def_options_sylphian_userpets_widget.html": {
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
         "hash": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "public/alert_syl_userpet_duel_challenge.html": {
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "6037f72601025dbb3a6338411501f6a0"
+    },
+    "public/alert_syl_userpet_duel_declined.html": {
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "334e6722cb702a5a130f943bb452cfbd"
+    },
+    "public/alert_syl_userpet_duel_loss.html": {
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "b0a1d58659c0765ddf4f6ee09a434865"
+    },
+    "public/alert_syl_userpet_duel_win.html": {
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "9b7e28c65e7ff973165fa13b6f6be5e7"
     },
     "public/alert_syl_userpet_levelup.html": {
         "version_id": 1000010,
@@ -19,14 +39,19 @@
         "version_string": "1.0.0 Alpha",
         "hash": "3cd8995711ed5b08de62e524854a6521"
     },
+    "public/sylphian_userpets_duel_challenge.html": {
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "21343d50a5cecde29bc060bd018745e6"
+    },
     "public/sylphian_userpets_other_widget.html": {
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
-        "hash": "d6b6a944eb5103c0f9f301f90ce39256"
+        "hash": "fa383a8033b309f3301e74ef3c1ba4ed"
     },
     "public/sylphian_userpets_own_widget.html": {
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
-        "hash": "0b32215bc5e8145f4bd3b50315b3d83d"
+        "hash": "c7ea724842bc4418213af94f4b2ffa79"
     }
 }

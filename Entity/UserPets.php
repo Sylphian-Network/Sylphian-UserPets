@@ -18,6 +18,7 @@ use XF\Mvc\Entity\Structure;
  * @property string $state
  * @property int    $last_update
  * @property int    $last_action_time
+ * @property int    $last_duel_time
  * @property int    $created_at
  *
  * RELATIONS
@@ -41,6 +42,7 @@ class UserPets extends Entity
 			'state'      => ['type' => self::STR, 'default' => 'idle', 'maxLength' => 30],
 			'last_update' => ['type' => self::UINT, 'default' => 0],
 			'last_action_time' => ['type' => self::UINT, 'default' => 0],
+			'last_duel_time' => ['type' => self::UINT, 'default' => 0],
 			'created_at' => ['type' => self::UINT, 'default' => \XF::$time],
 		];
 

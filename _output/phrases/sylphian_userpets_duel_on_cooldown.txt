@@ -1,0 +1,1 @@
+You must wait {remaining_time} before challenging another pet to a duel.
