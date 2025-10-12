@@ -152,7 +152,9 @@ class TutorialEvents
 			TutorialId::COMPLETE_ACTION,
 			function (UserPets $pet)
 			{
-				return $pet->isChanged('last_action_time');
+				return $pet->isChanged('last_action_time') &&
+					!$pet->isInsert() &&
+					$pet->last_action_time > 0;
 			},
 			null,
 			['petId' => $entity instanceof UserPets ? $entity->pet_id : null]
