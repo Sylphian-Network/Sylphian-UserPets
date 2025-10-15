@@ -1,6 +1,6 @@
 <?php
 
-namespace Sylphian\UserPets\AI;
+namespace Sylphian\UserPets\Stats;
 
 /**
  * Represents a pet's happiness stat.

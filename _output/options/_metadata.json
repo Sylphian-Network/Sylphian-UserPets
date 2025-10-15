@@ -9,7 +9,10 @@
         "hash": "38510561144c6d1921e1614a0995e387"
     },
     "sylphian_userpets_duel_cooldown_time.json": {
-        "hash": "f08443c250d440ab5deaad656d343e5b"
+        "hash": "f1b874a78fcb6ffaadaa7a41e5010c57"
+    },
+    "sylphian_userpets_duel_enable.json": {
+        "hash": "3d4ca06dc48e0f7ef45a07163d1e4f05"
     },
     "sylphian_userpets_duel_lose_stats.json": {
         "hash": "d7b5d0fe57788afe4d4ca994689156bc"
@@ -49,6 +52,12 @@
     },
     "sylphian_userpets_polynomial_power.json": {
         "hash": "b7bd1ea04c8fcc35dd32d1520630f282"
+    },
+    "sylphian_userpets_scale_max.json": {
+        "hash": "bdc7ae131f83607c40f9d6b4a9723ddc"
+    },
+    "sylphian_userpets_scale_min.json": {
+        "hash": "dca03c5b067bda199de8d87013e11d8e"
     },
     "sylphian_userpets_sleepiness_critical_threshold.json": {
         "hash": "50a12e1dce6fe6f1f8e2250e483829b5"

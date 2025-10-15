@@ -15,6 +15,7 @@ namespace XF;
  * @property string|null $sylphian_userpets_cooldown_time Cooldown time
  * @property string|null $sylphian_userpets_default_spritesheet Default Spritesheet
  * @property int|null $sylphian_userpets_duel_cooldown_time Duel cooldown timer
+ * @property bool|null $sylphian_userpets_duel_enable Enable Dueling
  * @property int|null $sylphian_userpets_duel_lose_stats Duel stat lose
  * @property int|null $sylphian_userpets_duel_win_exp Duel exp reward
  * @property bool|null $sylphian_userpets_enable_tutorial Enable tutorial
@@ -28,6 +29,8 @@ namespace XF;
  * @property int|null $sylphian_userpets_hunger_critical_threshold Hunger Critical Threshold
  * @property int|null $sylphian_userpets_hunger_decay Hunger Decay
  * @property float|null $sylphian_userpets_polynomial_power Polynomial Power
+ * @property float|null $sylphian_userpets_scale_max Pet scale: maximum at level 100
+ * @property float|null $sylphian_userpets_scale_min Pet scale: minimum at level 1
  * @property int|null $sylphian_userpets_sleepiness_critical_threshold Sleepiness Critical Threshold
  * @property int|null $sylphian_userpets_sleepiness_decay Sleepiness Decay
  * @property int|null $sylphian_userpets_stat_update_interval Stat update interval

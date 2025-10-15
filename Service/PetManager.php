@@ -2,11 +2,11 @@
 
 namespace Sylphian\UserPets\Service;
 
-use Sylphian\UserPets\AI\Happiness;
-use Sylphian\UserPets\AI\Hunger;
-use Sylphian\UserPets\AI\Sleepiness;
 use Sylphian\UserPets\Entity\UserPets;
 use Sylphian\UserPets\Repository\UserPetsRepository;
+use Sylphian\UserPets\Stats\Happiness;
+use Sylphian\UserPets\Stats\Hunger;
+use Sylphian\UserPets\Stats\Sleepiness;
 use XF\PrintableException;
 
 /**

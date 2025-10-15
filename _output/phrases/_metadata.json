@@ -59,6 +59,12 @@
         "version_string": "1.0.0 Alpha",
         "hash": "0a26a21d813a803f2d6890b4ed4ed9af"
     },
+    "option.sylphian_userpets_duel_enable.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "992ab7b526c1409ca01e9c741a045e19"
+    },
     "option.sylphian_userpets_duel_lose_stats.txt": {
         "global_cache": false,
         "version_id": 1000010,
@@ -137,6 +143,18 @@
         "version_string": "1.0.0 Alpha",
         "hash": "0c7d95439ae991a2c8fc753056c4b516"
     },
+    "option.sylphian_userpets_scale_max.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "97b27e0ed66ee53244895b363baaed53"
+    },
+    "option.sylphian_userpets_scale_min.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "ec1c3439b7acdbe312bd4f7cd7d1f29a"
+    },
     "option.sylphian_userpets_sleepiness_critical_threshold.txt": {
         "global_cache": false,
         "version_id": 1000010,
@@ -202,6 +220,12 @@
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
         "hash": "257cb5ba640f213d3bde25c0394e1eec"
+    },
+    "option_explain.sylphian_userpets_duel_enable.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "b3ff5ad50d154819207adf9f49c0e728"
     },
     "option_explain.sylphian_userpets_duel_lose_stats.txt": {
         "global_cache": false,
@@ -280,6 +304,18 @@
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
         "hash": "ad22b71a0aa4642b4ea4a25863b03059"
+    },
+    "option_explain.sylphian_userpets_scale_max.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "5b0434ed627c3db75e69ae8377e7d3fa"
+    },
+    "option_explain.sylphian_userpets_scale_min.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "94de67dc08acaf5ae0e9075528a3c9fe"
     },
     "option_explain.sylphian_userpets_sleepiness_critical_threshold.txt": {
         "global_cache": false,

@@ -1,0 +1,1 @@
+Scale factor at level 100. Typical values: 0.75 - 1

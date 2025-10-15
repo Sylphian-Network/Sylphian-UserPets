@@ -19,7 +19,9 @@
                             <canvas id="petCanvas" width="128" height="128"
                                 data-xf-init="userpets-renderer" 
                                 data-pet-state="{{ $pet.state }}"
-                                data-sprite-sheet-path="{{ $spriteSheetPath }}"></canvas>
+                                data-sprite-sheet-path="{{ $spriteSheetPath }}"
+								data-scale-min="{{ $xf.options.sylphian_userpets_scale_min }}"
+								data-scale-max="{{ $xf.options.sylphian_userpets_scale_max }}"></canvas>
                         </div>
                         <div class="petState u-alignCenter">
                             <div class="petStateName">{{ phrase_dynamic('sylphian_userpets_pet_state', {'pet_state': $pet.state}) }}</div>
@@ -63,14 +65,16 @@
                 </div>
             </div>
         </div>
-    	<div class="block-footer u-alignCenter">
-			<xf:button href="{{ link('userpetsduel/challenge', null, {'opponent_pet_id': $pet.pet_id}) }}" 
-					   class="button--small button--primary" 
-					   overlay="true">
-				<xf:fa icon="fa-swords" />
-				{{ phrase('challenge') }}
-			</xf:button>
-		</div>
+		<xf:if is="$xf.options.sylphian_userpets_duel_enable">
+			<div class="block-footer u-alignCenter">
+				<xf:button href="{{ link('userpetsduel/challenge', null, {'opponent_pet_id': $pet.pet_id}) }}" 
+						   class="button--small button--primary" 
+						   overlay="true">
+					<xf:fa icon="fa-swords" />
+					{{ phrase('challenge') }}
+				</xf:button>
+			</div>
+		</xf:if>
 	</div>
 </div>
 
@@ -102,7 +106,7 @@
     aspect-ratio: 1 / 1;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-end;
     margin-bottom: 5px;
     
     outline: {{ property('sylUserPetsCanvasBorderWidth') }} solid {{ property('sylUserPetsCanvasBorder') }};

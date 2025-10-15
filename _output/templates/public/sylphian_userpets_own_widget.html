@@ -42,7 +42,10 @@
                             <canvas id="petCanvas" width="128" height="128"
                                 data-xf-init="userpets-renderer" 
                                 data-pet-state="{{ $pet.state }}"
-                                data-sprite-sheet-path="{{ $spriteSheetPath }}"></canvas>
+                                data-sprite-sheet-path="{{ $spriteSheetPath }}"
+								data-scale-min="{{ $xf.options.sylphian_userpets_scale_min }}"
+								data-scale-max="{{ $xf.options.sylphian_userpets_scale_max }}">
+							</canvas>
                         </div>
                         <div class="petState u-alignCenter">
                             <div class="petStateName">{{ phrase_dynamic('sylphian_userpets_pet_state', {'pet_state': $pet.state}) }}</div>
@@ -140,7 +143,7 @@
     aspect-ratio: 1 / 1;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-end;
     margin-bottom: 5px;
     
     outline: {{ property('sylUserPetsCanvasBorderWidth') }} solid {{ property('sylUserPetsCanvasBorder') }};

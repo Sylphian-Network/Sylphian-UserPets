@@ -11,8 +11,8 @@
     "extra_urls": [],
     "require": {
         "Sylphian/Library": [
-            1000510,
-            "Sylphian - Library [1.0.5] by QuackieMackie"
+            1000610,
+            "Sylphian - Library [1.0.6] by QuackieMackie"
         ]
     },
     "icon": "fa-paw"
