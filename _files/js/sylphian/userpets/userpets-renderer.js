@@ -7,10 +7,12 @@ XF.PetRenderer = XF.Element.newHandler({
             'play': 2,
             'sleep': 3,
         },
-        frameWidth: 128,
-        frameHeight: 128,
+        frameWidth: 192,
+        frameHeight: 192,
         fps: 4,
-        framesPerAnimation: 4
+        framesPerAnimation: 4,
+        scaleMin: 0.5,
+        scaleMax: 1.0
     },
 
     canvas: null,
@@ -42,13 +44,23 @@ XF.PetRenderer = XF.Element.newHandler({
             return;
         }
 
+        this.options.scaleMin = parseFloat(this.options.scaleMin);
+        this.options.scaleMax = parseFloat(this.options.scaleMax);
+
+        if (!Number.isFinite(this.options.scaleMin)) this.options.scaleMin = 0.5;
+        if (!Number.isFinite(this.options.scaleMax)) this.options.scaleMax = 1.0;
+
+        if (this.options.scaleMin > this.options.scaleMax) {
+            const t = this.options.scaleMin;
+            this.options.scaleMin = this.options.scaleMax; this.options.scaleMax = t;
+        }
+
         const petState = this.target.getAttribute('data-pet-state');
         if (petState && this.options.states.hasOwnProperty(petState)) {
             this.currentState = petState;
         }
 
         this.readPetLevel();
-
         this.loadSpriteSheet();
         this.startAnimation();
         this.listenForStateChanges();
@@ -74,31 +86,26 @@ XF.PetRenderer = XF.Element.newHandler({
     },
 
     /**
-     * Calculate scale based on level.
+     * Calculates the scale value based on pet level.
+     * Uses a non-linear (power 1.5) curve to slow scale growth at higher levels.
      *
-     * Growth is smooth and continuous using a logarithmic progression:
-     * - Level 1 = minScale (0.75x)
-     * - Level 100 = maxScale (1.5x)
-     *
-     * Values in between are calculated using:
-     *   scale = minScale + (log(level) / log(maxLevel)) * (maxScale - minScale)
-     *
-     * This gives faster growth at lower levels and slower growth at higher levels,
-     * creating a more natural RPG-style curve instead of stepwise jumps.
-     *
-     * @param {number} level Pet's current level
-     * @return {number} Scale factor to apply
+     * @param {number} level - The pet's current level (1–100).
+     * @returns {number} - The computed scale factor.
      */
     calculateScale: function(level) {
         level = Math.max(1, parseInt(level));
 
-        const minScale = 0.75;
-        const maxScale = 1.5;
+        const minScale = this.options.scaleMin;
+        const maxScale = this.options.scaleMax;
         const maxLevel = 100;
 
-        const progress = Math.log(level) / Math.log(maxLevel);
+        const progress = Math.pow(level / maxLevel, 1.5);
+        let scale = minScale + progress * (maxScale - minScale);
 
-        return minScale + progress * (maxScale - minScale);
+        if (scale < minScale) scale = minScale;
+        if (scale > maxScale) scale = maxScale;
+
+        return scale;
     },
 
     /**

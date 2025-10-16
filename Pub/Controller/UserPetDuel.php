@@ -14,18 +14,18 @@ use XF\Pub\Controller\AbstractController;
 
 class UserPetDuel extends AbstractController
 {
-    /**
-     * @throws Exception
-     */
-    protected function preDispatchController($action, ParameterBag $params): void
-    {
-        parent::preDispatchController($action, $params);
+	/**
+	 * @throws Exception
+	 */
+	protected function preDispatchController($action, ParameterBag $params): void
+	{
+		parent::preDispatchController($action, $params);
 
-        if (!\XF::options()->sylphian_userpets_duel_enable)
-        {
-            throw $this->exception($this->noPermission());
-        }
-    }
+		if (!\XF::options()->sylphian_userpets_duel_enable)
+		{
+			throw $this->exception($this->noPermission());
+		}
+	}
 
 	/**
 	 * @param ParameterBag $params The route parameters
