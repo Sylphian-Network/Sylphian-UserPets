@@ -1,14 +1,13 @@
 # Sylphian/UserPets
 Give users of your Xenforo forum their own virtual pet.
 
----
+## Customisable Bits
+<details>
+<summary><strong>Spritesheet Template</strong></summary>
 
-## Spritesheets Template
-Use this as a guide for creating custom pet sprites:
+![Spritesheet Template](.github/SpriteSheetTemplate.png)
 
-![SpriteSheetTemplate](.github/SpriteSheetTemplate.png)
-
----
+</details>
 
 ## Requirements
 - Xenforo 2.3.7
