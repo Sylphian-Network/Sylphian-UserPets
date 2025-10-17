@@ -14,6 +14,7 @@ namespace XF;
  * @property int|null $sylphian_userpets_base_coefficient Base XP Coefficient
  * @property string|null $sylphian_userpets_cooldown_time Cooldown time
  * @property string|null $sylphian_userpets_default_spritesheet Default Spritesheet
+ * @property string|null $sylphian_userpets_duel_algorithm Duel algorithm
  * @property int|null $sylphian_userpets_duel_cooldown_time Duel cooldown timer
  * @property bool|null $sylphian_userpets_duel_enable Enable Dueling
  * @property int|null $sylphian_userpets_duel_lose_stats Duel stat lose

@@ -6,6 +6,7 @@ use Sylphian\Library\Logger\Logger;
 use Sylphian\UserPets\Entity\UserPetsDuel;
 use Sylphian\UserPets\Repository\UserPetsDuelRepository;
 use Sylphian\UserPets\Repository\UserPetsRepository;
+use Sylphian\UserPets\Service\DuelAlgorithms\DuelFactory;
 use XF\Entity\User;
 use XF\Job\AbstractJob;
 use XF\Job\JobResult;
@@ -62,11 +63,24 @@ class DuelResolve extends AbstractJob
 				return $this->complete();
 			}
 
-			$randomValue = mt_rand(0, 1);
-			$winnerPet = ($randomValue == 0) ? $challengerPet : $opponentPet;
-			$loserPet = ($randomValue == 0) ? $opponentPet : $challengerPet;
+			$algorithm = DuelFactory::getAlgorithm();
+			$algorithmClass = get_class($algorithm);
+			Logger::info('Using duel algorithm', [
+				'duel_id' => $duelId,
+				'algorithm' => $algorithmClass,
+			]);
+
+			$result = $algorithm->calculateWinner(
+				$challengerPet->toArray(),
+				$opponentPet->toArray()
+			);
+
+			$winnerPet = ($result['pet_id'] === $challengerPet->pet_id) ? $challengerPet : $opponentPet;
+			$loserPet = ($winnerPet->pet_id === $challengerPet->pet_id) ? $opponentPet : $challengerPet;
 
 			$winExp = \XF::options()->sylphian_userpets_duel_win_exp;
+			$loseStats = \XF::options()->sylphian_userpets_duel_lose_stats;
+
 			if ($winExp > 0)
 			{
 				/** @var UserPetsRepository $petsRepo */
@@ -74,8 +88,7 @@ class DuelResolve extends AbstractJob
 				$petsRepo->awardPetExperience($winnerPet->user_id, $winExp, false);
 			}
 
-			$loseStats = \XF::options()->sylphian_userpets_duel_lose_stats;
-			if (!$loseStats > 0)
+			if ($loseStats > 0)
 			{
 				$loserPet->hunger = max(0, $loserPet->hunger - $loseStats);
 				$loserPet->happiness = max(0, $loserPet->happiness - $loseStats);

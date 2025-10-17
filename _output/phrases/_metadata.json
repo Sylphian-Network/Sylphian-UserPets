@@ -53,6 +53,12 @@
         "version_string": "1.0.0 Alpha",
         "hash": "55df0645953bd67798c9f10ac2d6c8df"
     },
+    "option.sylphian_userpets_duel_algorithm.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "863b9b6d85830cf8423ee078fb0b5a27"
+    },
     "option.sylphian_userpets_duel_cooldown_time.txt": {
         "global_cache": false,
         "version_id": 1000010,
@@ -214,6 +220,12 @@
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
         "hash": "1ae4abc6f7c33a430e069af46db99f32"
+    },
+    "option_explain.sylphian_userpets_duel_algorithm.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "d41d8cd98f00b204e9800998ecf8427e"
     },
     "option_explain.sylphian_userpets_duel_cooldown_time.txt": {
         "global_cache": false,
