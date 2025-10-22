@@ -144,6 +144,23 @@ class Setup extends AbstractSetup
 		});
 	}
 
+	public function installStep6(): void
+	{
+		$this->schemaManager()->createTable('xf_user_pets_spritesheet', function (Create $table)
+		{
+			$table->addColumn('spritesheet_id', 'int')->autoIncrement();
+			$table->addColumn('filename', 'varchar', 255);
+			$table->addColumn('title', 'varchar', 100)->setDefault('');
+			$table->addColumn('frame_width', 'smallint')->setDefault(192);
+			$table->addColumn('frame_height', 'smallint')->setDefault(192);
+			$table->addColumn('frames_per_animation', 'smallint')->setDefault(4);
+			$table->addColumn('fps', 'int')->setDefault(4);
+			$table->addColumn('last_modified', 'int')->setDefault(0);
+
+			$table->addUniqueKey('filename');
+		});
+	}
+
 	public function uninstallStep1(): void
 	{
 		$this->schemaManager()->dropTable('xf_user_pets');
@@ -167,5 +184,10 @@ class Setup extends AbstractSetup
 	public function uninstallStep5(): void
 	{
 		$this->schemaManager()->dropTable('xf_user_pets_duels');
+	}
+
+	public function uninstallStep6(): void
+	{
+		$this->schemaManager()->dropTable('xf_user_pets_spritesheet');
 	}
 }

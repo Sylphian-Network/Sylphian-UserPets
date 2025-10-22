@@ -1,0 +1,10 @@
+{
+    "parent_navigation_id": "content",
+    "display_order": 5000,
+    "link": "",
+    "icon": "fa-paw",
+    "admin_permission_id": "",
+    "debug_only": false,
+    "development_only": false,
+    "hide_no_children": false
+}

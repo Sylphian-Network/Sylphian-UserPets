@@ -1,0 +1,10 @@
+{
+    "parent_navigation_id": "sylphian_userpets",
+    "display_order": 5001,
+    "link": "sylphian_userpets/spritesheets",
+    "icon": "",
+    "admin_permission_id": "syl_userpetsSpritesheets",
+    "debug_only": false,
+    "development_only": false,
+    "hide_no_children": false
+}

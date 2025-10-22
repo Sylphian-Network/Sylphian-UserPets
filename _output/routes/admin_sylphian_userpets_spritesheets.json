@@ -1,0 +1,11 @@
+{
+    "route_type": "admin",
+    "route_prefix": "sylphian_userpets",
+    "sub_name": "spritesheets",
+    "format": "",
+    "build_class": "",
+    "build_method": "",
+    "controller": "Sylphian\\UserPets\\Admin\\Controller\\SpritesheetManagement",
+    "context": "",
+    "action_prefix": ""
+}

@@ -1,4 +1,22 @@
 {
+    "admin_navigation.sylphian_userpets.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "c08a026273738b00bbdc15988083e8a1"
+    },
+    "admin_navigation.sylphian_userpets_spritesheet_management.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "42c3bf0e4943fb8f840c94eaead81fdc"
+    },
+    "admin_permission.syl_userpetsSpritesheets.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "38853279202f73c345d69d60f30c6a6f"
+    },
     "alert_opt_out.syl_userpet_duel_challenge.txt": {
         "global_cache": false,
         "version_id": 1000010,

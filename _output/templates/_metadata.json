@@ -4,6 +4,26 @@
         "version_string": "1.0.0 Alpha",
         "hash": "8d2dcf379a9e79c58f27de9eaf989861"
     },
+    "admin/sylphian_userpets_spritesheets_add.html": {
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "a2a0a0fe84fa521512b415022c6ac36d"
+    },
+    "admin/sylphian_userpets_spritesheets_delete.html": {
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "51c792cd2f0d08e4fe119a5e381ee5c1"
+    },
+    "admin/sylphian_userpets_spritesheets_edit.html": {
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "662df619033ad29aafbb1b467f908e3e"
+    },
+    "admin/sylphian_userpets_spritesheets_list.html": {
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "8f0dcf2d8c0675db07aa4ca3247315c4"
+    },
     "admin/widget_def_options_sylphian_userpets_widget.html": {
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
@@ -42,16 +62,16 @@
     "public/sylphian_userpets_duel_challenge.html": {
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
-        "hash": "21343d50a5cecde29bc060bd018745e6"
+        "hash": "543ae265241a0c6be94745ffd7d8fd1a"
     },
     "public/sylphian_userpets_other_widget.html": {
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
-        "hash": "6d7183b63ccc5c373156f490e71d266f"
+        "hash": "b0bec0e951444670ba38380e7e292599"
     },
     "public/sylphian_userpets_own_widget.html": {
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
-        "hash": "53a8d998dc99052c3a06120b0f39641b"
+        "hash": "07e4b5515bde45970fcaa57938580403"
     }
 }

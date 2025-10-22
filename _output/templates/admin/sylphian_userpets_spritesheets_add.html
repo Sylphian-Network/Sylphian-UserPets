@@ -1,0 +1,28 @@
+<xf:title>Add spritesheet</xf:title>
+
+<xf:form action="{{ link('sylphian_userpets/spritesheets/save') }}" ajax="true" class="block" enctype="multipart/form-data">
+    <div class="block-container">
+        <div class="block-body">
+            <xf:hiddenval name="spritesheet_id" value="0" />
+            <xf:hiddenval name="file" value="" />
+
+            <xf:uploadrow name="image"
+                          label="Image"
+                          required="required"
+                          accept=".png,.gif,.jpg,.jpeg,.webp"
+                          explain="Upload the spritesheet image." />
+
+            <xf:textboxrow name="filename" value="" label="Filename"
+                           explain="Include the extension (e.g. my_sprite.png)." />
+
+            <xf:textboxrow name="title" value="" label="Title" />
+
+            <xf:numberboxrow name="frame_width" value="{$entity.frame_width}" min="1" step="1" label="Frame width (px)" />
+            <xf:numberboxrow name="frame_height" value="{$entity.frame_height}" min="1" step="1" label="Frame height (px)" />
+            <xf:numberboxrow name="frames_per_animation" value="{$entity.frames_per_animation}" min="1" step="1" label="Frames per animation (columns)" />
+			<xf:numberboxrow name="fps" value="{$entity.fps}" min="1" max="120" step="1" label="Frames per second used by the widgets for this spritesheet" />
+		</div>
+
+        <xf:submitrow submit="{{ phrase('save') }}" icon="save" sticky="true" />
+    </div>
+</xf:form>

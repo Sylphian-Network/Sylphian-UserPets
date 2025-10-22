@@ -44,6 +44,68 @@ XF.PetRenderer = XF.Element.newHandler({
             return;
         }
 
+        this.canvas.width = 192;
+        this.canvas.height = 192;
+
+        const ds = this.canvas.dataset || {};
+        const getNum = function (val, def, min, max) {
+            let n = (val == null ? NaN : Number(val));
+            if (!Number.isFinite(n)) n = def;
+            if (min != null && Number.isFinite(min)) n = Math.max(min, n);
+            if (max != null && Number.isFinite(max)) n = Math.min(max, n);
+            return n;
+        };
+
+        // Sprite sheet path
+        if (ds.spriteSheetPath) {
+            this.options.spriteSheetPath = ds.spriteSheetPath;
+        } else {
+            const ssAttr = this.canvas.getAttribute('data-sprite-sheet-path');
+            if (ssAttr) this.options.spriteSheetPath = ssAttr;
+        }
+
+        // Frame dimensions
+        if (ds.frameWidth != null) {
+            this.options.frameWidth = getNum(ds.frameWidth, this.options.frameWidth, 1);
+        } else {
+            const fwAttr = this.canvas.getAttribute('data-frame-width');
+            if (fwAttr != null) this.options.frameWidth = getNum(fwAttr, this.options.frameWidth, 1);
+        }
+        if (ds.frameHeight != null) {
+            this.options.frameHeight = getNum(ds.frameHeight, this.options.frameHeight, 1);
+        } else {
+            const fhAttr = this.canvas.getAttribute('data-frame-height');
+            if (fhAttr != null) this.options.frameHeight = getNum(fhAttr, this.options.frameHeight, 1);
+        }
+
+        // Animation config
+        if (ds.fps != null) {
+            this.options.fps = getNum(ds.fps, this.options.fps, 1, 120);
+        } else {
+            const fpsAttr = this.canvas.getAttribute('data-fps');
+            if (fpsAttr != null) this.options.fps = getNum(fpsAttr, this.options.fps, 1, 120);
+        }
+        if (ds.framesPerAnimation != null) {
+            this.options.framesPerAnimation = getNum(ds.framesPerAnimation, this.options.framesPerAnimation, 1);
+        } else {
+            const fpaAttr = this.canvas.getAttribute('data-frames-per-animation');
+            if (fpaAttr != null) this.options.framesPerAnimation = getNum(fpaAttr, this.options.framesPerAnimation, 1);
+        }
+
+        // Scaling bounds
+        if (ds.scaleMin != null) {
+            this.options.scaleMin = getNum(ds.scaleMin, this.options.scaleMin, 0.01);
+        } else {
+            const smin = this.canvas.getAttribute('data-scale-min');
+            if (smin != null) this.options.scaleMin = getNum(smin, this.options.scaleMin, 0.01);
+        }
+        if (ds.scaleMax != null) {
+            this.options.scaleMax = getNum(ds.scaleMax, this.options.scaleMax, 0.01);
+        } else {
+            const smax = this.canvas.getAttribute('data-scale-max');
+            if (smax != null) this.options.scaleMax = getNum(smax, this.options.scaleMax, 0.01);
+        }
+
         this.options.scaleMin = parseFloat(this.options.scaleMin);
         this.options.scaleMax = parseFloat(this.options.scaleMax);
 
@@ -53,6 +115,11 @@ XF.PetRenderer = XF.Element.newHandler({
         if (this.options.scaleMin > this.options.scaleMax) {
             const t = this.options.scaleMin;
             this.options.scaleMin = this.options.scaleMax; this.options.scaleMax = t;
+        }
+
+        const initialState = ds.initialState || this.canvas.getAttribute('data-initial-state');
+        if (initialState && this.options.states.hasOwnProperty(initialState)) {
+            this.currentState = initialState;
         }
 
         const petState = this.target.getAttribute('data-pet-state');
@@ -168,43 +235,43 @@ XF.PetRenderer = XF.Element.newHandler({
             return;
         }
 
-        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        const ctx = this.context;
+        const canvas = this.canvas;
+        const fw = Math.max(1, this.options.frameWidth);
+        const fh = Math.max(1, this.options.frameHeight);
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         const rowIndex = this.options.states[this.currentState] || 0;
+        const sx = this.currentFrame * fw;
+        const sy = rowIndex * fh;
 
-        const sx = this.currentFrame * this.options.frameWidth;
-        const sy = rowIndex * this.options.frameHeight;
+        // Normalized visual sizing:
+        // - Base box is 128×128 at scale 0.5
+        // - Grows linearly to 192×192 at scale 1.0
+        // - Clamp to [0.5, 1.0] for visual mapping regardless of configured bounds
+        const s = Math.min(1.0, Math.max(0.5, this.currentScale));
+        const t = (s - 0.5) / 0.5;
+        const targetBox = 128 + t * (192 - 128);
 
-        const spriteWidth = this.options.frameWidth * this.currentScale;
-        const spriteHeight = this.options.frameHeight * this.currentScale;
-
-        const maxWidth = this.canvas.width * 0.95;
-        const maxHeight = this.canvas.height * 0.95;
-
-        let finalWidth = spriteWidth;
-        let finalHeight = spriteHeight;
-
-        if (spriteWidth > maxWidth) {
-            const scale = maxWidth / spriteWidth;
-            finalWidth *= scale;
-            finalHeight *= scale;
+        let drawW, drawH;
+        if (fw >= fh) {
+            drawW = targetBox;
+            drawH = targetBox * (fh / fw);
+        } else {
+            drawH = targetBox;
+            drawW = targetBox * (fw / fh);
         }
 
-        if (finalHeight > maxHeight) {
-            const scale = maxHeight / finalHeight;
-            finalWidth *= scale;
-            finalHeight *= scale;
-        }
+        const dx = (canvas.width - drawW) / 2;
+        const dy = canvas.height - drawH;
 
-        const x = (this.canvas.width - finalWidth) / 2;
-        const y = this.canvas.height - finalHeight;
-
-        this.context.drawImage(
+        ctx.drawImage(
             this.spriteSheet,
             sx, sy,
-            this.options.frameWidth, this.options.frameHeight,
-            x, y,
-            finalWidth, finalHeight
+            fw, fh,
+            dx, dy,
+            drawW, drawH
         );
     },
 

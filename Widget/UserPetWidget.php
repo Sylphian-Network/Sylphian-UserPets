@@ -5,6 +5,7 @@ namespace Sylphian\UserPets\Widget;
 use Sylphian\Library\Logger\Logger;
 use Sylphian\UserPets\Entity\UserPets;
 use Sylphian\UserPets\Repository\UserPetsRepository;
+use Sylphian\UserPets\Repository\UserPetsSpritesheetRepository;
 use Sylphian\UserPets\Repository\UserPetsTutorialRepository;
 use Sylphian\UserPets\Service\PetLeveling;
 use Sylphian\UserPets\Service\PetManager;
@@ -31,9 +32,9 @@ class UserPetWidget extends AbstractWidget
 			// Viewing own pet
 			$pet = $this->getOrCreatePet($visitor->user_id);
 
-			$spriteSheetPath = $this->getSpriteSheetPathForUser($visitor);
-			$actionUrl = $this->app()->router()->buildLink('userPets/actions');
+			$renderConfig = $this->getSpritesheetRenderConfigForUser($visitor);
 
+			$actionUrl = $this->app()->router()->buildLink('userPets/actions');
 			$petManager = new PetManager($pet);
 			try
 			{
@@ -56,18 +57,16 @@ class UserPetWidget extends AbstractWidget
 			if (\XF::options()->sylphian_userpets_enable_tutorial)
 			{
 				/** @var UserPetsTutorialRepository $tutorialRepo */
-				$tutorialRepo = $this->repository('Sylphian\UserPets:UserPetsTutorial');
+				$tutorialRepo = $this->repository('Sylphian\\UserPets:UserPetsTutorial');
 				$tutorials = $tutorialRepo->getUserTutorials($visitor->user_id);
-
-				foreach ($tutorials AS $tutorial)
+				foreach ($tutorials AS $t)
 				{
-					if (!$tutorial['completed'])
+					if (!$t['completed'])
 					{
 						$allCompleted = false;
 						break;
 					}
 				}
-
 				if ($allCompleted && !empty($tutorials))
 				{
 					$tutorials = [];
@@ -75,31 +74,31 @@ class UserPetWidget extends AbstractWidget
 			}
 
 			return $this->renderer('sylphian_userpets_own_widget', [
-				'widget' => $widget,
-				'pet' => $pet,
+				'widget'        => $widget,
+				'pet'           => $pet,
 				'custom_pet_name' => $this->getCustomName($visitor),
-				'actionUrl' => $actionUrl,
-				'spriteSheetPath' => $spriteSheetPath,
+				'actionUrl'     => $actionUrl,
 				'levelProgress' => $levelProgress,
-				'expNeeded' => $expNeeded,
-				'tutorial' => $tutorials,
+				'expNeeded'     => $expNeeded,
+				'petRender'     => $renderConfig,
+				'scaleMin'      => \XF::options()->sylphian_userpets_scale_min ?? 0.5,
+				'scaleMax'      => \XF::options()->sylphian_userpets_scale_max ?? 1.0,
 			]);
 		}
 		else
 		{
 			// Viewing someone else's profile
 			/** @var UserPetsRepository $repo */
-			$repo = $this->repository('Sylphian\UserPets:UserPets');
+			$repo = $this->repository('Sylphian\\UserPets:UserPets');
 			$pet = $repo->getUserPet($profileViewing);
-
 			if (!$pet)
 			{
-				return null; // No pet exists for this user
+				return null;
 			}
 
 			$profileUser = $this->em()->find('XF:User', $profileViewing);
-			$spriteSheetPath = $this->getSpriteSheetPathForUser($profileUser);
-			$customName = $this->getCustomName($profileUser);
+
+			$renderConfig = $this->getSpritesheetRenderConfigForUser($profileUser);
 
 			$petManager = new PetManager($pet);
 			try
@@ -119,38 +118,65 @@ class UserPetWidget extends AbstractWidget
 			$expNeeded = $petLeveling->getExperienceNeededToLevelUp($pet);
 
 			return $this->renderer('sylphian_userpets_other_widget', [
-				'widget' => $widget,
-				'pet' => $pet,
-				'custom_pet_name' => $customName,
-				'spriteSheetPath' => $spriteSheetPath,
+				'widget'        => $widget,
+				'pet'           => $pet,
+				'custom_pet_name' => $this->getCustomName($profileUser),
 				'levelProgress' => $levelProgress,
-				'expNeeded' => $expNeeded,
+				'expNeeded'     => $expNeeded,
+				'petRender'     => $renderConfig,
+				'scaleMin'      => \XF::options()->sylphian_userpets_scale_min ?? 0.5,
+				'scaleMax'      => \XF::options()->sylphian_userpets_scale_max ?? 1.0,
 			]);
 		}
 	}
 
 	/**
-	 * Gets the sprite sheet path for a specific user.
+	 * Resolve the spritesheet URL and DB-backed render config for a user.
 	 *
-	 * Uses the user's custom field value if set, otherwise falls back to default.
-	 *
-	 * @param User|null $user User entity or null
-	 * @return string Full path to the sprite sheet PNG
+	 * @param User|null $user
+	 * @return array{url:string, frame_width:int, frame_height:int, frames_per_animation:int, fps:int}
 	 */
-	protected function getSpriteSheetPathForUser(?User $user): string
+	protected function getSpritesheetRenderConfigForUser(?User $user): array
 	{
-		$defaultSpritesheet = \XF::options()->sylphian_userpets_default_spritesheet;
-		$customSpritesheet = null;
+		$defaultSpritesheet = (string) \XF::options()->sylphian_userpets_default_spritesheet;
+		$selected = $defaultSpritesheet;
 
 		if ($user?->user_id)
 		{
-			$customFields = $user->Profile->custom_fields ?? [];
-			$customSpritesheet = $customFields['syl_userpets_spritesheet'] ?? null;
+			$custom = $user->Profile->custom_fields['syl_userpets_spritesheet'] ?? '';
+			if ($custom !== '')
+			{
+				$selected = (string) $custom;
+			}
 		}
 
-		$selectedSpritesheet = $customSpritesheet ?: $defaultSpritesheet;
-		return $this->app()->options()->publicPath
-			. '/data/assets/sylphian/userpets/spritesheets/' . $selectedSpritesheet . '.png';
+		$filename = $selected;
+		if (!preg_match('/\.(png|gif|jpe?g|webp)$/i', $filename))
+		{
+			$filename .= '.png';
+		}
+
+		/** @var UserPetsSpritesheetRepository $ssRepo */
+		$ssRepo = $this->repository('Sylphian\\UserPets:UserPetsSpritesheetRepository');
+
+		$entity = method_exists($ssRepo, 'findByFilename')
+			? $ssRepo->findByFilename($filename)
+			: null;
+
+		$frameW = $entity?->frame_width ?: 192;
+		$frameH = $entity?->frame_height ?: 192;
+		$fpa    = $entity?->frames_per_animation ?: 4;
+		$fps    = $entity?->fps ?: 4;
+
+		$url = rtrim($ssRepo->getBaseUrl(), '/') . '/' . rawurlencode($filename);
+
+		return [
+			'url' => $url,
+			'frame_width' => $frameW,
+			'frame_height' => $frameH,
+			'frames_per_animation' => $fpa,
+			'fps' => $fps,
+		];
 	}
 
 	/**

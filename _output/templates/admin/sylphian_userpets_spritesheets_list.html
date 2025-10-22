@@ -1,0 +1,90 @@
+<xf:title>Spritesheet Management</xf:title>
+
+<xf:pageaction>
+    <xf:button href="{{ link('sylphian_userpets/spritesheets/add') }}" overlay="true" icon="add">
+        {{ phrase('add_spritesheet') }}
+    </xf:button>
+</xf:pageaction>
+
+<div class="block">
+    <div class="block-container">
+        <h3 class="block-header">Existing spritesheets</h3>
+        <div class="block-body">
+            <xf:datalist>
+                <xf:datarow rowtype="header">
+                    <xf:cell>Preview</xf:cell>
+                    <xf:cell>Filename</xf:cell>
+                    <xf:cell>Details</xf:cell>
+                    <xf:cell>Size</xf:cell>
+                    <xf:cell>Modified</xf:cell>
+                    <xf:cell></xf:cell>
+                    <xf:cell></xf:cell>
+                    <xf:cell></xf:cell>
+                </xf:datarow>
+
+                <xf:if is="$files">
+                    <xf:foreach loop="$files" value="$f">
+                        <xf:datarow>
+                            <xf:cell>
+								<img src="{$f.url}"
+									 alt="{$f.name}"
+									 data-xf-init="syl-sprite-preview"
+									 data-src="{$f.url}"
+									 data-fps="{{ $f.entity ? $f.entity.fps : 4 }}"
+									 data-frame-w="{{ $f.entity ? $f.entity.frame_width : 32 }}"
+									 data-frame-h="{{ $f.entity ? $f.entity.frame_height : 32 }}"
+									 data-cols="{{ $f.entity ? $f.entity.frames_per_animation : 4 }}"
+									 data-rows="4"
+									 data-scale="1"
+									 data-pixelated="true"
+									 style="max-width:128px; max-height:128px; image-rendering: pixelated; border-radius:2px;" />
+                            </xf:cell>
+
+                            <xf:main label="{$f.name}" />
+
+                            <xf:cell>
+							  <span class="u-muted">{{ $f.entity
+								? ("Frame size: {$f.entity.frame_width}×{$f.entity.frame_height}<br>
+								  Frames per animation: {$f.entity.frames_per_animation}<br>
+								  Frames per second: {$f.entity.fps}")
+								: '—'
+							  }}</span>
+                            </xf:cell>
+
+                            <xf:cell>{{ file_size($f.size) }}</xf:cell>
+                            <xf:cell>{{ date_time($f.mtime) }}</xf:cell>
+
+                            <xf:cell class="dataList-cell--action">
+                                <a href="{$f.url}" target="_blank" class="menuTrigger" data-xf-init="tooltip"
+                                   aria-label="View" data-original-title="View">
+                                    <xf:fa icon="fa-search" />
+                                </a>
+                            </xf:cell>
+
+                            <xf:cell class="dataList-cell--action">
+                                <a href="{{ link('sylphian_userpets/spritesheets/edit', null, {'file': $f.name}) }}"
+                                   data-xf-click="overlay" class="menuTrigger" aria-label="Edit settings">
+                                    <xf:fa icon="fa-cog" />
+                                </a>
+                            </xf:cell>
+
+                            <xf:action href="{{ link('sylphian_userpets/spritesheets/delete', null, {'file': $f.name}) }}"
+                                       overlay="true"
+                                       title="{{ phrase('delete') }}">
+                                <xf:fa icon="fa-trash" />
+                            </xf:action>
+                        </xf:datarow>
+                    </xf:foreach>
+                    <xf:else />
+                    <xf:datarow rowtype="subsection">
+                        <xf:cell colspan="5">
+                            <div class="block-rowMessage">No spritesheets found yet. Use the upload control above to add some.</div>
+                        </xf:cell>
+                    </xf:datarow>
+                </xf:if>
+            </xf:datalist>
+        </div>
+    </div>
+</div>
+
+<xf:js src="sylphian/userpets/sprite-preview.js" min="1" addon="Sylphian/UserPets" />

@@ -1,38 +1,42 @@
 <div class="block">
     <div class="block-container">
         <xf:if is="$custom_pet_name != null">
-			<h3 class="block-header u-alignCenter">
-				{{ $custom_pet_name }}<br>
-				<span class="petSubTitle">{{ phrase_dynamic('sylphian_userpets_widget_title', {'username': $pet.User.username}) }}</span>
-			</h3>
-		<xf:else />
-        	<h3 class="block-header u-alignCenter">
-				{{ phrase_dynamic('sylphian_userpets_widget_title', {'username': $pet.User.username}) }}
-			</h3>
-		</xf:if>
-		
-		<div class="block-body">
+            <h3 class="block-header u-alignCenter">
+                {{ $custom_pet_name }}<br>
+                <span class="petSubTitle">{{ phrase_dynamic('sylphian_userpets_widget_title', {'username': $pet.User.username}) }}</span>
+            </h3>
+            <xf:else />
+            <h3 class="block-header u-alignCenter">
+                {{ phrase_dynamic('sylphian_userpets_widget_title', {'username': $pet.User.username}) }}
+            </h3>
+        </xf:if>
+
+        <div class="block-body">
             <div class="block-row">
                 <div class="petWidgetContainer">
                     <div class="petCanvasContainer">
                         <div id="petCanvasBorder">
-                            <canvas id="petCanvas" width="128" height="128"
-                                data-xf-init="userpets-renderer" 
-                                data-pet-state="{{ $pet.state }}"
-                                data-sprite-sheet-path="{{ $spriteSheetPath }}"
-								data-scale-min="{{ $xf.options.sylphian_userpets_scale_min }}"
-								data-scale-max="{{ $xf.options.sylphian_userpets_scale_max }}"></canvas>
+							<canvas id="petCanvas" width="192" height="192"
+									data-xf-init="userpets-renderer"
+									data-pet-state="{{ $pet.state }}"
+									data-sprite-sheet-path="{{ $petRender.url }}"
+									data-frame-width="{{ $petRender.frame_width }}"
+									data-frame-height="{{ $petRender.frame_height }}"
+									data-frames-per-animation="{{ $petRender.frames_per_animation }}"
+									data-fps="{{ $petRender.fps }}"
+									data-scale-min="{{ $scaleMin }}"
+									data-scale-max="{{ $scaleMax }}"></canvas>
                         </div>
                         <div class="petState u-alignCenter">
                             <div class="petStateName">{{ phrase_dynamic('sylphian_userpets_pet_state', {'pet_state': $pet.state}) }}</div>
                         </div>
                     </div>
-                    
+
                     <div class="petStats">
                         <div class="u-alignCenter">
                             <div>{{ phrase_dynamic('sylphian_userpets_level', {'level': $pet.level }) }}</div>
                         </div>
-                        
+
                         <div class="petStatBars">
                             <!-- Hunger stat -->
                             <div class="petStatBar">
@@ -65,23 +69,23 @@
                 </div>
             </div>
         </div>
-		<xf:if is="$xf.options.sylphian_userpets_duel_enable">
-			<div class="block-footer u-alignCenter">
-				<xf:button href="{{ link('userpetsduel/challenge', null, {'opponent_pet_id': $pet.pet_id}) }}" 
-						   class="button--small button--primary" 
-						   overlay="true">
-					<xf:fa icon="fa-swords" />
-					{{ phrase('challenge') }}
-				</xf:button>
-			</div>
-		</xf:if>
-	</div>
+        <xf:if is="$xf.options.sylphian_userpets_duel_enable">
+            <div class="block-footer u-alignCenter">
+                <xf:button href="{{ link('userpetsduel/challenge', null, {'opponent_pet_id': $pet.pet_id}) }}"
+                           class="button--small button--primary"
+                           overlay="true">
+                    <xf:fa icon="fa-swords" />
+                    {{ phrase('challenge') }}
+                </xf:button>
+            </div>
+        </xf:if>
+    </div>
 </div>
 
 <xf:js src="sylphian/userpets/userpets-renderer.js" min="1" addon="Sylphian/UserPets" />
 
 <xf:css>
-.petWidgetContainer {
+    .petWidgetContainer {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
@@ -90,17 +94,17 @@
     justify-content: center;
     width: 95%;
     margin: 0 auto;
-}
+    }
 
-.petCanvasContainer {
+    .petCanvasContainer {
     display: flex;
     flex-direction: column;
     align-items: center;
     min-width: 150px;
     margin: 0 auto 4px auto;
-}
-	
-#petCanvasBorder {
+    }
+
+    #petCanvasBorder {
     width: 100%;
     max-width: 200px;
     aspect-ratio: 1 / 1;
@@ -108,33 +112,33 @@
     justify-content: center;
     align-items: flex-end;
     margin-bottom: 5px;
-    
+
     outline: {{ property('sylUserPetsCanvasBorderWidth') }} solid {{ property('sylUserPetsCanvasBorder') }};
     border-radius: {{ property('sylUserPetsCanvasBorderRadius') }};
-}
+    }
 
-.petStats {
+    .petStats {
     flex: 1;
     min-width: 280px;
     padding: 12px 16px;
     box-sizing: border-box;
-}
-	
-.petStatBar {
+    }
+
+    .petStatBar {
     display: flex;
     align-items: center;
     margin-bottom: 8px;
     gap: 8px;
-}
+    }
 
-.petStatLabel {
+    .petStatLabel {
     font-weight: bold;
     white-space: nowrap;
     width: 90px;
     text-align: right;
-}
+    }
 
-.petProgressBar {
+    .petProgressBar {
     position: relative;
     flex: 1;
     background: {{ property('sylUserPetsProgressBarBackground') }};
@@ -144,15 +148,15 @@
     height: 20px;
     width: 95%;
     margin: 0 auto;
-}
+    }
 
-.petProgressBar-progress {
+    .petProgressBar-progress {
     background: {{ property('sylUserPetsProgressBarFill') }};
     height: 100%;
     transition: width 0.3s ease;
-}
+    }
 
-.petProgressBar-label {
+    .petProgressBar-label {
     position: absolute;
     left: 0;
     right: 0;
@@ -165,26 +169,26 @@
     text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
     opacity: 0;
     transition: opacity 0.2s ease;
-}
+    }
 
-.petProgressBar:hover .petProgressBar-label {
+    .petProgressBar:hover .petProgressBar-label {
     opacity: 1;
-}
+    }
 
-.petState {
+    .petState {
     margin: 2px 0 6px 0;
-}
-	
-.p-body-sidebar .petWidgetContainer {
+    }
+
+    .p-body-sidebar .petWidgetContainer {
     gap: 0px;
-}
+    }
 
-.p-body-sidebar .petStats {
+    .p-body-sidebar .petStats {
     padding: 2px 10px;
-}
+    }
 
-.petSubTitle {
-	font-size: 12px;
-	opacity: 0.6;
-}
+    .petSubTitle {
+    font-size: 12px;
+    opacity: 0.6;
+    }
 </xf:css>

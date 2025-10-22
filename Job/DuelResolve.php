@@ -64,12 +64,6 @@ class DuelResolve extends AbstractJob
 			}
 
 			$algorithm = DuelFactory::getAlgorithm();
-			$algorithmClass = get_class($algorithm);
-			Logger::info('Using duel algorithm', [
-				'duel_id' => $duelId,
-				'algorithm' => $algorithmClass,
-			]);
-
 			$result = $algorithm->calculateWinner(
 				$challengerPet->toArray(),
 				$opponentPet->toArray()
