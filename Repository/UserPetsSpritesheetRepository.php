@@ -3,6 +3,7 @@
 namespace Sylphian\UserPets\Repository;
 
 use Random\RandomException;
+use Sylphian\Library\Repository\UserFieldRepository;
 use Sylphian\UserPets\Entity\UserPetsSpritesheet;
 use Sylphian\UserPets\Repository\Traits\FileSystemTrait;
 use Sylphian\UserPets\Repository\Traits\MirrorOperationsTrait;
@@ -342,6 +343,14 @@ class UserPetsSpritesheetRepository extends Repository
 		try
 		{
 			$entity->save(true, false);
+			try
+			{
+				$this->syncUserFieldOptions();
+			}
+			catch (\Throwable $e)
+			{
+				\XF::logException($e);
+			}
 		}
 		catch (PrintableException|\Exception $e)
 		{
@@ -405,6 +414,60 @@ class UserPetsSpritesheetRepository extends Repository
 		{
 			return implode("\n", $errors);
 		}
+
+		try
+		{
+			$this->syncUserFieldOptions();
+		}
+		catch (\Throwable $e)
+		{
+			\XF::logException($e);
+		}
+
 		return true;
 	}
+
+	public function syncUserFieldOptions(): array
+	{
+		$choices = $this->buildSpritesheetChoices();
+		/** @var UserFieldRepository $sylRepo */
+		$sylRepo = $this->repository('Sylphian\\Library:UserFieldRepository');
+		return $sylRepo->updateChoicesIfChanged('syl_userpets_spritesheet', $choices);
+	}
+
+	protected function buildSpritesheetChoices(): array
+	{
+		$choices = [];
+		$used = [];
+
+		$rows = $this->finder('Sylphian\\UserPets:UserPetsSpritesheet')
+			->order(['title', 'filename'])
+			->fetch();
+
+		foreach ($rows AS $row)
+		{
+			$label = $row->title ?: pathinfo($row->filename, PATHINFO_FILENAME);
+			$key = $this->makeSafeChoiceKey($row->filename, $used);
+			$choices[$key] = $label;
+		}
+
+		return $choices;
+	}
+
+	protected function makeSafeChoiceKey(string $filename, array &$used): string
+	{
+		$base = strtolower(preg_replace('/[^a-zA-Z0-9_]/', '_', pathinfo($filename, PATHINFO_FILENAME)));
+		$base = trim($base, '_') ?: 'sprite';
+
+		$key = $base;
+		$i = 1;
+		while (isset($used[$key]))
+		{
+			$key = $base . '_' . $i++;
+		}
+
+		$used[$key] = true;
+		return $key;
+	}
+
 }
