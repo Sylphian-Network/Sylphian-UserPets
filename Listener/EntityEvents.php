@@ -47,6 +47,7 @@ class EntityEvents
 		try
 		{
 			/** @var UserPetsRepository $repo */
+			$repo = \XF::repository('Sylphian\UserPets:UserPetsRepository');
 			$repo->awardPetExperience($userId, $xpPerPost, false);
 		}
 		catch (\Exception $e)
@@ -91,9 +92,10 @@ class EntityEvents
 		try
 		{
 			/** @var UserPetsRepository $repo */
+			$repo = \XF::repository('Sylphian\UserPets:UserPetsRepository');
 			$repo->awardPetExperience($userId, $xpPerThread, false);
 		}
-		catch (\Exception $e)
+		catch (\Throwable $e)
 		{
 			Logger::error('Error awarding pet experience for thread creation', [
 				'userId' => $userId,
