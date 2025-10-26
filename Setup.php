@@ -42,8 +42,6 @@ class Setup extends AbstractSetup
 
 	public function installStep2(): void
 	{
-		//TODO: This needs to read the spritesheets available rather than hardcoding them on installation.
-
 		try
 		{
 			/** @var UserPetsRepository $repository */

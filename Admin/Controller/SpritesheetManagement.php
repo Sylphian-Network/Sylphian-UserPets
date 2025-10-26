@@ -2,12 +2,14 @@
 
 namespace Sylphian\UserPets\Admin\Controller;
 
+use Sylphian\Library\Logger\Logger;
 use Sylphian\UserPets\Entity\UserPetsSpritesheet;
 use Sylphian\UserPets\Repository\UserPetsSpritesheetRepository;
 use XF\Admin\Controller\AbstractController;
 use XF\Http\Upload;
 use XF\Mvc\ParameterBag;
 use XF\Mvc\Reply\Error;
+use XF\Mvc\Reply\Exception;
 use XF\Mvc\Reply\Redirect;
 use XF\Mvc\Reply\View;
 
@@ -15,7 +17,16 @@ class SpritesheetManagement extends AbstractController
 {
 	protected function preDispatchController($action, ParameterBag $params): void
 	{
-		$this->assertAdminPermission('syl_userpetsSpritesheets');
+		try
+		{
+			$this->assertAdminPermission('syl_userpetsSpritesheets');
+		}
+		catch (Exception $e)
+		{
+			Logger::error('Error asserting admin permission.', [
+				'exception' => $e->getMessage(),
+			]);
+		}
 	}
 
 	protected function repo(): UserPetsSpritesheetRepository
@@ -29,12 +40,16 @@ class SpritesheetManagement extends AbstractController
 	{
 		$repo  = $this->repo();
 		$files = $repo->buildIndexList();
+		$health = $repo->getPathHealth();
+
 		return $this->view(
 			'Sylphian\UserPets:SpritesheetManagement\\Index',
 			'sylphian_userpets_spritesheets_list',
 			[
-				'files'   => $files,
+				'files' => $files,
 				'baseUrl' => $repo->getBaseUrl(),
+				'pathHealth' => $health['dirs'],
+				'hasPathIssues' => $health['hasIssues'],
 			]
 		);
 	}

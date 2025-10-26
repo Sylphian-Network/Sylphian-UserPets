@@ -1,5 +1,21 @@
 <xf:title>Spritesheet Management</xf:title>
 
+<xf:if is="$hasPathIssues">
+    <div class="blockMessage blockMessage--error blockMessage--iconic">
+        <ul class="listPlain">
+            <xf:foreach loop="$pathHealth" value="$ph">
+                <xf:if is="!$ph.exists">
+                    <li>{$ph.path} does not exist.</li>
+                    <xf:else />
+                    <li>{$ph.path} [readable: {{ $ph.readable ? 'yes' : 'no' }}, writable: {{ $ph.writable ? 'yes' : 'no' }}]</li>
+                </xf:if>
+            </xf:foreach>
+        </ul>
+        <br>
+        <div class="u-muted">Ensure the directories exist and the web server user can read and write them.</div>
+    </div>
+</xf:if>
+
 <xf:pageaction>
     <xf:button href="{{ link('sylphian_userpets/spritesheets/add') }}" overlay="true" icon="add">
         {{ phrase('add_spritesheet') }}
@@ -26,18 +42,18 @@
                     <xf:foreach loop="$files" value="$f">
                         <xf:datarow>
                             <xf:cell>
-								<img src="{$f.url}"
-									 alt="{$f.name}"
-									 data-xf-init="syl-sprite-preview"
-									 data-src="{$f.url}"
-									 data-fps="{{ $f.entity ? $f.entity.fps : 4 }}"
-									 data-frame-w="{{ $f.entity ? $f.entity.frame_width : 32 }}"
-									 data-frame-h="{{ $f.entity ? $f.entity.frame_height : 32 }}"
-									 data-cols="{{ $f.entity ? $f.entity.frames_per_animation : 4 }}"
-									 data-rows="4"
-									 data-scale="1"
-									 data-pixelated="true"
-									 style="max-width:128px; max-height:128px; image-rendering: pixelated; border-radius:2px;" />
+                                <img src="{$f.url}"
+                                     alt="{$f.name}"
+                                     data-xf-init="syl-sprite-preview"
+                                     data-src="{$f.url}"
+                                     data-fps="{{ $f.entity ? $f.entity.fps : 4 }}"
+                                     data-frame-w="{{ $f.entity ? $f.entity.frame_width : 32 }}"
+                                     data-frame-h="{{ $f.entity ? $f.entity.frame_height : 32 }}"
+                                     data-cols="{{ $f.entity ? $f.entity.frames_per_animation : 4 }}"
+                                     data-rows="4"
+                                     data-scale="1"
+                                     data-pixelated="true"
+                                     style="max-width:128px; max-height:128px; image-rendering: pixelated; border-radius:2px;" />
                             </xf:cell>
 
                             <xf:main label="{$f.name}" />

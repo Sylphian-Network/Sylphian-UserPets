@@ -5,7 +5,8 @@
   ],
   "minify": [
     "js/sylphian/userpets/userpets-actions.js",
-    "js/sylphian/userpets/userpets-renderer.js"
+    "js/sylphian/userpets/userpets-renderer.js",
+    "js/sylphian/userpets/sprite-preview.js"
   ],
   "exec": [
     "echo '{title} v{version_string} has been built successfully!'"

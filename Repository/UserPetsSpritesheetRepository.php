@@ -20,6 +20,60 @@ class UserPetsSpritesheetRepository extends Repository
 	use SpritesheetFinderTrait;
 
 	/**
+	 * Returns health info for the directories this repo uses.
+	 *
+	 * @return array{dirs: array<int, array{key:string,label:string,path:string,exists:bool,readable:bool,writable:bool}>, hasIssues: bool}
+	 */
+	public function getPathHealth(): array
+	{
+		$targets = [
+			[
+				'key'   => 'primary',
+				'label' => 'Primary spritesheet storage (external data)',
+				'path'  => $this->getBasePath(),
+			],
+		];
+
+		if ($this->isMirroringEnabled())
+		{
+			$targets[] = [
+				'key'   => 'mirror',
+				'label' => 'Dev mirror (add-on _files data)',
+				'path'  => $this->getDevMirrorPath(),
+			];
+		}
+
+		$dirs = [];
+		$hasIssues = false;
+		foreach ($targets AS $t)
+		{
+			$path = $t['path'];
+			$exists = is_dir($path);
+			$readable = $exists && is_readable($path);
+			$writable = $exists && is_writable($path);
+
+			$dirs[] = [
+				'key'      => $t['key'],
+				'label'    => $t['label'],
+				'path'     => $path,
+				'exists'   => $exists,
+				'readable' => $readable,
+				'writable' => $writable,
+			];
+
+			if (!$exists || !$readable || !$writable)
+			{
+				$hasIssues = true;
+			}
+		}
+
+		return [
+			'dirs' => $dirs,
+			'hasIssues' => $hasIssues,
+		];
+	}
+
+	/**
 	 * Get the absolute path to the primary spritesheet storage directory.
 	 *
 	 * @return string Absolute path under external data storage.
