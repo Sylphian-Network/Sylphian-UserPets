@@ -76,11 +76,12 @@ class UserPetWidget extends AbstractWidget
 			return $this->renderer('sylphian_userpets_own_widget', [
 				'widget'        => $widget,
 				'pet'           => $pet,
-				'custom_pet_name' => $this->getCustomName($visitor),
+				'customPetName' => $this->getCustomName($visitor),
 				'actionUrl'     => $actionUrl,
 				'levelProgress' => $levelProgress,
 				'expNeeded'     => $expNeeded,
 				'petRender'     => $renderConfig,
+				'tutorial'      => $tutorials,
 				'scaleMin'      => \XF::options()->sylphian_userpets_scale_min ?? 0.5,
 				'scaleMax'      => \XF::options()->sylphian_userpets_scale_max ?? 1.0,
 			]);

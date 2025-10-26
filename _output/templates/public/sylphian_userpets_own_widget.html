@@ -26,8 +26,8 @@
          data-last-action-time="{{ $pet.last_action_time }}"
          data-current-time="{{ $xf.time }}">
 
-        <xf:if is="$custom_pet_name != null">
-            <h3 class="block-header u-alignCenter">{{ $custom_pet_name }}<br>
+        <xf:if is="$customPetName != null">
+            <h3 class="block-header u-alignCenter">{{ $customPetName }}<br>
                 <span class="petSubTitle">{{ phrase_dynamic('sylphian_userpets_widget_title', {'username': $pet.User.username}) }}</span>
             </h3>
             <xf:else />
