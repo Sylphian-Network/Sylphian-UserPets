@@ -1,0 +1,9 @@
+{
+    "event_id": "sylphian_leaderboard_providers",
+    "execute_order": 10,
+    "callback_class": "Sylphian\\UserPets\\Listener\\LeaderboardProviders",
+    "callback_method": "providers",
+    "active": true,
+    "hint": "",
+    "description": ""
+}

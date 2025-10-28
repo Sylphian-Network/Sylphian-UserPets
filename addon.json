@@ -13,7 +13,8 @@
         "Sylphian/Library": [
             1000610,
             "Sylphian - Library [1.0.6] by QuackieMackie"
-        ]
+        ],
+        "php": ["8.3.0", "PHP 8.3.0+"]
     },
     "icon": "fa-paw"
 }

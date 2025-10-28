@@ -47,20 +47,19 @@ class CheatAlgorithm implements DuelAlgorithmInterface
 }
 ```
 
-### Spritesheet
-You can create your own sprites and upload them into this add-on so users can pick and choose which virtual pet they want on their profile.
-This is done by creating a spritesheet image that follows the template below.
-<details>
-<summary><strong>Spritesheet Template</strong></summary>
+## Leaderboard Support
+Sylphian/UserPets now includes Leaderboard support through integration with the [Sylphian/Leaderboard](https://github.com/Sylphian-Network/Sylphian-Leaderboard) add-on.  
+This allows you to showcase the top-performing pets across your forum.
 
-![Spritesheet Template](.github/SpriteSheetTemplate.png)
-
-</details>
+Current leaderboards include:
+- [Highest experience](Leaderboard/Provider/ExperienceProvider.php)
+- [Duel wins](Leaderboard/Provider/DuelWinsProvider.php)
 
 ## Requirements
 - Xenforo 2.3.7
 - PHP 8.3
 - [Sylphian/Library 1.0.6](https://github.com/Sylphian-Network/Sylphian-Library)
+- (Optional) [Sylphian/Leaderboard 1.0.0](https://github.com/Sylphian-Network/Sylphian-Leaderboard)
 
 ## Credit
 - [KoiRoylers for the level up audio.](https://pixabay.com/users/koiroylers-44305058/)
