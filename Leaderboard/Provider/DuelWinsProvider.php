@@ -31,10 +31,11 @@ class DuelWinsProvider extends AbstractProvider
 	public function getColumns(): array
 	{
 		return [
-			['key' => 'position', 'label' => 'Position'],
-			['key' => 'username', 'label' => 'User'],
-			['key' => 'wins',     'label' => 'Wins'],
-			['key' => 'losses',   'label' => 'Losses'],
+			['key' => 'position', 'label' => 'Position', 'width' => '10%'],
+			['key' => 'username', 'label' => 'User',     'width' => '30%'],
+			['key' => 'wins',     'label' => 'Wins',     'width' => '20%'],
+			['key' => 'losses',   'label' => 'Losses',   'width' => '20%'],
+			['key' => 'wl_rate',  'label' => 'Win/Lose rate',      'width' => '30%'],
 		];
 	}
 
@@ -91,11 +92,18 @@ class DuelWinsProvider extends AbstractProvider
 				continue;
 			}
 
+			$wins = (int) $r['wins'];
+			$losses = (int) $r['losses'];
+
+			$rate = $losses > 0 ? ($wins / $losses) : (float) $wins;
+			$rate = round($rate, 1);
+
 			$rows[] = [
 				'position' => $position++,
 				'username' => $user,
-				'wins'     => (int) $r['wins'],
-				'losses'   => (int) $r['losses'],
+				'wins'     => $wins,
+				'wl_rate'  => $rate,
+				'losses'   => $losses,
 			];
 		}
 

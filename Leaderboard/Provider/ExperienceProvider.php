@@ -28,10 +28,10 @@ class ExperienceProvider extends AbstractProvider
 	public function getColumns(): array
 	{
 		return [
-			['key' => 'position', 'label' => 'Position'],
-			['key' => 'username', 'label' => 'User'],
-			['key' => 'level', 'label' => 'Level'],
-			['key' => 'exp', 'label' => 'Experience'],
+			['key' => 'position', 'label' => 'Position',  'width' => '10%'],
+			['key' => 'username', 'label' => 'User',      'width' => '40%'],
+			['key' => 'level',    'label' => 'Level',     'width' => '15%'],
+			['key' => 'exp',      'label' => 'Experience','width' => '35%'],
 		];
 	}
 
