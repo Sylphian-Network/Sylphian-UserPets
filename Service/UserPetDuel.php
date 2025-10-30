@@ -61,21 +61,7 @@ class UserPetDuel
 			/** @var UserPetsDuelRepository $duelRepo */
 			$duelRepo = $app->repository('Sylphian\UserPets:UserPetsDuel');
 
-			/** @var UserPetsDuel $existingDuel */
-			$existingDuel = $app->finder('Sylphian\UserPets:UserPetsDuel')
-				->whereOr([
-					[
-						'challenger_pet_id' => $challengerPetId,
-						'opponent_pet_id' => $opponentPetId,
-					],
-					[
-						'challenger_pet_id' => $opponentPetId,
-						'opponent_pet_id' => $challengerPetId,
-					],
-				])
-				->where('status', 'pending')
-				->fetchOne();
-
+			$existingDuel = $duelRepo->findExistingPendingDuelBetweenPets($challengerPetId, $opponentPetId);
 			if ($existingDuel)
 			{
 				return new DuelChallengeResult(

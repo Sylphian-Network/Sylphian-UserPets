@@ -3,6 +3,7 @@
 namespace Sylphian\UserPets\Leaderboard\Provider;
 
 use Sylphian\Leaderboard\Provider\AbstractProvider;
+use Sylphian\UserPets\Repository\UserPetsDuelRepository;
 use XF\App;
 use XF\Mvc\Entity\Entity;
 use XF\Mvc\Entity\Finder;
@@ -47,33 +48,9 @@ class DuelWinsProvider extends AbstractProvider
 			return [];
 		}
 
-		[$duelTable, $petsTable] = $this->resolveTables($app);
-
-		$sql = "
-            SELECT t.user_id,
-                   SUM(t.wins)   AS wins,
-                   SUM(t.losses) AS losses
-            FROM (
-                SELECT p.user_id, 1 AS wins, 0 AS losses
-                FROM {$duelTable} d
-                INNER JOIN {$petsTable} p ON p.pet_id = d.winner_pet_id
-                WHERE d.status = 'completed'
-
-                UNION ALL
-
-                SELECT p.user_id, 0 AS wins, 1 AS losses
-                FROM {$duelTable} d
-                INNER JOIN {$petsTable} p ON p.pet_id = d.loser_pet_id
-                WHERE d.status = 'completed'
-            ) AS t
-            GROUP BY t.user_id
-            HAVING SUM(t.wins) > 0
-            ORDER BY wins DESC, t.user_id
-            LIMIT {$limit}
-        ";
-
-		$db = $app->db();
-		$ranked = $db->fetchAll($sql);
+		/** @var UserPetsDuelRepository $duelRepo */
+		$duelRepo = $app->repository('Sylphian\UserPets:UserPetsDuel');
+		$ranked = $duelRepo->getTopUsersByWins($limit);
 		if (!$ranked)
 		{
 			return [];
@@ -94,7 +71,6 @@ class DuelWinsProvider extends AbstractProvider
 
 			$wins = (int) $r['wins'];
 			$losses = (int) $r['losses'];
-
 			$rate = $losses > 0 ? ($wins / $losses) : (float) $wins;
 			$rate = round($rate, 1);
 
@@ -102,8 +78,8 @@ class DuelWinsProvider extends AbstractProvider
 				'position' => $position++,
 				'username' => $user,
 				'wins'     => $wins,
-				'wl_rate'  => $rate,
 				'losses'   => $losses,
+				'wl_rate'  => $rate,
 			];
 		}
 

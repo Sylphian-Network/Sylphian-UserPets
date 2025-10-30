@@ -485,6 +485,12 @@
         "version_string": "1.0.0 Alpha",
         "hash": "1cf5ef17902d61fcd314109a0e528bda"
     },
+    "sylphian_userpets_add_spritesheet.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "27d4ba053155c4f68f6beb7c1a0f5f0c"
+    },
     "sylphian_userpets_confirm_challenge.txt": {
         "global_cache": false,
         "version_id": 1000010,
@@ -514,6 +520,12 @@
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
         "hash": "3d1e5cd66641c8dd4a7a23528e51f215"
+    },
+    "sylphian_userpets_existing_spritesheets.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "a66ec36d3a21af3ccf3f6c249f0cfdf8"
     },
     "sylphian_userpets_exp_to_level.txt": {
         "global_cache": false,
@@ -551,11 +563,23 @@
         "version_string": "1.0.0 Alpha",
         "hash": "02c93212f90d1bcfe2c8261f7b119e7c"
     },
+    "sylphian_userpets_no_spritesheet.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "92aa87fbd52acbe661509890a5b91b88"
+    },
     "sylphian_userpets_opponent_pet.txt": {
         "global_cache": false,
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
         "hash": "3b481299b1fe2ec9eb8bdcddf6f6a8df"
+    },
+    "sylphian_userpets_path_does_not_exist.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "33d67d86e7aa1f04a603537bc5d07c01"
     },
     "sylphian_userpets_pet_state.txt": {
         "global_cache": false,
@@ -586,6 +610,18 @@
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
         "hash": "7d695c76230e3a4eb378bb2433375ef6"
+    },
+    "sylphian_userpets_spritesheet_management.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "2a71b55bd64ac8e634f6f170c001913a"
+    },
+    "sylphian_userpets_spritesheet_path_error.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "704fe14a859f55c6e7bb32304fae73c2"
     },
     "sylphian_userpets_tutorial_title.txt": {
         "global_cache": false,

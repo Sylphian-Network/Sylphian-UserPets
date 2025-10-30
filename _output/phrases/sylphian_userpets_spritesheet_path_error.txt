@@ -1,0 +1,1 @@
+Ensure the directories exist and the web server user can read and write them.

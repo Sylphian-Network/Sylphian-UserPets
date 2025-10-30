@@ -12,6 +12,98 @@ use XF\Repository\UserAlertRepository;
 class UserPetsDuelRepository extends Repository
 {
 	/**
+	 * Count completed duel wins for a user (based on their pets winning).
+	 */
+	public function getUserDuelWins(int $userId): int
+	{
+		return $this->finder('Sylphian\UserPets:UserPetsDuel')
+			->where('status', 'completed')
+			->where('winner_pet_id', '>', 0)
+			->where('WinnerPet.user_id', $userId)
+			->total();
+	}
+
+	/**
+	 * Count completed duel losses for a user (based on their pets losing).
+	 */
+	public function getUserDuelLosses(int $userId): int
+	{
+		return $this->finder('Sylphian\UserPets:UserPetsDuel')
+			->where('status', 'completed')
+			->where('loser_pet_id', '>', 0)
+			->where('LoserPet.user_id', $userId)
+			->total();
+	}
+
+	/**
+	 * Convenience method that returns [wins, losses] for a user.
+	 */
+	public function getUserWinLossStats(int $userId): array
+	{
+		$wins = $this->getUserDuelWins($userId);
+		$losses = $this->getUserDuelLosses($userId);
+		return ['wins' => $wins, 'losses' => $losses];
+	}
+
+	/**
+	 * Top N users by wins (with losses), used by leaderboard.
+	 * Returns an ordered array of rows: [ ['user_id' => int, 'wins' => int, 'losses' => int], ... ]
+	 */
+	public function getTopUsersByWins(int $limit): array
+	{
+		$limit = max(0, $limit);
+		if ($limit === 0)
+		{
+			return [];
+		}
+
+		$em = $this->em;
+		$duelTable = $em->getEntityStructure('Sylphian\UserPets:UserPetsDuel')->table;
+		$petsTable = $em->getEntityStructure('Sylphian\UserPets:UserPets')->table;
+		$db = $this->db();
+
+		$sql = "
+			SELECT t.user_id,
+			       SUM(t.wins)   AS wins,
+			       SUM(t.losses) AS losses
+			FROM (
+				SELECT p.user_id, 1 AS wins, 0 AS losses
+				FROM {$duelTable} d
+				INNER JOIN {$petsTable} p ON p.pet_id = d.winner_pet_id
+				WHERE d.status = 'completed'
+
+				UNION ALL
+
+				SELECT p.user_id, 0 AS wins, 1 AS losses
+				FROM {$duelTable} d
+				INNER JOIN {$petsTable} p ON p.pet_id = d.loser_pet_id
+				WHERE d.status = 'completed'
+			) AS t
+			GROUP BY t.user_id
+			HAVING SUM(t.wins) > 0
+			ORDER BY wins DESC, t.user_id
+			LIMIT {$limit}
+		";
+
+		return $db->fetchAll($sql);
+	}
+
+	/**
+	 * Replaces the inline pending-duel lookup in the service.
+	 */
+	public function findExistingPendingDuelBetweenPets(int $petAId, int $petBId): ?UserPetsDuel
+	{
+		/** @var UserPetsDuel|null */
+		return $this->finder('Sylphian\UserPets:UserPetsDuel')
+			->whereOr([
+				['challenger_pet_id', '=', $petAId, 'opponent_pet_id', '=', $petBId],
+				['challenger_pet_id', '=', $petBId, 'opponent_pet_id', '=', $petAId],
+			])
+			->where('status', 'pending')
+			->fetchOne();
+	}
+
+	/**
 	 * Create a new duel challenge
 	 *
 	 * @param int $challengerPetId The challenger pet ID

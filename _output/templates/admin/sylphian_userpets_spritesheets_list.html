@@ -1,38 +1,38 @@
-<xf:title>Spritesheet Management</xf:title>
+<xf:title>{{ phrase('sylphian_userpets_spritesheet_management') }}</xf:title>
 
 <xf:if is="$hasPathIssues">
     <div class="blockMessage blockMessage--error blockMessage--iconic">
         <ul class="listPlain">
             <xf:foreach loop="$pathHealth" value="$ph">
                 <xf:if is="!$ph.exists">
-                    <li>{$ph.path} does not exist.</li>
+                    <li>{{ phrase_dynamic('sylphian_userpets_path_does_not_exist', {'path': $ph.path}) }}</li>
                     <xf:else />
                     <li>{$ph.path} [readable: {{ $ph.readable ? 'yes' : 'no' }}, writable: {{ $ph.writable ? 'yes' : 'no' }}]</li>
                 </xf:if>
             </xf:foreach>
         </ul>
         <br>
-        <div class="u-muted">Ensure the directories exist and the web server user can read and write them.</div>
+        <div class="u-muted">{{ phrase('sylphian_userpets_spritesheet_path_error') }}</div>
     </div>
 </xf:if>
 
 <xf:pageaction>
     <xf:button href="{{ link('sylphian_userpets/spritesheets/add') }}" overlay="true" icon="add">
-        {{ phrase('add_spritesheet') }}
+        {{ phrase('sylphian_userpets_add_spritesheet') }}
     </xf:button>
 </xf:pageaction>
 
 <div class="block">
     <div class="block-container">
-        <h3 class="block-header">Existing spritesheets</h3>
+        <h3 class="block-header">{{ phrase('sylphian_userpets_existing_spritesheets') }}</h3>
         <div class="block-body">
             <xf:datalist>
                 <xf:datarow rowtype="header">
-                    <xf:cell>Preview</xf:cell>
-                    <xf:cell>Filename</xf:cell>
-                    <xf:cell>Details</xf:cell>
-                    <xf:cell>Size</xf:cell>
-                    <xf:cell>Modified</xf:cell>
+                    <xf:cell>{{ phrase('preview') }}</xf:cell>
+                    <xf:cell>{{ phrase('filename') }}</xf:cell>
+                    <xf:cell>{{ phrase('details') }}</xf:cell>
+                    <xf:cell>{{ phrase('size') }}</xf:cell>
+                    <xf:cell>{{ phrase('last_modified') }}</xf:cell>
                     <xf:cell></xf:cell>
                     <xf:cell></xf:cell>
                     <xf:cell></xf:cell>
@@ -72,14 +72,14 @@
 
                             <xf:cell class="dataList-cell--action">
                                 <a href="{$f.url}" target="_blank" class="menuTrigger" data-xf-init="tooltip"
-                                   aria-label="View" data-original-title="View">
+                                   title="{{ phrase('view') }}">
                                     <xf:fa icon="fa-search" />
                                 </a>
                             </xf:cell>
 
                             <xf:cell class="dataList-cell--action">
                                 <a href="{{ link('sylphian_userpets/spritesheets/edit', null, {'file': $f.name}) }}"
-                                   data-xf-click="overlay" class="menuTrigger" aria-label="Edit settings">
+                                   data-xf-click="overlay" class="menuTrigger" title="{{ phrase('edit') }}">
                                     <xf:fa icon="fa-cog" />
                                 </a>
                             </xf:cell>
@@ -94,7 +94,7 @@
                     <xf:else />
                     <xf:datarow rowtype="subsection">
                         <xf:cell colspan="5">
-                            <div class="block-rowMessage">No spritesheets found yet. Use the upload control above to add some.</div>
+                            <div class="block-rowMessage">{{ phrase('sylphian_userpets_no_spritesheet') }}</div>
                         </xf:cell>
                     </xf:datarow>
                 </xf:if>
