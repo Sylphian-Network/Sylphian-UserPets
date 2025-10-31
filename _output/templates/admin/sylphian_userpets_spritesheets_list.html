@@ -42,19 +42,20 @@
                     <xf:foreach loop="$files" value="$f">
                         <xf:datarow>
                             <xf:cell>
-                                <img src="{$f.url}"
-                                     alt="{$f.name}"
-                                     data-xf-init="syl-sprite-preview"
-                                     data-src="{$f.url}"
-                                     data-fps="{{ $f.entity ? $f.entity.fps : 4 }}"
-                                     data-frame-w="{{ $f.entity ? $f.entity.frame_width : 32 }}"
-                                     data-frame-h="{{ $f.entity ? $f.entity.frame_height : 32 }}"
-                                     data-cols="{{ $f.entity ? $f.entity.frames_per_animation : 4 }}"
-                                     data-rows="4"
-                                     data-scale="1"
-                                     data-pixelated="true"
-                                     style="max-width:128px; max-height:128px; image-rendering: pixelated; border-radius:2px;" />
-                            </xf:cell>
+								<div class="sprite-preview">
+									<img src="{$f.url}"
+										 alt="{$f.name}"
+										 data-xf-init="syl-sprite-preview"
+										 data-src="{$f.url}"
+										 data-fps="{{ $f.entity ? $f.entity.fps : 4 }}"
+										 data-frame-w="{{ $f.entity ? $f.entity.frame_width : 32 }}"
+										 data-frame-h="{{ $f.entity ? $f.entity.frame_height : 32 }}"
+										 data-cols="{{ $f.entity ? $f.entity.frames_per_animation : 4 }}"
+										 data-rows="4"
+										 data-scale="1"
+										 data-pixelated="true" />
+								</div>
+							</xf:cell>
 
                             <xf:main label="{$f.name}" />
 
@@ -102,5 +103,25 @@
         </div>
     </div>
 </div>
+
+<xf:css>
+.sprite-preview {
+  width: 200px;
+  height: 200px;
+  display: inline-flex;
+  overflow: hidden;
+}
+
+.sprite-preview canvas,
+.sprite-preview img {
+  max-width: 100%;
+  max-height: 100%;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+  border-radius: 2px;
+}
+</xf:css>
 
 <xf:js src="sylphian/userpets/sprite-preview.js" min="1" addon="Sylphian/UserPets" />
