@@ -1,0 +1,9 @@
+{
+    "event_id": "criteria_user",
+    "execute_order": 10,
+    "callback_class": "Sylphian\\UserPets\\Listener\\Criteria",
+    "callback_method": "onUserCriteria",
+    "active": true,
+    "hint": "",
+    "description": "Adds UserPet criteria for trophies, notices, etc."
+}

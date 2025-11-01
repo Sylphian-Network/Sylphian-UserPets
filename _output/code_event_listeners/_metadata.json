@@ -1,4 +1,7 @@
 {
+    "criteria_user_a22a99adcd0fae81712c6773bf87d523.json": {
+        "hash": "6c0eb8fde9207764046bdee14e949b25"
+    },
     "entity_post_save_2bf8a5c103dd8af10663682058551735.json": {
         "hash": "61ad3dbc3dd16187891157bddbd6272a"
     },
@@ -18,7 +21,7 @@
         "hash": "e7a66141a585bee9605090008bde9603"
     },
     "sylphian_leaderboard_providers_67d03f14defad5732cde2a1e6d670aad.json": {
-        "hash": "1bbe93efb3fe21e6e45e2e483c88da7d"
+        "hash": "caa02a7bf4626652b259ac39afc42f40"
     },
     "templater_macro_pre_render_c082843a6c070b78be4a44473c3395c9.json": {
         "hash": "d98ebd7b39b15982476313adcc534ceb"

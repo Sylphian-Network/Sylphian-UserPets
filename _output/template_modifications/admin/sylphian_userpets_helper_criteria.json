@@ -1,0 +1,9 @@
+{
+    "template": "helper_criteria",
+    "description": "",
+    "execution_order": 10,
+    "enabled": true,
+    "action": "str_replace",
+    "find": "\t\t\t\t<!--[XF:user:content_bottom]-->",
+    "replace": "<xf:option \n    name=\"user_criteria[syl_userpets_duel_wins_at_least][rule]\" \n    value=\"syl_userpets_duel_wins_at_least\" \n    selected=\"{$criteria.syl_userpets_duel_wins_at_least}\" \n    label=\"{{ phrase('syl_userpets_duel_wins_at_least') }}\"\n>\n    <xf:numberbox \n        name=\"user_criteria[syl_userpets_duel_wins_at_least][data][count]\" \n        value=\"{$criteria.syl_userpets_duel_wins_at_least.count}\" \n        min=\"0\" \n        step=\"1\" \n        size=\"5\" \n    />\n</xf:option>\n\n<xf:option \n    name=\"user_criteria[syl_userpets_duel_losses_at_least][rule]\" \n    value=\"syl_userpets_duel_losses_at_least\" \n    selected=\"{$criteria.syl_userpets_duel_losses_at_least}\" \n    label=\"{{ phrase('syl_userpets_duel_losses_at_least') }}\"\n>\n    <xf:numberbox \n        name=\"user_criteria[syl_userpets_duel_losses_at_least][data][count]\" \n        value=\"{$criteria.syl_userpets_duel_losses_at_least.count}\" \n        min=\"0\" \n        step=\"1\" \n        size=\"5\" \n    />\n</xf:option>\n\n<xf:option \n    name=\"user_criteria[syl_userpets_pet_level_at_least][rule]\" \n    value=\"syl_userpets_pet_level_at_least\" \n    selected=\"{$criteria.syl_userpets_pet_level_at_least}\" \n    label=\"{{ phrase('syl_userpets_pet_level_at_least') }}\"\n>\n    <xf:numberbox \n        name=\"user_criteria[syl_userpets_pet_level_at_least][data][level]\" \n        value=\"{$criteria.syl_userpets_pet_level_at_least.level}\" \n        min=\"1\" \n        step=\"1\" \n        size=\"5\" \n    />\n</xf:option>\n\n\t\t\t\t<!--[XF:user:content_bottom]-->\n"
+}

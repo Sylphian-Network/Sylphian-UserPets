@@ -485,6 +485,24 @@
         "version_string": "1.0.0 Alpha",
         "hash": "1cf5ef17902d61fcd314109a0e528bda"
     },
+    "syl_userpets_duel_losses_at_least.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "2def1235daa050ae8070b7bb395b42c4"
+    },
+    "syl_userpets_duel_wins_at_least.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "07fad34adef35528cdc8dfcf1af6cae9"
+    },
+    "syl_userpets_pet_level_at_least.txt": {
+        "global_cache": false,
+        "version_id": 1000010,
+        "version_string": "1.0.0 Alpha",
+        "hash": "2695cc4f3fce6e94a184489136844481"
+    },
     "sylphian_userpets_add_spritesheet.txt": {
         "global_cache": false,
         "version_id": 1000010,

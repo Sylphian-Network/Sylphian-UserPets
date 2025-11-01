@@ -5,5 +5,5 @@
     "callback_method": "providers",
     "active": true,
     "hint": "",
-    "description": ""
+    "description": "[Optional] Adds the leaderboards for Sylphian/Leaderboard"
 }
