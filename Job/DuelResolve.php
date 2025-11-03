@@ -3,10 +3,10 @@
 namespace Sylphian\UserPets\Job;
 
 use Sylphian\Library\Logger\Logger;
+use Sylphian\UserPets\Duel\AlgorithmRegistry;
 use Sylphian\UserPets\Entity\UserPetsDuel;
 use Sylphian\UserPets\Repository\UserPetsDuelRepository;
 use Sylphian\UserPets\Repository\UserPetsRepository;
-use Sylphian\UserPets\Service\DuelAlgorithms\DuelFactory;
 use XF\Entity\User;
 use XF\Job\AbstractJob;
 use XF\Job\JobResult;
@@ -63,7 +63,13 @@ class DuelResolve extends AbstractJob
 				return $this->complete();
 			}
 
-			$algorithm = DuelFactory::getAlgorithm();
+			$algorithm = AlgorithmRegistry::resolve();
+			Logger::debug('Duel registered.', [
+				'algorithm_key' => $algorithm->getKey(),
+				'algorithm_label' => $algorithm->getLabel(),
+				'algorithm_class' => get_class($algorithm),
+			]);
+
 			$result = $algorithm->calculateWinner(
 				$challengerPet->toArray(),
 				$opponentPet->toArray()
