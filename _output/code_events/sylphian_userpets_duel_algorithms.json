@@ -1,0 +1,3 @@
+{
+    "description": "<h3>Registering a Duel Algorithm Listener</h3>\n<p>\n  To add a custom duel algorithm, create a listener that appends your algorithm instance to the <code>$algorithms</code> array.\n  This array is passed <strong>by reference</strong>, so your additions will affect the main list of algorithms.\n</p>\n\n<h4>Example listener</h4>\n<pre>class DuelAlgorithms\n{\n    public static function register(\\XF\\App $app, array &amp;$algorithms): void\n    {\n        $algorithms[] = new CheatAlgorithm();\n    }\n}</pre>\n\n<p>For a full explanation of duel algorithms and how to implement them, see the <a href=\"https://github.com/Sylphian-Network/Sylphian-UserPets/wiki/Duel-Algorithms\" target=\"_blank\">Duel Algorithms Wiki page</a>.</p>"
+}

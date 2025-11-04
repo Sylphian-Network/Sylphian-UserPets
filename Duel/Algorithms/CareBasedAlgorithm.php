@@ -1,13 +1,18 @@
 <?php
 
-namespace Sylphian\UserPets\Service\DuelAlgorithms;
+namespace Sylphian\UserPets\Duel\Algorithms;
 
 class CareBasedAlgorithm implements DuelAlgorithmInterface
 {
-	/**
-	 * Calculates a chance based on pet happiness, hunger, and sleepiness.
-	 * The winner is more likely the pet with better care stats.
-	 */
+	public function getKey(): string
+	{
+		return 'care';
+	}
+	public function getLabel(): string
+	{
+		return 'Care-based';
+	}
+
 	public function calculateWinner(array $petA, array $petB): array
 	{
 		$modifierA = ($petA['happiness'] - $petA['hunger'] - $petA['sleepiness']) / 200;
