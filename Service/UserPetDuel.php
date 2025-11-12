@@ -5,6 +5,7 @@ namespace Sylphian\UserPets\Service;
 use Sylphian\Library\Logger\Logger;
 use Sylphian\UserPets\Entity\UserPets;
 use Sylphian\UserPets\Entity\UserPetsDuel;
+use Sylphian\UserPets\Helper\UserPetOptOut;
 use Sylphian\UserPets\Repository\UserPetsDuelRepository;
 use XF\Entity\User;
 use XF\PrintableException;
@@ -38,6 +39,11 @@ class UserPetDuel
 			if ($challengerPetId === $opponentPetId)
 			{
 				return new DuelChallengeResult(DuelChallengeResult::ERROR_SAME_PET);
+			}
+
+			if (UserPetOptOut::isDisabledByUserId($challengerPet->user_id) || UserPetOptOut::isDisabledByUserId($opponentPet->user_id))
+			{
+				return new DuelChallengeResult(DuelChallengeResult::ERROR_USER_DISABLED);
 			}
 
 			$lastDuelTime = $challengerPet->last_duel_time;

@@ -12,6 +12,7 @@ class DuelChallengeResult
 	public const string ERROR_DUEL_ALREADY_EXISTS = 'duel_already_exists';
 	public const string ERROR_UNKNOWN = 'unknown';
 	public const string ERROR_ON_COOLDOWN = 'on_cooldown';
+	public const string ERROR_USER_DISABLED = 'user_disabled';
 
 	protected string $status;
 	protected ?UserPetsDuel $duel;
