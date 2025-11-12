@@ -133,6 +133,10 @@ class UserPetDuel extends AbstractController
 					]),
 					['result' => $result->getStatus()]
 				),
+				DuelChallengeResult::ERROR_USER_DISABLED => Logger::loggedWarning(
+					\XF::phrase('sylphian_userpets_disabled_pet'),
+					['result' => $result->getStatus()]
+				),
 				default => Logger::loggedWarning(
 					\XF::phrase('sylphian_userpets_challenge_failed'),
 					['result' => $result->getStatus()]

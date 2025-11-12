@@ -4,6 +4,7 @@ namespace Sylphian\UserPets\Listener;
 
 use Sylphian\Library\Logger\Logger;
 use Sylphian\UserPets\Entity\UserPets;
+use Sylphian\UserPets\Helper\UserPetOptOut;
 use Sylphian\UserPets\Repository\UserPetsTutorialRepository;
 use Sylphian\UserPets\Tutorial\TutorialId;
 use XF\Entity\Post;
@@ -49,6 +50,11 @@ class TutorialEvents
 
 		$userId = $getUserIdCallback ? $getUserIdCallback($entity) : $entity->user_id;
 		if (!$userId)
+		{
+			return;
+		}
+
+		if (UserPetOptOut::isDisabledByUserId($userId))
 		{
 			return;
 		}

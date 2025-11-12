@@ -397,9 +397,9 @@
     },
     "option_group_description.sylphian_userpets.txt": {
         "global_cache": false,
-        "version_id": 1000010,
-        "version_string": "1.0.0 Alpha",
-        "hash": "d41d8cd98f00b204e9800998ecf8427e"
+        "version_id": 1010030,
+        "version_string": "1.1.0 Beta",
+        "hash": "29701d4583420f13a09d0760b61c2e89"
     },
     "style_prop.sylUserPetsCanvasBorder.txt": {
         "global_cache": false,
@@ -509,6 +509,12 @@
         "version_string": "1.0.0 Alpha",
         "hash": "27d4ba053155c4f68f6beb7c1a0f5f0c"
     },
+    "sylphian_userpets_challenge_failed.txt": {
+        "global_cache": false,
+        "version_id": 1010030,
+        "version_string": "1.1.0 Beta",
+        "hash": "f99ed11e6ad74b6c7f0f2a4f421a9d58"
+    },
     "sylphian_userpets_confirm_challenge.txt": {
         "global_cache": false,
         "version_id": 1000010,
@@ -520,6 +526,12 @@
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
         "hash": "6546ab407ad1c3715a30ab88d4661eb4"
+    },
+    "sylphian_userpets_disabled_pet.txt": {
+        "global_cache": false,
+        "version_id": 1010030,
+        "version_string": "1.1.0 Beta",
+        "hash": "037b9554bbe93d81ce3f21a544f6315d"
     },
     "sylphian_userpets_duel_challenge_confirmation_text.txt": {
         "global_cache": false,

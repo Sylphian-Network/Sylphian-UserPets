@@ -4,6 +4,7 @@ namespace Sylphian\UserPets\Widget;
 
 use Sylphian\Library\Logger\Logger;
 use Sylphian\UserPets\Entity\UserPets;
+use Sylphian\UserPets\Helper\UserPetOptOut;
 use Sylphian\UserPets\Repository\UserPetsRepository;
 use Sylphian\UserPets\Repository\UserPetsSpritesheetRepository;
 use Sylphian\UserPets\Repository\UserPetsTutorialRepository;
@@ -30,6 +31,11 @@ class UserPetWidget extends AbstractWidget
 		if ($profileViewing === null || $profileViewing === $visitor->user_id)
 		{
 			// Viewing own pet
+			if (UserPetOptOut::isDisabledForUser($visitor))
+			{
+				return null;
+			}
+
 			$pet = $this->getOrCreatePet($visitor->user_id);
 
 			$renderConfig = $this->getSpritesheetRenderConfigForUser($visitor);
@@ -97,7 +103,13 @@ class UserPetWidget extends AbstractWidget
 				return null;
 			}
 
+			/** @var User $profileUser */
 			$profileUser = $this->em()->find('XF:User', $profileViewing);
+
+			if (UserPetOptOut::isDisabledForUser($profileUser))
+			{
+				return null;
+			}
 
 			$renderConfig = $this->getSpritesheetRenderConfigForUser($profileUser);
 

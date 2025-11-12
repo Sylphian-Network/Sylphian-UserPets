@@ -4,6 +4,7 @@ namespace Sylphian\UserPets\Repository;
 
 use Sylphian\Library\Logger\Logger;
 use Sylphian\UserPets\Entity\UserPets;
+use Sylphian\UserPets\Helper\UserPetOptOut;
 use Sylphian\UserPets\Service\PetLeveling;
 use XF\Entity\User;
 use XF\Mvc\Entity\Repository;
@@ -128,6 +129,11 @@ class UserPetsRepository extends Repository
 	public function awardPetExperience(int $userId, int $amountOfExp, bool $updateActionTime = true): void
 	{
 		if ($amountOfExp <= 0)
+		{
+			return;
+		}
+
+		if (UserPetOptOut::isDisabledByUserId($userId))
 		{
 			return;
 		}
