@@ -141,7 +141,13 @@ class UserPetDuel
 			$duelRepo = $app->repository('Sylphian\UserPets:UserPetsDuel');
 			$duel = $duelRepo->updateDuelStatus($duelId, 'accepted');
 
-			$challengerPet = $duel->ChallengerPet;
+            $challengerPet = $duel->ChallengerPet;
+            $opponentPet   = $duel->OpponentPet;
+
+            if (UserPetOptOut::isDisabledByUserId($challengerPet->user_id) || UserPetOptOut::isDisabledByUserId($opponentPet->user_id))
+            {
+                return new DuelChallengeResult(DuelChallengeResult::ERROR_USER_DISABLED);
+            }
 
 			$challengerPet->last_duel_time = \XF::$time;
 
@@ -232,16 +238,19 @@ class UserPetDuel
 					/** @var UserAlertRepository $alertRepo */
 					$alertRepo = $app->repository('XF:UserAlert');
 
-					$alertRepo->alertFromUser(
-						$challengerUser,
-						$opponentUser,
-						'syl_userpet',
-						$challengerPet->pet_id,
-						'duel_declined',
-						[
-							'opponent_name' => $opponentUser->username,
-						]
-					);
+					if (!UserPetOptOut::isDisabledByUserId($challengerUser->user_id) && !UserPetOptOut::isDisabledByUserId($opponentUser->user_id))
+					{
+						$alertRepo->alertFromUser(
+							$challengerUser,
+							$opponentUser,
+							'syl_userpet',
+							$challengerPet->pet_id,
+							'duel_declined',
+							[
+								'opponent_name' => $opponentUser->username,
+							]
+						);
+					}
 				}
 			}
 

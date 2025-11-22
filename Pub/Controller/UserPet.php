@@ -2,6 +2,7 @@
 
 namespace Sylphian\UserPets\Pub\Controller;
 
+use Sylphian\UserPets\Helper\UserPetOptOut;
 use Sylphian\UserPets\Repository\UserPetsRepository;
 use Sylphian\UserPets\Service\PetLeveling;
 use Sylphian\UserPets\Service\PetManager;
@@ -16,6 +17,11 @@ class UserPet extends AbstractController
 		$this->assertPostOnly();
 
 		$visitor = \XF::visitor();
+		if (UserPetOptOut::isDisabledForUser($visitor))
+		{
+			return $this->error(\XF::phrase('sylphian_userpets_disabled_pet'));
+		}
+
 		/** @var UserPetsRepository $repo */
 		$repo = $this->repository('Sylphian\UserPets:UserPets');
 		$pet = $repo->getUserPet($visitor->user_id);

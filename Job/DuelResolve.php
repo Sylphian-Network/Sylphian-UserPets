@@ -5,6 +5,7 @@ namespace Sylphian\UserPets\Job;
 use Sylphian\Library\Logger\Logger;
 use Sylphian\UserPets\Duel\AlgorithmRegistry;
 use Sylphian\UserPets\Entity\UserPetsDuel;
+use Sylphian\UserPets\Helper\UserPetOptOut;
 use Sylphian\UserPets\Repository\UserPetsDuelRepository;
 use Sylphian\UserPets\Repository\UserPetsRepository;
 use XF\Entity\User;
@@ -114,29 +115,38 @@ class DuelResolve extends AbstractJob
 			$winnerUsername = $winnerUser ? $winnerUser->username : 'Unknown';
 			$loserUsername = $loserUser ? $loserUser->username : 'Unknown';
 
-			$alertRepo->alertFromUser(
-				$winnerUser,
-				$winnerUser,
-				'syl_userpet',
-				$winnerPet->pet_id,
-				'duel_win',
-				[
-					'opponent_name' => $loserUsername,
-					'exp_gained' => $winExp,
-				]
-			);
+			$canAlertWinner = !UserPetOptOut::isDisabledByUserId($winnerPet->user_id);
+			$canAlertLoser  = !UserPetOptOut::isDisabledByUserId($loserPet->user_id);
 
-			$alertRepo->alertFromUser(
-				$loserUser,
-				$loserUser,
-				'syl_userpet',
-				$loserPet->pet_id,
-				'duel_loss',
-				[
-					'opponent_name' => $winnerUsername,
-					'stats_lost' => $loseStats,
-				]
-			);
+			if ($canAlertWinner)
+			{
+				$alertRepo->alertFromUser(
+					$winnerUser,
+					$winnerUser,
+					'syl_userpet',
+					$winnerPet->pet_id,
+					'duel_win',
+					[
+						'opponent_name' => $loserUsername,
+						'exp_gained' => $winExp,
+					]
+				);
+			}
+
+			if ($canAlertLoser)
+			{
+				$alertRepo->alertFromUser(
+					$loserUser,
+					$loserUser,
+					'syl_userpet',
+					$loserPet->pet_id,
+					'duel_loss',
+					[
+						'opponent_name' => $winnerUsername,
+						'stats_lost' => $loseStats,
+					]
+				);
+			}
 
 			Logger::notice('Duel completed', [
 				'duel_id' => $duelId,

@@ -3,6 +3,7 @@
 namespace Sylphian\UserPets\Job;
 
 use Sylphian\Library\Logger\Logger;
+use Sylphian\UserPets\Helper\UserPetOptOut;
 use Sylphian\UserPets\Repository\UserPetsRepository;
 use Sylphian\UserPets\Tutorial\TutorialRegistry;
 use XF\Entity\User;
@@ -55,19 +56,22 @@ class TutorialReward extends AbstractJob
 			$tutorial = TutorialRegistry::get($tutorialKey);
 			$tutorialTitle = $tutorial ? $tutorial->getTitle() : 'Unknown Tutorial';
 
-			$alertRepo->alertFromUser(
-				$user,
-				$user,
-				'syl_userpet',
-				$petsRepo->getUserPet($userId)->pet_id,
-				'tutorial',
-				[
-					'exp_amount' => $expAmount,
-					'tutorial_key' => $tutorialKey,
-					'tutorial_title' => $tutorialTitle,
-				],
-				['autoRead' => true]
-			);
+			if (!UserPetOptOut::isDisabledByUserId($userId))
+			{
+				$alertRepo->alertFromUser(
+					$user,
+					$user,
+					'syl_userpet',
+					$petsRepo->getUserPet($userId)->pet_id,
+					'tutorial',
+					[
+						'exp_amount' => $expAmount,
+						'tutorial_key' => $tutorialKey,
+						'tutorial_title' => $tutorialTitle,
+					],
+					['autoRead' => true]
+				);
+			}
 
 			Logger::notice('Awarded tutorial reward', [
 				'user_id' => $userId,

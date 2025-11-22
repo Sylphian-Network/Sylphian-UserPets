@@ -4,6 +4,7 @@ namespace Sylphian\UserPets\Repository;
 
 use Sylphian\Library\Logger\Logger;
 use Sylphian\UserPets\Entity\UserPetsDuel;
+use Sylphian\UserPets\Helper\UserPetOptOut;
 use XF\Entity\User;
 use XF\Mvc\Entity\Repository;
 use XF\PrintableException;
@@ -199,17 +200,20 @@ class UserPetsDuelRepository extends Repository
 			/** @var UserAlertRepository $alertRepo */
 			$alertRepo = $app->repository('XF:UserAlert');
 
-			$alertRepo->alertFromUser(
-				$opponentUser,
-				$challengerUser,
-				'syl_userpet',
-				$opponentPet->pet_id,
-				'duel_challenge',
-				[
-					'challenger_name' => $challengerPet->User->username,
-					'duel_id' => $duel->duel_id,
-				],
-			);
+			if (!UserPetOptOut::isDisabledByUserId($opponentUser->user_id) && !UserPetOptOut::isDisabledByUserId($challengerUser->user_id))
+			{
+				$alertRepo->alertFromUser(
+					$opponentUser,
+					$challengerUser,
+					'syl_userpet',
+					$opponentPet->pet_id,
+					'duel_challenge',
+					[
+						'challenger_name' => $challengerPet->User->username,
+						'duel_id' => $duel->duel_id,
+					]
+				);
+			}
 
 			return true;
 		}
