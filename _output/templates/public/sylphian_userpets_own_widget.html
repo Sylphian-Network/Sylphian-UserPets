@@ -18,6 +18,12 @@
     </div>
 </xf:if>
 
+<xf:if is="$petRender.usingDefault">
+    <div class="blockMessage blockMessage--warning blockMessage--iconic">
+        {{ phrase('sylphian_userpets_default_spritesheet_warning') }}
+    </div>
+</xf:if>
+
 <div class="block">
     <div class="block-container"
          data-xf-init="pet-actions"

@@ -141,13 +141,13 @@ class UserPetDuel
 			$duelRepo = $app->repository('Sylphian\UserPets:UserPetsDuel');
 			$duel = $duelRepo->updateDuelStatus($duelId, 'accepted');
 
-            $challengerPet = $duel->ChallengerPet;
-            $opponentPet   = $duel->OpponentPet;
+			$challengerPet = $duel->ChallengerPet;
+			$opponentPet   = $duel->OpponentPet;
 
-            if (UserPetOptOut::isDisabledByUserId($challengerPet->user_id) || UserPetOptOut::isDisabledByUserId($opponentPet->user_id))
-            {
-                return new DuelChallengeResult(DuelChallengeResult::ERROR_USER_DISABLED);
-            }
+			if (UserPetOptOut::isDisabledByUserId($challengerPet->user_id) || UserPetOptOut::isDisabledByUserId($opponentPet->user_id))
+			{
+				return new DuelChallengeResult(DuelChallengeResult::ERROR_USER_DISABLED);
+			}
 
 			$challengerPet->last_duel_time = \XF::$time;
 

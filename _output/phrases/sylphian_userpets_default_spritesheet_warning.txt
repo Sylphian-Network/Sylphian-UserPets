@@ -1,0 +1,2 @@
+No sprite has been selected for your pet. The fallback sprite is being used until you choose one.<br>
+To select your own sprite go into <b>Account details -> Preferences</b>.

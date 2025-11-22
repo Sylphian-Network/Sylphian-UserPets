@@ -19,6 +19,30 @@ class SpriteSheet extends AbstractOption
 		);
 	}
 
+	public static function verifyOption(&$value): bool
+	{
+		$value = trim((string) $value);
+
+		if ($value === '')
+		{
+			return true;
+		}
+
+		/** @var UserPetsRepository $repo */
+		$repo = \XF::repository('Sylphian\\UserPets:UserPets');
+		$choices = $repo->getAvailableSpriteSheets();
+
+		$id = strtolower(pathinfo($value, PATHINFO_FILENAME));
+
+		if (!array_key_exists($id, $choices))
+		{
+			return false;
+		}
+
+		$value = $id;
+		return true;
+	}
+
 	protected static function getSelectData(Option $option, array $htmlParams): array
 	{
 		$choices = static::getSpritesheetOptions($option, $htmlParams);
