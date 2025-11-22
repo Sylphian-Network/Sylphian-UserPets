@@ -5,6 +5,7 @@ namespace Sylphian\UserPets\Service;
 use Sylphian\Library\Logger\Logger;
 use Sylphian\UserPets\Entity\UserPets;
 use Sylphian\UserPets\Entity\UserPetsDuel;
+use Sylphian\UserPets\Helper\UserPetOptOut;
 use Sylphian\UserPets\Repository\UserPetsDuelRepository;
 use XF\Entity\User;
 use XF\PrintableException;
@@ -38,6 +39,11 @@ class UserPetDuel
 			if ($challengerPetId === $opponentPetId)
 			{
 				return new DuelChallengeResult(DuelChallengeResult::ERROR_SAME_PET);
+			}
+
+			if (UserPetOptOut::isDisabledByUserId($challengerPet->user_id) || UserPetOptOut::isDisabledByUserId($opponentPet->user_id))
+			{
+				return new DuelChallengeResult(DuelChallengeResult::ERROR_USER_DISABLED);
 			}
 
 			$lastDuelTime = $challengerPet->last_duel_time;
@@ -135,7 +141,13 @@ class UserPetDuel
 			$duelRepo = $app->repository('Sylphian\UserPets:UserPetsDuel');
 			$duel = $duelRepo->updateDuelStatus($duelId, 'accepted');
 
-			$challengerPet = $duel->ChallengerPet;
+            $challengerPet = $duel->ChallengerPet;
+            $opponentPet   = $duel->OpponentPet;
+
+            if (UserPetOptOut::isDisabledByUserId($challengerPet->user_id) || UserPetOptOut::isDisabledByUserId($opponentPet->user_id))
+            {
+                return new DuelChallengeResult(DuelChallengeResult::ERROR_USER_DISABLED);
+            }
 
 			$challengerPet->last_duel_time = \XF::$time;
 
@@ -226,16 +238,19 @@ class UserPetDuel
 					/** @var UserAlertRepository $alertRepo */
 					$alertRepo = $app->repository('XF:UserAlert');
 
-					$alertRepo->alertFromUser(
-						$challengerUser,
-						$opponentUser,
-						'syl_userpet',
-						$challengerPet->pet_id,
-						'duel_declined',
-						[
-							'opponent_name' => $opponentUser->username,
-						]
-					);
+					if (!UserPetOptOut::isDisabledByUserId($challengerUser->user_id) && !UserPetOptOut::isDisabledByUserId($opponentUser->user_id))
+					{
+						$alertRepo->alertFromUser(
+							$challengerUser,
+							$opponentUser,
+							'syl_userpet',
+							$challengerPet->pet_id,
+							'duel_declined',
+							[
+								'opponent_name' => $opponentUser->username,
+							]
+						);
+					}
 				}
 			}
 

@@ -1,0 +1,1 @@
+Configure how virtual pets behave and interact on your forum.

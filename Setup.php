@@ -159,6 +159,44 @@ class Setup extends AbstractSetup
 		});
 	}
 
+	public function installStep7(): void
+	{
+		try
+		{
+			$this->createUserField(
+				'syl_userpets_disable_pet',
+				'Disable Pet',
+				' ',
+				[
+					'display_group'     => 'preferences',
+					'display_order'     => 499,
+					'field_type'        => 'checkbox',
+					'field_choices'     => [
+						'disable_option' => 'Disable user pet',
+					],
+					'match_type'        => 'none',
+					'match_params'      => [],
+					'max_length'        => 0,
+					'required'          => false,
+					'show_registration' => false,
+					'user_editable'     => 'yes',
+					'viewable_profile'  => false,
+					'viewable_message'  => false,
+					'display_template'  => '',
+					'wrapper_template'  => '',
+					'moderator_editable' => true,
+				]
+			);
+		}
+		catch (\Exception $e)
+		{
+			Logger::error('Unexpected error in installStep7', [
+				'exception' => $e->getMessage(),
+				'trace' => $e->getTraceAsString(),
+			]);
+		}
+	}
+
 	public function uninstallStep1(): void
 	{
 		$this->schemaManager()->dropTable('xf_user_pets');
@@ -187,5 +225,48 @@ class Setup extends AbstractSetup
 	public function uninstallStep6(): void
 	{
 		$this->schemaManager()->dropTable('xf_user_pets_spritesheet');
+	}
+
+	public function uninstallStep7(): void
+	{
+		$this->removeUserField('syl_userpets_disable_pet');
+	}
+
+	public function upgrade1010030Step1(): void
+	{
+		try
+		{
+			$this->createUserField(
+				'syl_userpets_disable_pet',
+				'Disable Pet',
+				' ',
+				[
+					'display_group'     => 'preferences',
+					'display_order'     => 499,
+					'field_type'        => 'checkbox',
+					'field_choices'     => [
+						'disable_option' => 'Disable user pet',
+					],
+					'match_type'        => 'none',
+					'match_params'      => [],
+					'max_length'        => 0,
+					'required'          => false,
+					'show_registration' => false,
+					'user_editable'     => 'yes',
+					'viewable_profile'  => false,
+					'viewable_message'  => false,
+					'display_template'  => '',
+					'wrapper_template'  => '',
+					'moderator_editable' => true,
+				]
+			);
+		}
+		catch (\Exception $e)
+		{
+			Logger::error('Unexpected error in upgrade1010030Step1', [
+				'exception' => $e->getMessage(),
+				'trace' => $e->getTraceAsString(),
+			]);
+		}
 	}
 }
