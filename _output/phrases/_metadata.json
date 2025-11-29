@@ -527,6 +527,12 @@
         "version_string": "1.0.0 Alpha",
         "hash": "6546ab407ad1c3715a30ab88d4661eb4"
     },
+    "sylphian_userpets_default_spritesheet_warning.txt": {
+        "global_cache": false,
+        "version_id": 1010030,
+        "version_string": "1.1.0 Beta",
+        "hash": "dd978ca133788e1f39936e559b847b93"
+    },
     "sylphian_userpets_disabled_pet.txt": {
         "global_cache": false,
         "version_id": 1010030,

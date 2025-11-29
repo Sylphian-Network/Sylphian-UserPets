@@ -147,41 +147,65 @@ class UserPetWidget extends AbstractWidget
 	 * Resolve the spritesheet URL and DB-backed render config for a user.
 	 *
 	 * @param User|null $user
-	 * @return array{url:string, frame_width:int, frame_height:int, frames_per_animation:int, fps:int}
+	 * @return array{url:string, frame_width:int, frame_height:int, frames_per_animation:int, fps:int, usingDefault:bool}
 	 */
 	protected function getSpritesheetRenderConfigForUser(?User $user): array
 	{
-		$defaultSpritesheet = (string) \XF::options()->sylphian_userpets_default_spritesheet;
-		$selected = $defaultSpritesheet;
+		$defaultIdRaw = (string) \XF::options()->sylphian_userpets_default_spritesheet;
+		$defaultId = strtolower(pathinfo($defaultIdRaw, PATHINFO_FILENAME));
+
+		if ($defaultId === '')
+		{
+			$defaultId = 'sylphian_spritesheet';
+		}
+
+		$selectedId = $defaultId;
+		$hadCustomSelection = false;
 
 		if ($user?->user_id)
 		{
-			$custom = $user->Profile->custom_fields['syl_userpets_spritesheet'] ?? '';
+			$custom = trim((string) ($user->Profile->custom_fields['syl_userpets_spritesheet'] ?? ''));
 			if ($custom !== '')
 			{
-				$selected = (string) $custom;
+				$hadCustomSelection = true;
+				$selectedId = strtolower(pathinfo($custom, PATHINFO_FILENAME));
 			}
 		}
 
-		$filename = $selected;
-		if (!preg_match('/\.(png|gif|jpe?g|webp)$/i', $filename))
-		{
-			$filename .= '.png';
-		}
+		$defaultFilename  = $defaultId . '.png';
+		$selectedFilename = $selectedId . '.png';
 
 		/** @var UserPetsSpritesheetRepository $ssRepo */
 		$ssRepo = $this->repository('Sylphian\\UserPets:UserPetsSpritesheetRepository');
 
-		$entity = method_exists($ssRepo, 'findByFilename')
-			? $ssRepo->findByFilename($filename)
+		$selectedEntity = method_exists($ssRepo, 'findByFilename')
+			? $ssRepo->findByFilename($selectedFilename)
 			: null;
 
-		$frameW = $entity?->frame_width ?: 192;
-		$frameH = $entity?->frame_height ?: 192;
-		$fpa    = $entity?->frames_per_animation ?: 4;
-		$fps    = $entity?->fps ?: 4;
+		$basePath = rtrim($ssRepo->getBasePath(), DIRECTORY_SEPARATOR);
+		$selectedFileExists = is_file($basePath . DIRECTORY_SEPARATOR . $selectedFilename);
 
-		$url = rtrim($ssRepo->getBaseUrl(), '/') . '/' . rawurlencode($filename);
+		$fellBackToDefault = false;
+
+		if (!$selectedEntity && !$selectedFileExists)
+		{
+			$selectedFilename = $defaultFilename;
+			$fellBackToDefault = true;
+		}
+
+		$usingDefault = (!$hadCustomSelection) || $fellBackToDefault;
+
+		if (!$selectedEntity && method_exists($ssRepo, 'findByFilename'))
+		{
+			$selectedEntity = $ssRepo->findByFilename($selectedFilename);
+		}
+
+		$frameW = $selectedEntity?->frame_width ?: 192;
+		$frameH = $selectedEntity?->frame_height ?: 192;
+		$fpa    = $selectedEntity?->frames_per_animation ?: 4;
+		$fps    = $selectedEntity?->fps ?: 4;
+
+		$url = rtrim($ssRepo->getBaseUrl(), '/') . '/' . rawurlencode($selectedFilename);
 
 		return [
 			'url' => $url,
@@ -189,6 +213,7 @@ class UserPetWidget extends AbstractWidget
 			'frame_height' => $frameH,
 			'frames_per_animation' => $fpa,
 			'fps' => $fps,
+			'usingDefault' => $usingDefault,
 		];
 	}
 

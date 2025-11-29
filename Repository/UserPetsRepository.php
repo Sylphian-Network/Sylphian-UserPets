@@ -114,7 +114,7 @@ class UserPetsRepository extends Repository
 
 		if (empty($options))
 		{
-			$options['slime'] = 'Slime';
+			$options['empty'] = 'Add a spritesheet here to act as a fallback if a user does not select a pet.';
 		}
 
 		return $options;
