@@ -42,8 +42,19 @@ class TutorialReward extends AbstractJob
 
 		try
 		{
+			if (UserPetOptOut::isDisabledByUserId($userId))
+			{
+				return $this->complete();
+			}
+
 			/** @var UserPetsRepository $petsRepo */
 			$petsRepo = $this->app->repository('Sylphian\UserPets:UserPets');
+
+			$pet = $petsRepo->getOrCreatePet($userId);
+			if (!$pet->pet_id)
+			{
+				throw new \RuntimeException("Could not resolve a pet for user_id {$userId}");
+			}
 
 			$petsRepo->awardPetExperience($userId, $expAmount, false);
 
@@ -56,22 +67,19 @@ class TutorialReward extends AbstractJob
 			$tutorial = TutorialRegistry::get($tutorialKey);
 			$tutorialTitle = $tutorial ? $tutorial->getTitle() : 'Unknown Tutorial';
 
-			if (!UserPetOptOut::isDisabledByUserId($userId))
-			{
-				$alertRepo->alertFromUser(
-					$user,
-					$user,
-					'syl_userpet',
-					$petsRepo->getUserPet($userId)->pet_id,
-					'tutorial',
-					[
-						'exp_amount' => $expAmount,
-						'tutorial_key' => $tutorialKey,
-						'tutorial_title' => $tutorialTitle,
-					],
-					['autoRead' => true]
-				);
-			}
+			$alertRepo->alertFromUser(
+				$user,
+				$user,
+				'syl_userpet',
+				$pet->pet_id,
+				'tutorial',
+				[
+					'exp_amount' => $expAmount,
+					'tutorial_key' => $tutorialKey,
+					'tutorial_title' => $tutorialTitle,
+				],
+				['autoRead' => true]
+			);
 
 			Logger::notice('Awarded tutorial reward', [
 				'user_id' => $userId,
@@ -82,7 +90,7 @@ class TutorialReward extends AbstractJob
 
 			return $this->complete();
 		}
-		catch (\Exception $e)
+		catch (\Throwable $e)
 		{
 			if ($this->data['attempts'] >= 5)
 			{
