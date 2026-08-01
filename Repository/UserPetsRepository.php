@@ -67,6 +67,17 @@ class UserPetsRepository extends Repository
 	}
 
 	/**
+	 * Get a user's pet, creating one if it does not exist yet.
+	 *
+	 * @param int $userId The user ID
+	 * @return UserPets The existing or newly created pet
+	 */
+	public function getOrCreatePet(int $userId): UserPets
+	{
+		return $this->getUserPet($userId) ?? $this->createPet($userId);
+	}
+
+	/**
 	 * Get available sprite sheet options
 	 *
 	 * @return array List of available sprite sheets as field_choices array

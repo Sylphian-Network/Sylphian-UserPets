@@ -3,7 +3,6 @@
 namespace Sylphian\UserPets\Widget;
 
 use Sylphian\Library\Logger\Logger;
-use Sylphian\UserPets\Entity\UserPets;
 use Sylphian\UserPets\Helper\UserPetOptOut;
 use Sylphian\UserPets\Repository\UserPetsRepository;
 use Sylphian\UserPets\Repository\UserPetsSpritesheetRepository;
@@ -36,7 +35,8 @@ class UserPetWidget extends AbstractWidget
 				return null;
 			}
 
-			$pet = $this->getOrCreatePet($visitor->user_id);
+			$repo = $this->repository(UserPetsRepository::class);
+			$pet = $repo->getOrCreatePet($visitor->user_id);
 
 			$renderConfig = $this->getSpritesheetRenderConfigForUser($visitor);
 
@@ -236,27 +236,5 @@ class UserPetWidget extends AbstractWidget
 		}
 
 		return $customName;
-	}
-
-	/**
-	 * Fetch an existing pet or create one if missing.
-	 *
-	 * Ensures the visitor always has a pet.
-	 *
-	 * @param int $userId User ID to fetch/create pet for
-	 * @return UserPets The pet entity
-	 */
-	protected function getOrCreatePet(int $userId): UserPets
-	{
-		/** @var UserPetsRepository $repo */
-		$repo = $this->repository('Sylphian\UserPets:UserPets');
-		$pet = $repo->getUserPet($userId);
-
-		if (!$pet)
-		{
-			$pet = $repo->createPet($userId);
-		}
-
-		return $pet;
 	}
 }
