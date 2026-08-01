@@ -129,20 +129,14 @@ class PetLeveling
 	}
 
 	/**
-	 * Add experience to the pet and handle level ups.
+	 * Add a specific amount of experience to the pet and handle level ups.
 	 *
 	 * @param UserPets $pet The pet entity
-	 * @param string|null $actionType The type of action performed (feed, sleep, play)
-	 * @param int|null $amount The specific amount of experience to add (overrides action type)
+	 * @param int $amount The amount of experience to add
 	 * @return bool True if the pet leveled up, false otherwise
 	 */
-	public function addExperience(UserPets $pet, ?string $actionType = null, ?int $amount = null): bool
+	public function addExperience(UserPets $pet, int $amount): bool
 	{
-		if ($amount === null)
-		{
-			$amount = $this->getExperienceForAction($actionType);
-		}
-
 		$oldLevel = $pet->level;
 		$pet->experience += $amount;
 
@@ -154,6 +148,18 @@ class PetLeveling
 		}
 
 		return false;
+	}
+
+	/**
+	 * Add the configured experience for an action type to the pet and handle level ups.
+	 *
+	 * @param UserPets $pet The pet entity
+	 * @param string|null $actionType The type of action performed (feed, sleep, play)
+	 * @return bool True if the pet leveled up, false otherwise
+	 */
+	public function addExperienceForAction(UserPets $pet, ?string $actionType = null): bool
+	{
+		return $this->addExperience($pet, $this->getExperienceForAction($actionType));
 	}
 
 	/**
