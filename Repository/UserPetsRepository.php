@@ -152,14 +152,7 @@ class UserPetsRepository extends Repository
 
 		$app = \XF::app();
 
-		/** @var UserPetsRepository $petsRepo */
-		$petsRepo = $app->repository('Sylphian\UserPets:UserPets');
-		$pet = $petsRepo->getUserPet($userId);
-
-		if (!$pet)
-		{
-			return; // User doesn't have a pet
-		}
+		$pet = $this->getOrCreatePet($userId);
 
 		$petLevelingService = new PetLeveling();
 		$oldLevel = $pet->level;
