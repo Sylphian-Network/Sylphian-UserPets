@@ -124,6 +124,7 @@ class UserPetsRepository extends Repository
 	 * Award experience to a user's pet
 	 *
 	 * @param int $userId The user ID to award experience to
+	 * @param int $amountOfExp The amount of experience to award
 	 * @param bool $updateActionTime Whether to update the last_action_time field
 	 */
 	public function awardPetExperience(int $userId, int $amountOfExp, bool $updateActionTime = true): void
