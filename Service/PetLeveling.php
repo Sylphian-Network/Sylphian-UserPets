@@ -64,9 +64,9 @@ class PetLeveling
 		$this->baseCoefficient = $baseCoefficient ?? (float) ($options->sylphian_userpets_base_coefficient);
 		$this->polynomialPower = $polynomialPower ?? (float) ($options->sylphian_userpets_polynomial_power);
 
-		$this->experiencePerFeed = (int) ($options->sylphian_userpets_experience_per_action_feed ?? 10);
-		$this->experiencePerSleep = (int) ($options->sylphian_userpets_experience_per_action_sleep ?? 10);
-		$this->experiencePerPlay = (int) ($options->sylphian_userpets_experience_per_action_play ?? 10);
+		$this->experiencePerFeed = (int) ($options->sylphian_userpets_experience_per_feed);
+		$this->experiencePerSleep = (int) ($options->sylphian_userpets_experience_per_sleep);
+		$this->experiencePerPlay = (int) ($options->sylphian_userpets_experience_per_play);
 
 		$this->actionExpMap = [
 			'feed' => $this->experiencePerFeed,
