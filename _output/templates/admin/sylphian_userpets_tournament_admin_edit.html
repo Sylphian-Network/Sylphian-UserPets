@@ -1,6 +1,6 @@
 <xf:title>{{ $tournament.tournament_id ? phrase('sylphian_userpets_tournament_edit') : phrase('sylphian_userpets_tournament_create') }}</xf:title>
 
-<xf:form action="{{ link('sylphian_userpets-tournaments/save', null, {'tournament_id': $tournament.tournament_id}) }}" ajax="true" class="block">
+<xf:form action="{{ link('sylphian_userpets/tournaments/save', null, {'tournament_id': $tournament.tournament_id}) }}" ajax="true" class="block">
 	<div class="block-container">
 		<div class="block-body">
 			<xf:textboxrow name="title" value="{$tournament.title}" maxlength="100"

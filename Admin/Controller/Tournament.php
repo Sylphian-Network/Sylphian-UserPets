@@ -94,7 +94,7 @@ class Tournament extends AbstractController
 
 		$this->tournamentSaveProcess($tournament)->run();
 
-		return $this->redirect($this->buildLink('sylphian_userpets-tournaments'));
+		return $this->redirect($this->buildLink('sylphian_userpets/tournaments'));
 	}
 
 	protected function tournamentSaveProcess(UserPetsTournament $tournament): FormAction
@@ -210,7 +210,7 @@ class Tournament extends AbstractController
 			return $this->error($result['error']);
 		}
 
-		return $this->redirect($this->buildLink('sylphian_userpets-tournaments/view', null, ['tournament_id' => $tournament->tournament_id]));
+		return $this->redirect($this->buildLink('sylphian_userpets/tournaments/view', null, ['tournament_id' => $tournament->tournament_id]));
 	}
 
 	protected function assertTournamentExists(int $tournamentId): UserPetsTournament

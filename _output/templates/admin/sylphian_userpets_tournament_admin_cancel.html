@@ -1,11 +1,11 @@
 <xf:title>{{ phrase('sylphian_userpets_tournament_cancel') }}</xf:title>
 
-<xf:form action="{{ link('sylphian_userpets-tournaments/cancel', null, {'tournament_id': $tournament.tournament_id}) }}" ajax="true" class="block">
+<xf:form action="{{ link('sylphian_userpets/tournaments/cancel', null, {'tournament_id': $tournament.tournament_id}) }}" ajax="true" class="block">
 	<div class="block-container">
 		<div class="block-body">
 			<xf:inforow rowtype="confirm">
 				{{ phrase('sylphian_userpets_tournament_cancel_confirm') }}
-				<strong><a href="{{ link('sylphian_userpets-tournaments/view', null, {'tournament_id': $tournament.tournament_id}) }}">{$tournament.title}</a></strong>
+				<strong><a href="{{ link('sylphian_userpets/tournaments/view', null, {'tournament_id': $tournament.tournament_id}) }}">{$tournament.title}</a></strong>
 			</xf:inforow>
 		</div>
 		<xf:submitrow rowtype="simple" icon="cancel" submit="{{ phrase('sylphian_userpets_tournament_cancel') }}" />

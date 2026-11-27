@@ -1,7 +1,7 @@
 <xf:title>{{ phrase('sylphian_userpets_tournaments_admin_title') }}</xf:title>
 
 <xf:pageaction>
-	<xf:button href="{{ link('sylphian_userpets-tournaments/add') }}" icon="add" overlay="true">{{ phrase('sylphian_userpets_tournament_create') }}</xf:button>
+	<xf:button href="{{ link('sylphian_userpets/tournaments/add') }}" icon="add" overlay="true">{{ phrase('sylphian_userpets_tournament_create') }}</xf:button>
 </xf:pageaction>
 
 <xf:if is="$tournaments is not empty">
@@ -11,7 +11,7 @@
 				<xf:datalist data-xf-init="responsive-data-list">
 					<xf:foreach loop="$tournaments" value="$tournament">
 						<xf:datarow>
-							<xf:main href="{{ link('sylphian_userpets-tournaments/view', null, {'tournament_id': $tournament.tournament_id}) }}"
+							<xf:main href="{{ link('sylphian_userpets/tournaments/view', null, {'tournament_id': $tournament.tournament_id}) }}"
 								label="{$tournament.title}"
 								hint="{{ phrase('sylphian_userpets_tournament_created_on_x', {'date': date($tournament.created_at)}) }}" />
 							<xf:cell class="dataList-cell--min">
@@ -23,7 +23,7 @@
 							<xf:cell class="dataList-cell--min dataList-cell--hint">
 								{{ phrase('sylphian_userpets_tournament_reward_x_xp', {'xp': $tournament.prize_experience|number}) }}
 							</xf:cell>
-							<xf:action href="{{ link('sylphian_userpets-tournaments/edit', null, {'tournament_id': $tournament.tournament_id}) }}" overlay="true">
+							<xf:action href="{{ link('sylphian_userpets/tournaments/edit', null, {'tournament_id': $tournament.tournament_id}) }}" overlay="true">
 								{{ phrase('edit') }}
 							</xf:action>
 						</xf:datarow>

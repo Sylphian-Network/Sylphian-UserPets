@@ -7,7 +7,7 @@
     "admin/sylphian_userpets_legacy_xp_correction.html": {
         "version_id": 1050070,
         "version_string": "1.5.0",
-        "hash": "c5dcbb314b9dc9a3bb1a93bed4f7dcef"
+        "hash": "41d4644a8e94313732027b47257bac60"
     },
     "admin/sylphian_userpets_option_macros.html": {
         "version_id": 1050070,
@@ -17,47 +17,47 @@
     "admin/sylphian_userpets_rebuild_solution_xp.html": {
         "version_id": 1050070,
         "version_string": "1.5.0",
-        "hash": "e40790a0e93292e2861a1895c399e364"
+        "hash": "3329bec8a64d78a082b61f2f6a055c78"
     },
     "admin/sylphian_userpets_spritesheets_add.html": {
         "version_id": 1050070,
         "version_string": "1.5.0",
-        "hash": "2f56a09cbb76c60503dc8b8a90747def"
+        "hash": "f12be542d39d250f6747170c6a3da695"
     },
     "admin/sylphian_userpets_spritesheets_delete.html": {
         "version_id": 1050070,
         "version_string": "1.5.0",
-        "hash": "b2bd4ab25d7abf33088d0a33637a995b"
+        "hash": "de9f18b934ba29bab9bb4928494d4721"
     },
     "admin/sylphian_userpets_spritesheets_edit.html": {
         "version_id": 1050070,
         "version_string": "1.5.0",
-        "hash": "0e14d6e3312ffd5ffb9c3b8b3f9f67c5"
+        "hash": "2bebe2663b2c9aeb08a9d2a458115862"
     },
     "admin/sylphian_userpets_spritesheets_list.html": {
         "version_id": 1050070,
         "version_string": "1.5.0",
-        "hash": "f88a7037361ba48c6027c8853ebf120f"
+        "hash": "8e1a3b3a15937b6ed88e83154b7ac5a6"
     },
     "admin/sylphian_userpets_tournament_admin_cancel.html": {
         "version_id": 1050070,
         "version_string": "1.5.0",
-        "hash": "fa9345175695599e8b641982e2cae0ef"
+        "hash": "4a71cb06eeb61ebcb43de182eba0c91f"
     },
     "admin/sylphian_userpets_tournament_admin_edit.html": {
         "version_id": 1050070,
         "version_string": "1.5.0",
-        "hash": "1678f9bbbb2c55c090a43b7d7b75b658"
+        "hash": "78d2484428ed04c66b075b40214817a2"
     },
     "admin/sylphian_userpets_tournament_admin_list.html": {
         "version_id": 1050070,
         "version_string": "1.5.0",
-        "hash": "c2425f0e3aa05c81e85e2c129de32faa"
+        "hash": "517eff44984607b459c56ce2a6ee6890"
     },
     "admin/sylphian_userpets_tournament_admin_view.html": {
         "version_id": 1050070,
         "version_string": "1.5.0",
-        "hash": "aa725078f0da09b250ee9fbfb3fb8fed"
+        "hash": "275def36bf5155d4597b4e60bddf6b73"
     },
     "admin/widget_def_options_sylphian_userpets_widget.html": {
         "version_id": 1000010,

@@ -1,7 +1,7 @@
 <xf:title>{{ phrase('sylphian_userpets_spritesheet_management') }}</xf:title>
 
 <xf:pageaction>
-	<xf:button href="{{ link('sylphian_userpets-spritesheets/add') }}" icon="add" overlay="true">{{ phrase('sylphian_userpets_add_spritesheet') }}</xf:button>
+	<xf:button href="{{ link('sylphian_userpets/spritesheets/add') }}" icon="add" overlay="true">{{ phrase('sylphian_userpets_add_spritesheet') }}</xf:button>
 </xf:pageaction>
 
 <xf:css src="sylphian_userpets_admin.less" />
@@ -33,7 +33,7 @@
 			<div class="block-body">
 				<xf:datalist data-xf-init="responsive-data-list">
 					<xf:foreach loop="$files" value="$f">
-						<xf:set var="$editLink" value="{{ link('sylphian_userpets-spritesheets/edit', null, {'file': $f.name}) }}" />
+						<xf:set var="$editLink" value="{{ link('sylphian_userpets/spritesheets/edit', null, {'file': $f.name}) }}" />
 						<xf:datarow>
 							<xf:cell class="dataList-cell--min dataList-cell--alt dataList-cell--image" href="{$editLink}" overlay="true">
 								<xf:if is="$f.exists">
@@ -76,7 +76,7 @@
 							<xf:else />
 								<xf:cell class="dataList-cell--action">&nbsp;</xf:cell>
 							</xf:if>
-							<xf:delete href="{{ link('sylphian_userpets-spritesheets/delete', null, {'file': $f.name}) }}" />
+							<xf:delete href="{{ link('sylphian_userpets/spritesheets/delete', null, {'file': $f.name}) }}" />
 						</xf:datarow>
 					</xf:foreach>
 				</xf:datalist>

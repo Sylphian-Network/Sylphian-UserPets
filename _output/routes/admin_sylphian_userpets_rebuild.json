@@ -1,8 +1,8 @@
 {
     "route_type": "admin",
-    "route_prefix": "sylphian_userpets-rebuild",
-    "sub_name": "",
-    "format": "",
+    "route_prefix": "sylphian_userpets",
+    "sub_name": "rebuild",
+    "format": "rebuild/",
     "build_class": "",
     "build_method": "",
     "controller": "Sylphian\\UserPets\\Admin\\Controller\\RebuildSolutionExperience",

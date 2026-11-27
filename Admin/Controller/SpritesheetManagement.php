@@ -110,7 +110,7 @@ class SpritesheetManagement extends AbstractController
 			return $this->error($result['errors']);
 		}
 
-		return $this->redirect($this->buildLink('sylphian_userpets-spritesheets'));
+		return $this->redirect($this->buildLink('sylphian_userpets/spritesheets'));
 	}
 
 	public function actionDelete(): View|Redirect|Error
@@ -142,6 +142,6 @@ class SpritesheetManagement extends AbstractController
 			return $this->error($errors);
 		}
 
-		return $this->redirect($this->buildLink('sylphian_userpets-spritesheets'));
+		return $this->redirect($this->buildLink('sylphian_userpets/spritesheets'));
 	}
 }

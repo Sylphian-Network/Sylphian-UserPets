@@ -1,7 +1,7 @@
 <xf:title>{$tournament.title}</xf:title>
 
 <xf:pageaction>
-	<xf:button href="{{ link('sylphian_userpets-tournaments/edit', null, {'tournament_id': $tournament.tournament_id}) }}" icon="edit" overlay="true" />
+	<xf:button href="{{ link('sylphian_userpets/tournaments/edit', null, {'tournament_id': $tournament.tournament_id}) }}" icon="edit" overlay="true" />
 </xf:pageaction>
 
 <xf:css src="sylphian_userpets_admin.less" />
@@ -29,27 +29,27 @@
 			<div class="block-footer">
 				<div class="petTournamentActions">
 					<xf:if is="$tournament.canOpenRegistration()">
-						<xf:form action="{{ link('sylphian_userpets-tournaments/open', null, $tournamentParams) }}" ajax="true">
+						<xf:form action="{{ link('sylphian_userpets/tournaments/open', null, $tournamentParams) }}" ajax="true">
 							<xf:button type="submit" fa="fa-door-open">{{ phrase('sylphian_userpets_tournament_open_registration') }}</xf:button>
 						</xf:form>
 					</xf:if>
 					<xf:if is="$tournament.canCloseRegistration()">
-						<xf:form action="{{ link('sylphian_userpets-tournaments/close', null, $tournamentParams) }}" ajax="true">
+						<xf:form action="{{ link('sylphian_userpets/tournaments/close', null, $tournamentParams) }}" ajax="true">
 							<xf:button type="submit" fa="fa-door-closed">{{ phrase('sylphian_userpets_tournament_close_registration') }}</xf:button>
 						</xf:form>
 					</xf:if>
 					<xf:if is="$tournament.canStart()">
-						<xf:form action="{{ link('sylphian_userpets-tournaments/start', null, $tournamentParams) }}" ajax="true">
+						<xf:form action="{{ link('sylphian_userpets/tournaments/start', null, $tournamentParams) }}" ajax="true">
 							<xf:button type="submit" class="button--primary" fa="fa-play">{{ phrase('sylphian_userpets_tournament_start') }}</xf:button>
 						</xf:form>
 					</xf:if>
 					<xf:if is="$tournament.canAdvance()">
-						<xf:form action="{{ link('sylphian_userpets-tournaments/advance', null, $tournamentParams) }}" ajax="true">
+						<xf:form action="{{ link('sylphian_userpets/tournaments/advance', null, $tournamentParams) }}" ajax="true">
 							<xf:button type="submit" class="button--primary" fa="fa-forward">{{ phrase('sylphian_userpets_tournament_advance_round') }}</xf:button>
 						</xf:form>
 					</xf:if>
 					<xf:if is="$tournament.canCancel()">
-						<xf:button href="{{ link('sylphian_userpets-tournaments/cancel', null, $tournamentParams) }}" overlay="true" fa="fa-ban">{{ phrase('sylphian_userpets_tournament_cancel') }}</xf:button>
+						<xf:button href="{{ link('sylphian_userpets/tournaments/cancel', null, $tournamentParams) }}" overlay="true" fa="fa-ban">{{ phrase('sylphian_userpets_tournament_cancel') }}</xf:button>
 					</xf:if>
 				</div>
 			</div>

@@ -59,7 +59,7 @@ class RebuildSolutionExperience extends AbstractController
 		);
 
 		return $this->redirect(
-			$this->buildLink('sylphian_userpets-rebuild'),
+			$this->buildLink('sylphian_userpets/rebuild'),
 			\XF::phrase('sylphian_userpets_content_xp_rebuild_started')
 		);
 	}
@@ -124,7 +124,7 @@ class RebuildSolutionExperience extends AbstractController
 
 		$reply = $this->redirect($this->buildLink('tools/run-job', null, [
 			'only_id' => $jobId,
-			'_xfRedirect' => $this->buildLink('sylphian_userpets-rebuild/legacy-xp'),
+			'_xfRedirect' => $this->buildLink('sylphian_userpets/rebuild/legacy-xp'),
 		]));
 		$reply->setPageParam('skipManualJobRun', true);
 
