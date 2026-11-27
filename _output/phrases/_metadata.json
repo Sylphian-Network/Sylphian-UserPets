@@ -527,6 +527,36 @@
         "version_string": "1.2.0",
         "hash": "f15791cb47629b77a8e5761a07df21d2"
     },
+    "sylphian_userpets_alert_duel_declined.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "553490243e699fb676c7259f738c4488"
+    },
+    "sylphian_userpets_alert_duel_loss.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "0f9fee76b2ad97a8bc6279071795d931"
+    },
+    "sylphian_userpets_alert_duel_loss_stats.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "bcac2b15434e4ac55d3ff8b1a93de31a"
+    },
+    "sylphian_userpets_alert_duel_win.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "b30122bcdaf6e2ddc5e8ac345e40408e"
+    },
+    "sylphian_userpets_alert_duel_win_exp.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "221cc3f333eabdb47261b922bd6811a4"
+    },
     "sylphian_userpets_cannot_challenge_self.txt": {
         "global_cache": false,
         "version_id": 1020070,

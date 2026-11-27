@@ -35,19 +35,19 @@
         "hash": "1edc335f1b1d22c2011b679d04896f20"
     },
     "public/alert_syl_userpet_duel_declined.html": {
-        "version_id": 1000010,
-        "version_string": "1.0.0 Alpha",
-        "hash": "334e6722cb702a5a130f943bb452cfbd"
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "a3aa2c543e0942b103199407d574d1cb"
     },
     "public/alert_syl_userpet_duel_loss.html": {
-        "version_id": 1000010,
-        "version_string": "1.0.0 Alpha",
-        "hash": "b0a1d58659c0765ddf4f6ee09a434865"
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "69fdaa5f0c3e9b3a69817a74f1256f7d"
     },
     "public/alert_syl_userpet_duel_win.html": {
-        "version_id": 1000010,
-        "version_string": "1.0.0 Alpha",
-        "hash": "9b7e28c65e7ff973165fa13b6f6be5e7"
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "b55f02a379673dd056359923b9dc6097"
     },
     "public/alert_syl_userpet_levelup.html": {
         "version_id": 1000010,

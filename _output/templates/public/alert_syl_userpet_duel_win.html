@@ -1,2 +1,2 @@
-Congratulations! Your pet won the duel against {{ $extra.opponent_name }}!
-<xf:if is="{{ $extra.exp_gained > 0 }}"><br>Your pet gained {{ $extra.exp_gained }} experience.</xf:if>
+{{ phrase('sylphian_userpets_alert_duel_win', {'opponent': $extra.opponent_name ?: phrase('unknown')}) }}
+<xf:if is="{{ $extra.exp_gained > 0 }}"><br>{{ phrase('sylphian_userpets_alert_duel_win_exp', {'exp': $extra.exp_gained}) }}</xf:if>

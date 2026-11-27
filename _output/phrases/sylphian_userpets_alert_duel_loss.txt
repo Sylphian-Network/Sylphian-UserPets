@@ -1,0 +1,1 @@
+Your pet lost the duel against {opponent}.
