@@ -29,17 +29,63 @@
 					label="{{ phrase('sylphian_userpets_tournament_resolution_mode') }}"
 					explain="{{ phrase('sylphian_userpets_tournament_resolution_mode_explain') }}">
 					<xf:option value="manual">{{ phrase('sylphian_userpets_tournament_resolution_mode_manual') }}</xf:option>
-					<xf:option value="automatic">{{ phrase('sylphian_userpets_tournament_resolution_mode_automatic') }}</xf:option>
+					<xf:option value="automatic"
+						label="{{ phrase('sylphian_userpets_tournament_resolution_mode_automatic') }}"
+						hint="{{ phrase('sylphian_userpets_tournament_round_interval_explain') }}">
+						<xf:dependent>
+							<xf:numberbox name="round_interval_hours" value="{$tournament.round_interval_hours}" min="0" max="65535" step="1"
+								units="{{ phrase('units_hours') }}"
+								title="{{ phrase('sylphian_userpets_tournament_round_interval') }}"
+								aria-label="{{ phrase('sylphian_userpets_tournament_round_interval') }}" />
+						</xf:dependent>
+					</xf:option>
 				</xf:radiorow>
 			<xf:else />
 				<xf:formrow label="{{ phrase('sylphian_userpets_tournament_resolution_mode') }}">
-					<xf:macro id="public:sylphian_userpets_macros::resolution_mode" arg-mode="{$tournament.resolution_mode}" />
+					<xf:macro id="public:sylphian_userpets_tournament_macros::resolution_mode" arg-mode="{$tournament.resolution_mode}" />
+				</xf:formrow>
+				<xf:if is="$tournament.hasRoundInterval()">
+					<xf:formrow label="{{ phrase('sylphian_userpets_tournament_round_interval') }}">
+						{{ phrase('x_hours', {'count': $tournament.round_interval_hours|number}) }}
+					</xf:formrow>
+				</xf:if>
+			</xf:if>
+
+			<hr class="formRowSep" />
+
+			<xf:macro id="schedule_date_row"
+				arg-name="registration_open_date"
+				arg-value="{$tournament.registration_open_date}"
+				arg-editable="{{ $tournament.canEditRegistrationOpenDate() }}"
+				arg-label="{{ phrase('sylphian_userpets_tournament_registration_opens') }}" />
+
+			<xf:macro id="schedule_date_row"
+				arg-name="registration_close_date"
+				arg-value="{$tournament.registration_close_date}"
+				arg-editable="{{ $tournament.canEditRegistrationCloseDate() }}"
+				arg-label="{{ phrase('sylphian_userpets_tournament_registration_closes') }}" />
+
+			<xf:macro id="schedule_date_row"
+				arg-name="start_date"
+				arg-value="{$tournament.start_date}"
+				arg-editable="{{ $tournament.canEditStartDate() }}"
+				arg-label="{{ phrase('sylphian_userpets_tournament_starts') }}"
+				arg-explain="{{ phrase('sylphian_userpets_tournament_start_date_explain') }}" />
+
+			<xf:if is="$tournament.canEditRepeat()">
+				<xf:numberboxrow name="repeat_days" value="{$tournament.repeat_days}" min="0" max="65535" step="1"
+					units="{{ phrase('units_days') }}"
+					label="{{ phrase('sylphian_userpets_tournament_repeat_days') }}"
+					explain="{{ phrase('sylphian_userpets_tournament_repeat_days_explain') }}" />
+			<xf:elseif is="$tournament.repeat_days" />
+				<xf:formrow label="{{ phrase('sylphian_userpets_tournament_repeat_days') }}">
+					{{ phrase('x_days', {'days': $tournament.repeat_days|number}) }}
 				</xf:formrow>
 			</xf:if>
 
 			<xf:if is="$tournament.tournament_id">
 				<xf:formrow label="{{ phrase('status') }}">
-					<xf:macro id="public:sylphian_userpets_macros::tournament_status" arg-status="{$tournament.status}" />
+					<xf:macro id="public:sylphian_userpets_tournament_macros::tournament_status" arg-status="{$tournament.status}" />
 				</xf:formrow>
 				<xf:formrow label="{{ phrase('participants') }}">
 					{{ phrase('sylphian_userpets_tournament_entries_x_of_y', {'count': $entryCount|number, 'max': $tournament.max_participants|number}) }}
@@ -50,3 +96,13 @@
 		<xf:submitrow icon="save" sticky="true" />
 	</div>
 </xf:form>
+
+<xf:macro id="schedule_date_row" arg-name="!" arg-value="0" arg-editable="{{ true }}" arg-label="!" arg-explain="">
+	<xf:if is="$editable">
+		<xf:datetimeinputrow name="{$name}" value="{$value}"
+			label="{$label}"
+			explain="{{ $explain ?: phrase('sylphian_userpets_tournament_schedule_date_explain') }}" />
+	<xf:elseif is="$value" />
+		<xf:formrow label="{$label}"><xf:date time="{$value}" /></xf:formrow>
+	</xf:if>
+</xf:macro>

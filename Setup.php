@@ -4,9 +4,6 @@ namespace Sylphian\UserPets;
 
 use Sylphian\Library\Install\CustomFieldInstallTrait;
 use Sylphian\UserPets\Duel\AlgorithmRegistry;
-use Sylphian\UserPets\Repository\UserPetsDuelRepository;
-use Sylphian\UserPets\Repository\UserPetsRepository;
-use Sylphian\UserPets\Repository\UserPetsSpritesheetRepository;
 use XF\AddOn\AbstractSetup;
 use XF\AddOn\StepRunnerInstallTrait;
 use XF\AddOn\StepRunnerUninstallTrait;
@@ -35,6 +32,15 @@ class Setup extends AbstractSetup
 	/** When the site upgraded to 1.5.0; awards after it already used the configured amounts. */
 	public const LEGACY_XP_UNTIL_REGISTRY_KEY = 'sylUserPetsLegacyXpUntil';
 
+	public const PERMISSION_GROUP = 'sylUserPets';
+
+	/** Granted on install and on the 1.6.0 upgrade to every group that can view the board, as before. */
+	public const DEFAULT_PERMISSIONS = ['havePet', 'duel', 'joinTournament'];
+
+	public const SPRITESHEET_DIRECTORY = 'data://assets/sylphian/userpets/spritesheets';
+
+	public const DEFAULT_WIDGET_KEY = 'sylphian_userpets_widget';
+
 	public function installStep1(): void
 	{
 		$sm = $this->schemaManager();
@@ -49,13 +55,14 @@ class Setup extends AbstractSetup
 		$this->ensureSolutionUserIndex();
 	}
 
-	/**
-	 * User fields are created after the add-on data import, so their title, description and choice
-	 * phrases (shipped by this add-on) already exist and keep their add-on ownership.
-	 */
+	public function installStep3(): void
+	{
+		$this->applyDefaultPermissions();
+	}
+
 	public function postInstall(array &$stateChanges): void
 	{
-		$this->ensureUserFields();
+		$this->createDefaultWidget();
 	}
 
 	/*
@@ -130,13 +137,13 @@ class Setup extends AbstractSetup
 	/**
 	 * Earlier versions could create a second pet for a user under concurrent requests. Every code path
 	 * used the lowest pet id, so that pet is kept and the others are merged into it.
+	 *
+	 * Plain SQL on purpose: this step runs on the 1.4.8 schema, before later steps add columns that
+	 * the current repositories expect. The win/loss counters are counted in upgrade1060070Step4.
 	 */
 	public function upgrade1050070Step2(): void
 	{
 		$db = $this->db();
-
-		/** @var UserPetsDuelRepository $duelRepo */
-		$duelRepo = $this->app()->repository(UserPetsDuelRepository::class);
 
 		$duplicates = $db->fetchAll('
 			SELECT user_id, MIN(pet_id) AS kept_pet_id
@@ -155,7 +162,7 @@ class Setup extends AbstractSetup
 
 			foreach ($droppedPetIds AS $droppedPetId)
 			{
-				$duelRepo->mergeDuelsIntoPet($droppedPetId, $keptPetId);
+				$this->mergeLegacyDuels($droppedPetId, $keptPetId);
 
 				$db->update('xf_user_pets_tournament_entries', ['pet_id' => $keptPetId], 'pet_id = ?', $droppedPetId);
 				foreach (['pet_a_id', 'pet_b_id', 'winner_pet_id', 'loser_pet_id'] AS $column)
@@ -290,9 +297,211 @@ class Setup extends AbstractSetup
 		);
 	}
 
-	public function postUpgrade($previousVersion, array &$stateChanges): void
+	public function upgrade1060070Step1(): void
 	{
-		$this->ensureUserFields();
+		$this->createMissingTables(['xf_user_pets_xp_log']);
+
+		$sm = $this->schemaManager();
+
+		$sm->alterTable('xf_user_pets', function (Alter $table) use ($sm)
+		{
+			$missing = fn (string $column) => !$sm->columnExists('xf_user_pets', $column);
+
+			if ($missing('pet_name'))
+			{
+				$table->addColumn('pet_name', 'varchar', 50)->setDefault('');
+			}
+			if ($missing('spritesheet'))
+			{
+				$table->addColumn('spritesheet', 'varchar', 255)->setDefault('');
+			}
+			if ($missing('is_disabled'))
+			{
+				$table->addColumn('is_disabled', 'tinyint', 3)->setDefault(0);
+			}
+			if ($missing('sound_enabled'))
+			{
+				$table->addColumn('sound_enabled', 'tinyint', 3)->setDefault(1);
+			}
+			foreach (['duel_wins', 'duel_losses', 'tournament_wins'] AS $column)
+			{
+				if ($missing($column))
+				{
+					$table->addColumn($column, 'int')->setDefault(0);
+				}
+			}
+			foreach (['duel_wins', 'duel_losses', 'tournament_wins'] AS $index)
+			{
+				if (!$this->indexExists('xf_user_pets', $index))
+				{
+					$table->addKey($index);
+				}
+			}
+		});
+
+		$sm->alterTable('xf_user_pets_spritesheet', function (Alter $table) use ($sm)
+		{
+			if (!$sm->columnExists('xf_user_pets_spritesheet', 'evolve_level'))
+			{
+				$table->addColumn('evolve_level', 'smallint')->setDefault(0);
+			}
+			if (!$sm->columnExists('xf_user_pets_spritesheet', 'evolves_to'))
+			{
+				$table->addColumn('evolves_to', 'varchar', 255)->setDefault('');
+			}
+		});
+
+		$sm->alterTable('xf_user_pets_tournaments', function (Alter $table) use ($sm)
+		{
+			$columns = [
+				'registration_open_date' => 'int',
+				'registration_close_date' => 'int',
+				'start_date' => 'int',
+				'round_interval_hours' => 'smallint',
+				'next_round_date' => 'int',
+				'repeat_days' => 'smallint',
+				'repeat_of_id' => 'int',
+			];
+			foreach ($columns AS $column => $type)
+			{
+				if (!$sm->columnExists('xf_user_pets_tournaments', $column))
+				{
+					$table->addColumn($column, $type)->setDefault(0);
+				}
+			}
+			if (!$this->indexExists('xf_user_pets_tournaments', 'repeat_of_id'))
+			{
+				$table->addKey('repeat_of_id');
+			}
+		});
+	}
+
+	/**
+	 * Pet name, appearance and the opt-out move from custom user fields to the pet row. Runs in
+	 * batches of users; a user with any of the values set gets a pet row, so a disabled pet stays
+	 * disabled. The recount queued in step 5 credits content XP to pets created here.
+	 */
+	public function upgrade1060070Step2(array $stepParams = []): ?array
+	{
+		$db = $this->db();
+		$fieldIds = [self::USER_FIELD_CUSTOM_NAME, self::USER_FIELD_SPRITESHEET, self::USER_FIELD_DISABLE_PET];
+		$position = (int) ($stepParams['position'] ?? 0);
+
+		$userIds = $db->fetchAllColumn(
+			'SELECT DISTINCT user_id
+			FROM xf_user_field_value
+			WHERE field_id IN (' . $db->quote($fieldIds) . ')
+				AND user_id > ?
+			ORDER BY user_id
+			LIMIT 1000',
+			$position
+		);
+		if (!$userIds)
+		{
+			return null;
+		}
+		$position = (int) end($userIds);
+
+		// Values left behind by deleted users must not create pets.
+		$userIds = $db->fetchAllColumn(
+			'SELECT user_id FROM xf_user WHERE user_id IN (' . $db->quote($userIds) . ')'
+		);
+		$sheetMap = $stepParams['sheetMap'] ?? $this->getLegacySpritesheetChoiceMap();
+		if (!$userIds)
+		{
+			return ['position' => $position, 'sheetMap' => $sheetMap];
+		}
+
+		$values = [];
+		foreach ($db->fetchAll(
+			'SELECT user_id, field_id, field_value
+			FROM xf_user_field_value
+			WHERE field_id IN (' . $db->quote($fieldIds) . ')
+				AND user_id IN (' . $db->quote($userIds) . ')'
+		) AS $row)
+		{
+			$values[(int) $row['user_id']][$row['field_id']] = (string) $row['field_value'];
+		}
+
+		$petIds = $db->fetchPairs(
+			'SELECT user_id, MIN(pet_id) FROM xf_user_pets WHERE user_id IN (' . $db->quote(array_keys($values) ?: [0]) . ') GROUP BY user_id'
+		);
+
+		foreach ($values AS $userId => $fields)
+		{
+			$name = trim((string) ($fields[self::USER_FIELD_CUSTOM_NAME] ?? ''));
+			$name = mb_substr($name, 0, 50);
+
+			$sheetValue = trim((string) ($fields[self::USER_FIELD_SPRITESHEET] ?? ''));
+			$sheet = $sheetMap[$sheetValue] ?? (in_array($sheetValue, $sheetMap, true) ? $sheetValue : '');
+
+			$disabledValue = @unserialize((string) ($fields[self::USER_FIELD_DISABLE_PET] ?? ''), ['allowed_classes' => false]);
+			$disabled = is_array($disabledValue) && in_array('disable_option', $disabledValue, true) ? 1 : 0;
+
+			if ($name === '' && $sheet === '' && !$disabled)
+			{
+				continue;
+			}
+
+			$settings = ['pet_name' => $name, 'spritesheet' => $sheet, 'is_disabled' => $disabled];
+
+			if (isset($petIds[$userId]))
+			{
+				$db->update('xf_user_pets', $settings, 'pet_id = ?', (int) $petIds[$userId]);
+			}
+			else
+			{
+				$db->insert('xf_user_pets', $settings + [
+					'user_id' => $userId,
+					'created_at' => \XF::$time,
+					'last_update' => \XF::$time,
+				]);
+			}
+		}
+
+		return ['position' => $position, 'sheetMap' => $sheetMap];
+	}
+
+	public function upgrade1060070Step3(): void
+	{
+		$this->convertLegacyDefaultSpritesheetOption();
+
+		$this->removeCustomFields(UserField::class, [
+			self::USER_FIELD_SPRITESHEET,
+			self::USER_FIELD_CUSTOM_NAME,
+			self::USER_FIELD_DISABLE_PET,
+		]);
+	}
+
+	public function upgrade1060070Step4(): void
+	{
+		$this->db()->query("
+			UPDATE xf_user_pets AS pet
+			SET duel_wins = (
+					SELECT COUNT(*) FROM xf_user_pets_duels AS duel
+					WHERE duel.winner_pet_id = pet.pet_id AND duel.status = 'completed'
+				),
+				duel_losses = (
+					SELECT COUNT(*) FROM xf_user_pets_duels AS duel
+					WHERE duel.loser_pet_id = pet.pet_id AND duel.status = 'completed'
+				),
+				tournament_wins = (
+					SELECT COUNT(*) FROM xf_user_pets_tournaments AS tournament
+					WHERE tournament.winner_pet_id = pet.pet_id AND tournament.status = 'completed'
+				)
+		");
+	}
+
+	public function upgrade1060070Step5(): void
+	{
+		$this->applyDefaultPermissions();
+
+		$this->app()->jobManager()->enqueueUnique(
+			'sylphianUserPetsRebuildSolutionExperience',
+			'Sylphian\UserPets:RebuildSolutionExperience',
+			[],
+			false
+		);
 	}
 
 	public function uninstallStep1(): void
@@ -326,7 +535,10 @@ class Setup extends AbstractSetup
 	{
 		$db = $this->db();
 
-		$db->delete('xf_user_alert', 'content_type = ?', 'syl_userpet');
+		$db->delete('xf_user_alert', 'content_type IN (' . $db->quote(['syl_userpet', 'syl_userpet_tournament']) . ')');
+		$db->delete('xf_permission_entry', 'permission_group_id = ?', self::PERMISSION_GROUP);
+		$db->delete('xf_permission_entry_content', 'permission_group_id = ?', self::PERMISSION_GROUP);
+		$db->delete('xf_permission_entry', 'permission_group_id = ? AND permission_id = ?', ['general', 'sylUserPetsDuelCooldown']);
 		$db->delete(
 			'xf_job',
 			'execute_class LIKE ?',
@@ -362,11 +574,21 @@ class Setup extends AbstractSetup
 				$table->addColumn('solution_reward_count', 'int')->setDefault(0);
 				$table->addColumn('solution_reward_experience', 'int')->setDefault(0);
 				$table->addColumn('created_at', 'int')->setDefault(0);
+				$table->addColumn('pet_name', 'varchar', 50)->setDefault('');
+				$table->addColumn('spritesheet', 'varchar', 255)->setDefault('');
+				$table->addColumn('is_disabled', 'tinyint', 3)->setDefault(0);
+				$table->addColumn('sound_enabled', 'tinyint', 3)->setDefault(1);
+				$table->addColumn('duel_wins', 'int')->setDefault(0);
+				$table->addColumn('duel_losses', 'int')->setDefault(0);
+				$table->addColumn('tournament_wins', 'int')->setDefault(0);
 
 				$table->addPrimaryKey('pet_id');
 				$table->addUniqueKey('user_id');
 				$table->addKey(['experience', 'level'], 'experience_level');
 				$table->addKey(['level', 'experience'], 'level_experience');
+				$table->addKey('duel_wins');
+				$table->addKey('duel_losses');
+				$table->addKey('tournament_wins');
 			},
 			'xf_user_pets_tutorials' => function (Create $table)
 			{
@@ -408,6 +630,8 @@ class Setup extends AbstractSetup
 				$table->addColumn('frames_per_animation', 'smallint')->setDefault(4);
 				$table->addColumn('fps', 'int')->setDefault(4);
 				$table->addColumn('last_modified', 'int')->setDefault(0);
+				$table->addColumn('evolve_level', 'smallint')->setDefault(0);
+				$table->addColumn('evolves_to', 'varchar', 255)->setDefault('');
 
 				$table->addUniqueKey('filename');
 			},
@@ -427,10 +651,18 @@ class Setup extends AbstractSetup
 				$table->addColumn('registration_closed_at', 'int')->setDefault(0);
 				$table->addColumn('started_at', 'int')->setDefault(0);
 				$table->addColumn('completed_at', 'int')->setDefault(0);
+				$table->addColumn('registration_open_date', 'int')->setDefault(0);
+				$table->addColumn('registration_close_date', 'int')->setDefault(0);
+				$table->addColumn('start_date', 'int')->setDefault(0);
+				$table->addColumn('round_interval_hours', 'smallint')->setDefault(0);
+				$table->addColumn('next_round_date', 'int')->setDefault(0);
+				$table->addColumn('repeat_days', 'smallint')->setDefault(0);
+				$table->addColumn('repeat_of_id', 'int')->setDefault(0);
 
 				$table->addPrimaryKey('tournament_id');
 				$table->addKey('status');
 				$table->addKey('winner_pet_id');
+				$table->addKey('repeat_of_id');
 			},
 			'xf_user_pets_tournament_entries' => function (Create $table)
 			{
@@ -463,73 +695,148 @@ class Setup extends AbstractSetup
 				$table->addUniqueKey(['tournament_id', 'round_number', 'match_number'], 'tournament_round_match');
 				$table->addKey(['tournament_id', 'status'], 'tournament_status');
 			},
+			'xf_user_pets_xp_log' => function (Create $table)
+			{
+				$table->addColumn('log_id', 'int')->autoIncrement();
+				$table->addColumn('pet_id', 'int');
+				$table->addColumn('user_id', 'int');
+				$table->addColumn('amount', 'int')->unsigned(false);
+				$table->addColumn('source', 'varbinary', 25);
+				$table->addColumn('content_type', 'varbinary', 25)->setDefault('');
+				$table->addColumn('content_id', 'int')->setDefault(0);
+				$table->addColumn('actor_user_id', 'int')->setDefault(0);
+				$table->addColumn('level_after', 'int')->setDefault(0);
+				$table->addColumn('log_date', 'int');
+
+				$table->addPrimaryKey('log_id');
+				$table->addKey(['pet_id', 'log_date'], 'pet_id_log_date');
+				$table->addKey('log_date');
+			},
 		];
 	}
 
-	/**
-	 * The titles here are only used when the add-on's own phrases are missing; the shipped phrases
-	 * (user_field_title.*, user_field_desc.*, user_field_choice.*) are translatable.
-	 */
-	protected function ensureUserFields(): void
+	protected function applyDefaultPermissions(): void
 	{
-		/** @var UserPetsRepository $petRepo */
-		$petRepo = $this->app()->repository(UserPetsRepository::class);
-
-		$this->ensureUserField(self::USER_FIELD_DISABLE_PET, 'Disable pet', 'A disabled pet is hidden, does not gain XP and cannot take part in duels or tournaments.', [
-			'field_type' => 'checkbox',
-			'field_choices' => ['disable_option' => 'Disable my pet'],
-			'display_order' => 499,
-			'match_type' => 'none',
-			'match_params' => [],
-			'max_length' => 0,
-		]);
-
-		$this->ensureUserField(self::USER_FIELD_SPRITESHEET, 'Pet appearance', 'The appearance used for your pet.', [
-			'field_type' => 'select',
-			'field_choices' => $petRepo->getAvailableSpriteSheets(),
-			'display_order' => 500,
-		]);
-
-		$this->ensureUserField(self::USER_FIELD_CUSTOM_NAME, 'Custom pet name', 'Give your pet a name. Leave this blank to use the default name.', [
-			'field_type' => 'textbox',
-			'display_order' => 501,
-			'max_length' => 15,
-		]);
-
-		$this->repairLegacyDisableChoice();
-
-		/** @var UserPetsSpritesheetRepository $spritesheetRepo */
-		$spritesheetRepo = $this->app()->repository(UserPetsSpritesheetRepository::class);
-		$spritesheetRepo->syncUserFieldOptions();
-
-		$petRepo->syncSpritesheetRegistrationRequirement(
-			(bool) ($this->app()->options()->sylphian_userpets_reg_sprite_req ?? false)
-		);
+		foreach (self::DEFAULT_PERMISSIONS AS $permissionId)
+		{
+			$this->applyGlobalPermission(self::PERMISSION_GROUP, $permissionId, 'general', 'view');
+		}
 	}
 
 	/**
-	 * Versions before 1.5.0 created the field before their phrases were imported, so the stored
-	 * choice text was the raw phrase key. Saving the field in the control panel would have copied
-	 * that key into the displayed choice. A choice an admin has renamed is left alone.
+	 * Only on a fresh install; an upgrade keeps the widgets the admin has placed.
 	 */
-	protected function repairLegacyDisableChoice(): void
+	protected function createDefaultWidget(): void
 	{
-		/** @var UserField|null $field */
-		$field = $this->app()->em()->find(UserField::class, self::USER_FIELD_DISABLE_PET);
-		if (!$field)
+		$exists = $this->db()->fetchOne(
+			'SELECT widget_id FROM xf_widget WHERE definition_id = ?',
+			'sylphian_userpets_widget'
+		);
+		if ($exists)
 		{
 			return;
 		}
 
-		$choices = $field->field_choices;
-		if (($choices['disable_option'] ?? null) !== 'sylphian_userpets_user_field_disable_pet_choice')
+		$this->createWidget(self::DEFAULT_WIDGET_KEY, 'sylphian_userpets_widget', [
+			'positions' => [
+				'forum_list_sidebar' => 50,
+				'thread_view_sidebar' => 50,
+				'member_view_sidebar' => 50,
+			],
+		]);
+	}
+
+	/**
+	 * Duels between the two pets would become self-duels and open duels of the dropped pet can no
+	 * longer be fought, so both are removed; finished duels move to the kept pet.
+	 */
+	protected function mergeLegacyDuels(int $fromPetId, int $toPetId): void
+	{
+		$db = $this->db();
+
+		$db->delete(
+			'xf_user_pets_duels',
+			'(challenger_pet_id = ? AND opponent_pet_id = ?) OR (challenger_pet_id = ? AND opponent_pet_id = ?)',
+			[$fromPetId, $toPetId, $toPetId, $fromPetId]
+		);
+		$db->delete(
+			'xf_user_pets_duels',
+			"status IN ('pending', 'accepted') AND (challenger_pet_id = ? OR opponent_pet_id = ?)",
+			[$fromPetId, $fromPetId]
+		);
+
+		foreach (['challenger_pet_id', 'opponent_pet_id', 'winner_pet_id', 'loser_pet_id'] AS $column)
+		{
+			$db->update('xf_user_pets_duels', [$column => $toPetId], $column . ' = ?', $fromPetId);
+		}
+	}
+
+	/**
+	 * Up to 1.5.0 the default spritesheet option could hold a user field choice ID instead of a
+	 * file name; 1.6.0 only understands file names.
+	 */
+	protected function convertLegacyDefaultSpritesheetOption(): void
+	{
+		$db = $this->db();
+		$value = (string) $db->fetchOne(
+			'SELECT option_value FROM xf_option WHERE option_id = ?',
+			'sylphian_userpets_default_spritesheet'
+		);
+
+		$map = $this->getLegacySpritesheetChoiceMap();
+		if ($value === '' || !isset($map[$value]))
 		{
 			return;
 		}
 
-		$choices['disable_option'] = 'Disable my pet';
-		$field->field_choices = $choices;
-		$field->save();
+		$db->update(
+			'xf_option',
+			['option_value' => $map[$value]],
+			'option_id = ?',
+			'sylphian_userpets_default_spritesheet'
+		);
+
+		/** @var \XF\Repository\OptionRepository $optionRepo */
+		$optionRepo = $this->app()->repository('XF:Option');
+		$optionRepo->rebuildOptionCache();
+	}
+
+	/**
+	 * Choice IDs used by the spritesheet user field up to 1.5.0, mapped to file names. The ID
+	 * scheme is copied here so the upgrade does not depend on code that 1.6.0 removed.
+	 *
+	 * @return array<string, string> choice ID => file name
+	 */
+	protected function getLegacySpritesheetChoiceMap(): array
+	{
+		$filenames = $this->db()->fetchAllColumn('SELECT filename FROM xf_user_pets_spritesheet');
+
+		try
+		{
+			foreach ($this->app()->fs()->listContents(self::SPRITESHEET_DIRECTORY) AS $item)
+			{
+				if (($item['type'] ?? '') === 'file')
+				{
+					$filenames[] = (string) $item['basename'];
+				}
+			}
+		}
+		catch (\Throwable $e)
+		{
+			// a missing directory only means there are no files to map
+		}
+
+		$map = [];
+		foreach (array_unique($filenames) AS $filename)
+		{
+			$base = strtolower(pathinfo($filename, PATHINFO_FILENAME));
+			$safe = trim((string) preg_replace('/_+/', '_', (string) preg_replace('/[^a-z0-9_]/i', '_', $base)), '_');
+			$safe = substr($safe !== '' ? $safe : 'sheet', 0, 12);
+
+			$map['ss_' . $safe . '_' . substr(md5(strtolower($filename)), 0, 8)] = $filename;
+		}
+
+		return $map;
 	}
 
 	protected function ensureSolutionUserIndex(): void

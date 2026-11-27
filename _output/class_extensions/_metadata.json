@@ -1,5 +1,14 @@
 {
     "XF-Entity-User_Sylphian-UserPets-XF-Entity-User.json": {
         "hash": "a5c1a15674529ced66fce159dffad3e1"
+    },
+    "XF-Pub-Controller-AccountController_Sylphian-UserPets-XF-Pub-Controller-Account.json": {
+        "hash": "1db9527112f9346798c345e0aade4929"
+    },
+    "XF-Pub-Controller-MemberController_Sylphian-UserPets-XF-Pub-Controller-Member.json": {
+        "hash": "861dc8e25b24cd70fc60734faad0a2f1"
+    },
+    "XF-Pub-Controller-RegisterController_Sylphian-UserPets-XF-Pub-Controller-Register.json": {
+        "hash": "240a47d8a05e1aa58bf90888b68746cc"
     }
 }

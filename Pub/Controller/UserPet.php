@@ -2,36 +2,34 @@
 
 namespace Sylphian\UserPets\Pub\Controller;
 
+use Sylphian\UserPets\Entity\UserPets;
 use Sylphian\UserPets\Helper\PetState;
 use Sylphian\UserPets\Helper\UserPetOptOut;
 use Sylphian\UserPets\Repository\UserPetsRepository;
 use Sylphian\UserPets\Service\PetLeveling;
 use Sylphian\UserPets\Service\PetManager;
+use XF\Mvc\ParameterBag;
 use XF\Mvc\Reply\Error;
 use XF\Mvc\Reply\View;
 use XF\Pub\Controller\AbstractController;
 
 class UserPet extends AbstractController
 {
+	protected function preDispatchController($action, ParameterBag $params)
+	{
+		$this->assertRegistrationRequired();
+
+		if (!\XF::visitor()->hasPermission(UserPetOptOut::PERMISSION_GROUP, UserPetOptOut::PERMISSION_HAVE_PET))
+		{
+			throw $this->exception($this->noPermission());
+		}
+	}
+
 	public function actionUpdate(): View|Error
 	{
 		$this->assertPostOnly();
-		$this->assertRegistrationRequired();
 
-		$visitor = \XF::visitor();
-		if (UserPetOptOut::isDisabledForUser($visitor))
-		{
-			return $this->error(\XF::phrase('sylphian_userpets_disabled_pet'));
-		}
-
-		/** @var UserPetsRepository $repo */
-		$repo = $this->repository('Sylphian\UserPets:UserPets');
-		$pet = $repo->getUserPet($visitor->user_id);
-
-		if (!$pet)
-		{
-			return $this->error(\XF::phrase('sylphian_userpets_pet_not_found'));
-		}
+		$pet = $this->assertUsablePet();
 
 		$cooldownTime = max(0, (int) \XF::options()->sylphian_userpets_cooldown_time);
 		$timeSinceLastAction = \XF::$time - (int) $pet->last_action_time;
@@ -84,5 +82,29 @@ class UserPet extends AbstractController
 		]);
 
 		return $view;
+	}
+
+	/**
+	 * @throws \XF\Mvc\Reply\Exception Without a pet, or when the member disabled it
+	 */
+	protected function assertUsablePet(): UserPets
+	{
+		$visitor = \XF::visitor();
+
+		/** @var UserPetsRepository $repo */
+		$repo = $this->repository('Sylphian\UserPets:UserPets');
+		$pet = $visitor->UserPet ?? $repo->getUserPet((int) $visitor->user_id);
+
+		if (!$pet)
+		{
+			throw $this->exception($this->error(\XF::phrase('sylphian_userpets_pet_not_found')));
+		}
+
+		if ($pet->is_disabled)
+		{
+			throw $this->exception($this->error(\XF::phrase('sylphian_userpets_error_pet_disabled')));
+		}
+
+		return $pet;
 	}
 }

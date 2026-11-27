@@ -1,0 +1,1 @@
+Counts every pet's duel wins, duel losses and tournament wins again from the finished duels and tournaments. Use this when the numbers on leaderboards or profiles look wrong.

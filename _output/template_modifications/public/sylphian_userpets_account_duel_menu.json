@@ -5,5 +5,5 @@
     "enabled": true,
     "action": "str_replace",
     "find": "<!--[XF:account_links:bottom]-->",
-    "replace": "<xf:if is=\"!in_array('disable_option', ($xf.visitor.Profile.custom_fields.syl_userpets_disable_pet ?: []))\">\n\t<xf:if is=\"$xf.options.sylphian_userpets_duel_enable\">\n\t\t<li><a href=\"{{ link('userpetsduel') }}\" class=\"menu-linkRow\">{{ phrase('sylphian_userpets_duel_manage_menu') }}</a></li>\n\t</xf:if>\n\t<li><a href=\"{{ link('userpetstournaments') }}\" class=\"menu-linkRow\">{{ phrase('sylphian_userpets_tournaments_menu') }}</a></li>\n</xf:if>\n$0"
+    "replace": "<xf:if is=\"$xf.visitor.hasPermission('sylUserPets', 'havePet') AND !$xf.visitor.UserPet.is_disabled\">\n\t<xf:if is=\"$xf.options.sylphian_userpets_duel_enable\">\n\t\t<li><a href=\"{{ link('userpetsduel') }}\" class=\"menu-linkRow\">{{ phrase('sylphian_userpets_duel_manage_menu') }}</a></li>\n\t</xf:if>\n\t<li><a href=\"{{ link('userpetstournaments') }}\" class=\"menu-linkRow\">{{ phrase('sylphian_userpets_tournaments_menu') }}</a></li>\n</xf:if>\n$0"
 }

@@ -1,0 +1,13 @@
+{
+    "edit_format": "radio",
+    "edit_format_params": "none={{ phrase('sylphian_userpets_postbit_none') }}\nbadge={{ phrase('sylphian_userpets_postbit_badge') }}\nsprite={{ phrase('sylphian_userpets_postbit_sprite') }}",
+    "data_type": "string",
+    "default_value": "none",
+    "relations": {
+        "sylphian_userpets": 5
+    },
+    "sub_options": [],
+    "validation_class": "",
+    "validation_method": "",
+    "advanced": false
+}

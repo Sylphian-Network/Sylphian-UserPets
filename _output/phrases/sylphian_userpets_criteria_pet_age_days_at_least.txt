@@ -1,0 +1,1 @@
+User's pet is at least X days old

@@ -1,0 +1,9 @@
+{
+    "template": "message_macros",
+    "description": "Pet under the author's name next to messages",
+    "execution_order": 10,
+    "enabled": true,
+    "action": "preg_replace",
+    "find": "#<xf:userbanners\\b[^>]*\\bclass=\"message-userBanner\"[^>]*/>#",
+    "replace": "$0\n\t\t\t<xf:set var=\"$sylUserPetsDisplay\" value=\"{$sylUserPetsPostbit.{$user.user_id}}\" />\n\t\t\t<xf:if is=\"$sylUserPetsDisplay\">\n\t\t\t\t<xf:macro id=\"sylphian_userpets_postbit_macros::postbit\" arg-display=\"{$sylUserPetsDisplay}\" />\n\t\t\t</xf:if>"
+}

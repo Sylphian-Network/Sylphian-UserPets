@@ -1,0 +1,1 @@
+When a pet reaches the level below, it takes this appearance instead.

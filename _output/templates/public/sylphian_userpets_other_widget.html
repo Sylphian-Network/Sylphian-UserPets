@@ -3,8 +3,8 @@
 <div class="block petWidget" data-widget-id="{$widget.id}" data-widget-key="{$widget.key}" data-widget-definition="{$widget.definition}">
 	<div class="block-container js-petWidget">
 		<h3 class="block-minorHeader petWidget-header">
-			<xf:if is="$custom_pet_name">
-				<span class="petWidget-name">{$custom_pet_name}</span>
+			<xf:if is="$customPetName">
+				<span class="petWidget-name">{$customPetName}</span>
 				<span class="petWidget-owner">{$ownerPetTitle}</span>
 			<xf:else />
 				<span class="petWidget-name">{$ownerPetTitle}</span>
@@ -15,7 +15,7 @@
 			<xf:macro id="sylphian_userpets_macros::pet_display"
 				arg-pet="{$pet}"
 				arg-petRender="{$petRender}"
-				arg-label="{{ $custom_pet_name ?: $ownerPetTitle }}"
+				arg-label="{{ $customPetName ?: $ownerPetTitle }}"
 				arg-stateDisplay="{$stateDisplay}"
 				arg-scaleMin="{$scaleMin}"
 				arg-scaleMax="{$scaleMax}" />

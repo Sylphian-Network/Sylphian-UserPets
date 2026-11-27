@@ -123,7 +123,8 @@ class PetLeveling
 
 	/**
 	 * Add a specific amount of experience to the pet and recalculate its level.
-	 * The pet is not saved.
+	 * The pet is not saved: store the change with UserPetsRepository::savePetWithExperience(),
+	 * which also writes it to the XP log.
 	 *
 	 * @param UserPets $pet The pet entity
 	 * @param int $amount The amount of experience to add (negative removes experience)

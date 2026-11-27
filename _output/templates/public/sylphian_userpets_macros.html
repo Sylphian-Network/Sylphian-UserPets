@@ -57,125 +57,38 @@
 	</li>
 </xf:macro>
 
-<xf:macro id="tournament_status" arg-status="!">
-	<xf:if is="$status == 'draft'">
-		<span class="label label--gray">{{ phrase('sylphian_userpets_tournament_status_draft') }}</span>
-	<xf:elseif is="$status == 'registration_open'" />
-		<span class="label label--green">{{ phrase('sylphian_userpets_tournament_status_registration_open') }}</span>
-	<xf:elseif is="$status == 'registration_closed'" />
-		<span class="label label--orange">{{ phrase('sylphian_userpets_tournament_status_registration_closed') }}</span>
-	<xf:elseif is="$status == 'in_progress'" />
-		<span class="label label--primary">{{ phrase('sylphian_userpets_tournament_status_in_progress') }}</span>
-	<xf:elseif is="$status == 'completed'" />
-		<span class="label label--accent">{{ phrase('sylphian_userpets_tournament_status_completed') }}</span>
-	<xf:elseif is="$status == 'cancelled'" />
-		<span class="label label--red">{{ phrase('sylphian_userpets_tournament_status_cancelled') }}</span>
-	<xf:else />
-		<span class="label">{{ phrase('unknown') }}</span>
-	</xf:if>
-</xf:macro>
+<xf:macro id="appearance_picker"
+	arg-name="!"
+	arg-choices="!"
+	arg-selected=""
+	arg-current=""
+	arg-required="{{ false }}">
 
-<xf:macro id="resolution_mode" arg-mode="!">
-	<xf:if is="$mode == 'automatic'">
-		{{ phrase('sylphian_userpets_tournament_resolution_mode_automatic') }}
-	<xf:else />
-		{{ phrase('sylphian_userpets_tournament_resolution_mode_manual') }}
-	</xf:if>
-</xf:macro>
+	<xf:css src="sylphian_userpets_account_pet.less" />
+	<xf:js src="sylphian/userpets/sprite-preview.js" min="1" addon="Sylphian/UserPets" />
 
-<xf:macro id="match_status" arg-status="!">
-	<xf:if is="$status == 'ready'">
-		<span class="label label--primary label--smallest">{{ phrase('sylphian_userpets_tournament_match_status_ready') }}</span>
-	<xf:elseif is="$status == 'bye'" />
-		<span class="label label--yellow label--smallest">{{ phrase('sylphian_userpets_tournament_match_status_bye') }}</span>
-	<xf:elseif is="$status == 'completed'" />
-		<span class="label label--green label--smallest">{{ phrase('sylphian_userpets_tournament_match_status_completed') }}</span>
-	<xf:else />
-		<span class="label label--gray label--smallest">{{ phrase('sylphian_userpets_tournament_match_status_waiting') }}</span>
-	</xf:if>
-</xf:macro>
-
-<xf:macro id="tournament_bracket" arg-rounds="!">
-	<xf:css src="sylphian_userpets_tournament.less" />
-	<xf:js src="sylphian/userpets/tournament-bracket.js" min="1" addon="Sylphian/UserPets" />
-
-	<script class="js-extraPhrases" type="application/json">
-	{
-		"sylphian_userpets_zoom_x_percent": "{{ phrase('sylphian_userpets_zoom_x_percent')|escape('json') }}"
-	}
-	</script>
-
-	<div class="petBracket" data-xf-init="userpets-bracket">
-		<div class="petBracket-toolbar">
-			<div class="petBracket-hint">{{ phrase('sylphian_userpets_tournament_bracket_hint') }}</div>
-			<div class="petBracket-zoom">
-				<xf:button class="button--small js-bracketZoomOut" fa="fa-search-minus"
-					title="{{ phrase('sylphian_userpets_zoom_out') }}"
-					aria-label="{{ phrase('sylphian_userpets_zoom_out') }}" />
-				<output class="petBracket-zoomValue js-bracketZoomValue">{{ phrase('sylphian_userpets_zoom_x_percent', {'percent': 100}) }}</output>
-				<xf:button class="button--small js-bracketZoomIn" fa="fa-search-plus"
-					title="{{ phrase('sylphian_userpets_zoom_in') }}"
-					aria-label="{{ phrase('sylphian_userpets_zoom_in') }}" />
-				<xf:button class="button--small js-bracketZoomReset">{{ phrase('reset') }}</xf:button>
-			</div>
-		</div>
-
-		<div class="petBracket-viewport js-bracketViewport" tabindex="0">
-			<div class="petBracket-sizer js-bracketSizer">
-				<ol class="petBracket-rounds js-bracketCanvas">
-					<xf:foreach loop="$rounds" value="$round">
-						<li class="petBracket-round">
-							<h4 class="petBracket-roundTitle">{$round.label}</h4>
-							<ol class="petBracket-matches">
-								<xf:foreach loop="$round.matches" value="$match">
-									<li class="petBracket-match petBracket-match--{$match.status}">
-										<div class="petBracket-matchHead">
-											<span class="petBracket-matchNo">{{ phrase('sylphian_userpets_tournament_match_x', {'number': $match.match_number}) }}</span>
-											<xf:macro id="match_status" arg-status="{$match.status}" />
-										</div>
-										<xf:macro id="bracket_entrant"
-											arg-pet="{$match.PetA}"
-											arg-petId="{$match.pet_a_id}"
-											arg-winnerId="{$match.winner_pet_id}"
-											arg-matchStatus="{$match.status}" />
-										<div class="petBracket-versus" aria-hidden="true">{{ phrase('sylphian_userpets_duel_versus') }}</div>
-										<xf:macro id="bracket_entrant"
-											arg-pet="{$match.PetB}"
-											arg-petId="{$match.pet_b_id}"
-											arg-winnerId="{$match.winner_pet_id}"
-											arg-matchStatus="{$match.status}" />
-										<xf:if is="$match.winner_pet_id">
-											<div class="petBracket-winner">
-												<xf:fa icon="fa-trophy" />
-												{{ phrase('sylphian_userpets_tournament_winner_x', {
-													'name': username_link($match.WinnerPet.User, false, {
-														'defaultname': phrase('sylphian_userpets_unknown_user'),
-														'notooltip': true
-													})
-												}) }}
-											</div>
-										</xf:if>
-									</li>
-								</xf:foreach>
-							</ol>
-						</li>
-					</xf:foreach>
-				</ol>
-			</div>
-		</div>
-	</div>
-</xf:macro>
-
-<xf:macro id="bracket_entrant" arg-pet="" arg-petId="0" arg-winnerId="0" arg-matchStatus="">
-	<div class="petBracket-entrant{{ ($petId && $petId == $winnerId) ? ' is-winner' : '' }}{{ !$petId ? ' is-empty' : '' }}">
-		<xf:if is="$petId">
-			<xf:avatar user="{$pet.User}" size="xxs" notooltip="true" defaultname="{{ phrase('sylphian_userpets_unknown_user') }}" />
-			<span class="petBracket-entrantName">{{ username_link($pet.User, false, {
-				'defaultname': phrase('sylphian_userpets_unknown_user'),
-				'notooltip': true
-			}) }}</span>
-		<xf:else />
-			<span class="petBracket-entrantName">{{ $matchStatus == 'waiting' ? phrase('sylphian_userpets_tournament_to_be_decided') : phrase('sylphian_userpets_tournament_bye') }}</span>
-		</xf:if>
-	</div>
+	<xf:radio name="{$name}" value="{$selected}" listclass="petPicker">
+		<xf:foreach loop="$choices" value="$choice">
+			<xf:option value="{$choice.filename}"
+				labelclass="petPicker-choice"
+				listitemclass="petPicker-item{{ $choice.filename == $current ? ' is-current' : '' }}"
+				required="{{ $required ? 'required' : '' }}">
+				<xf:label>
+					<span class="petPicker-figure">
+						<img class="petPicker-image" src="{$choice.url}" alt="{$choice.title}" loading="lazy"
+							data-xf-init="syl-sprite-preview"
+							data-frame-w="{$choice.frame_width}"
+							data-frame-h="{$choice.frame_height}"
+							data-cols="{$choice.frames_per_animation}"
+							data-rows="4"
+							data-fps="{$choice.fps}" />
+					</span>
+					<span class="petPicker-title">{$choice.title}</span>
+					<xf:if is="$choice.filename == $current">
+						<span class="petPicker-current">{{ phrase('sylphian_userpets_current_appearance') }}</span>
+					</xf:if>
+				</xf:label>
+			</xf:option>
+		</xf:foreach>
+	</xf:radio>
 </xf:macro>

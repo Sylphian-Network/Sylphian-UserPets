@@ -3,8 +3,8 @@
     "edit_format_params": "",
     "data_type": "boolean",
     "sub_options": [],
-    "validation_class": "Sylphian\\UserPets\\Option\\RequireRegistrationSpritesheet",
-    "validation_method": "verifyOption",
+    "validation_class": "",
+    "validation_method": "",
     "advanced": false,
     "default_value": "0",
     "relations": {

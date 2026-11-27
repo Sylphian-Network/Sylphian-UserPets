@@ -8,6 +8,7 @@
 			cooldown: 0,
 			lastActionTime: 0,
 			currentTime: 0,
+			soundEnabled: true,
 			levelUpSound: 'data/assets/sylphian/userpets/audio/sparkle-355937.mp3',
 		},
 
@@ -187,7 +188,7 @@
 
 		onLevelUp ()
 		{
-			if (this.options.levelUpSound && window.Audio)
+			if (this.options.soundEnabled && this.options.levelUpSound && window.Audio)
 			{
 				const sound = new Audio(XF.canonicalizeUrl(this.options.levelUpSound))
 				const playing = sound.play()

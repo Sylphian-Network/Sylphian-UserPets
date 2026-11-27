@@ -1,0 +1,9 @@
+{
+    "event_id": "templater_template_pre_render",
+    "execute_order": 10,
+    "callback_class": "Sylphian\\UserPets\\Listener\\PetPreload",
+    "callback_method": "messagesPreRender",
+    "active": true,
+    "hint": "public:conversation_reply_new_messages",
+    "description": "Load the pets shown next to messages in one query"
+}

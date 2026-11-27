@@ -4,6 +4,7 @@ namespace Sylphian\UserPets\Job;
 
 use Sylphian\UserPets\Entity\UserPets;
 use Sylphian\UserPets\Repository\UserPetsRepository;
+use Sylphian\UserPets\XpSource;
 use XF\Job\AbstractRebuildJob;
 use XF\Phrase;
 
@@ -54,7 +55,7 @@ class RebuildSolutionExperience extends AbstractRebuildJob
 
 		/** @var UserPetsRepository $repo */
 		$repo = $this->app->repository('Sylphian\UserPets:UserPets');
-		$repo->syncContentExperience((int) $pet->user_id);
+		$repo->syncContentExperience((int) $pet->user_id, null, XpSource::RECOUNT);
 	}
 
 	protected function getStatusType(): Phrase

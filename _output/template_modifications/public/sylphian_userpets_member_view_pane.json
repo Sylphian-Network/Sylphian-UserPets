@@ -1,0 +1,9 @@
+{
+    "template": "member_view",
+    "description": "Pet tab pane on member profiles, loaded when the tab is opened",
+    "execution_order": 10,
+    "enabled": true,
+    "action": "str_replace",
+    "find": "<!--[XF:tab_panes:end]-->",
+    "replace": "<xf:if is=\"$sylUserPetsProfileTab\">\n\t\t<li data-href=\"{{ link('members/pet', $user) }}\" role=\"tabpanel\" aria-labelledby=\"pet\">\n\t\t\t<div class=\"blockMessage\">{{ phrase('loading...') }}</div>\n\t\t</li>\n\t</xf:if>\n\t$0"
+}

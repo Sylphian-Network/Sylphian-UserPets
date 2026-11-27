@@ -1,0 +1,1 @@
+Days before an unanswered duel request is withdrawn and its sender is told. 0 keeps requests until they are answered.

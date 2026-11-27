@@ -1,0 +1,1 @@
+Shows the author's pet under their name in threads. All pets on a page are loaded with one query.

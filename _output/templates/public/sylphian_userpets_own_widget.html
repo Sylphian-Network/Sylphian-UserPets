@@ -27,7 +27,7 @@
 
 <xf:if is="$petRender.usingDefault">
 	<div class="blockMessage blockMessage--warning blockMessage--iconic">
-		{{ phrase('sylphian_userpets_default_spritesheet_warning', {'link': link('account/preferences')}) }}
+		{{ phrase('sylphian_userpets_default_appearance_warning', {'link': link('account/pet')}) }}
 	</div>
 </xf:if>
 
@@ -37,7 +37,8 @@
 		data-action-url="{{ link('userpets/action') }}"
 		data-cooldown="{$xf.options.sylphian_userpets_cooldown_time}"
 		data-last-action-time="{$pet.last_action_time}"
-		data-current-time="{$xf.time}">
+		data-current-time="{$xf.time}"
+		data-sound-enabled="{{ $soundEnabled ? 'true' : 'false' }}">
 
 		<script class="js-extraPhrases" type="application/json">
 		{

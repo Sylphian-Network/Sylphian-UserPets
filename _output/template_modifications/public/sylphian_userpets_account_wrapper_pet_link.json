@@ -1,0 +1,9 @@
+{
+    "template": "account_wrapper",
+    "description": "Your pet link in the account sidebar",
+    "execution_order": 10,
+    "enabled": true,
+    "action": "str_replace",
+    "find": "<!--[XF:settings_links:bottom]-->",
+    "replace": "<xf:if is=\"$xf.visitor.hasPermission('sylUserPets', 'havePet')\">\n\t<a class=\"blockLink {{ $pageSelected == 'sylphian_userpets_pet' ? 'is-selected' : '' }}\" href=\"{{ link('account/pet') }}\">\n\t\t{{ phrase('sylphian_userpets_your_pet') }}\n\t</a>\n</xf:if>\n$0"
+}

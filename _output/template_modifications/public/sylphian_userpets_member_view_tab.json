@@ -1,0 +1,9 @@
+{
+    "template": "member_view",
+    "description": "Pet tab on member profiles",
+    "execution_order": 10,
+    "enabled": true,
+    "action": "str_replace",
+    "find": "<!--[XF:tabs:end]-->",
+    "replace": "<xf:if is=\"$sylUserPetsProfileTab\">\n\t\t\t\t\t<a href=\"{{ link('members/pet', $user) }}\"\n\t\t\t\t\t\trel=\"nofollow\"\n\t\t\t\t\t\tclass=\"tabs-tab\"\n\t\t\t\t\t\tid=\"pet\"\n\t\t\t\t\t\trole=\"tab\">{{ phrase('sylphian_userpets_profile_tab') }}</a>\n\t\t\t\t</xf:if>\n\t\t\t\t$0"
+}

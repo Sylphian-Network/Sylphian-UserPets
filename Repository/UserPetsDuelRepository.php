@@ -3,6 +3,7 @@
 namespace Sylphian\UserPets\Repository;
 
 use Sylphian\Library\Logger\Logger;
+use Sylphian\UserPets\Entity\UserPets;
 use Sylphian\UserPets\Entity\UserPetsDuel;
 use Sylphian\UserPets\Helper\DisplayName;
 use Sylphian\UserPets\Helper\UserPetOptOut;
@@ -15,12 +16,18 @@ use XF\Repository\UserAlertRepository;
 
 /**
  * A pet takes part in a duel either as challenger or as opponent. Lookups by pet go through the
- * two columns separately (UNION ALL, each branch on its own index) instead of an OR, and win/loss
- * counts go by winner_pet_id / loser_pet_id instead of joining the pets table.
+ * two columns separately (UNION ALL, each branch on its own index) instead of an OR. Win and loss
+ * totals live on the pet row (duel_wins, duel_losses): DuelResolve adds to them in the
+ * transaction that completes a duel and recountDuelCounters() rebuilds them from the duels.
  */
 class UserPetsDuelRepository extends Repository
 {
 	public const string TABLE = 'xf_user_pets_duels';
+
+	public const string PETS_TABLE = 'xf_user_pets';
+
+	/** Unique job key prefix of the DuelResolve job, followed by the duel id. */
+	public const string RESOLVE_JOB_KEY_PREFIX = 'sylUserPetsDuel';
 
 	public const array HISTORY_FILTERS = ['all', 'wins', 'losses', 'declined', 'cancelled'];
 
@@ -266,19 +273,19 @@ class UserPetsDuelRepository extends Repository
 	}
 
 	/**
-	 * Count completed duel wins for a user (based on their pets winning).
+	 * Completed duel wins of a user's pet, from the counter on the pet row.
 	 */
 	public function getUserDuelWins(int $userId): int
 	{
-		return $this->countDuelWinsForPets($this->getPetIdsForUser($userId));
+		return $this->getUserWinLossStats($userId)['wins'];
 	}
 
 	/**
-	 * Count completed duel losses for a user (based on their pets losing).
+	 * Completed duel losses of a user's pet, from the counter on the pet row.
 	 */
 	public function getUserDuelLosses(int $userId): int
 	{
-		return $this->countDuelLossesForPets($this->getPetIdsForUser($userId));
+		return $this->getUserWinLossStats($userId)['losses'];
 	}
 
 	/**
@@ -286,15 +293,25 @@ class UserPetsDuelRepository extends Repository
 	 */
 	public function getUserWinLossStats(int $userId): array
 	{
-		$petIds = $this->getPetIdsForUser($userId);
+		if ($userId <= 0)
+		{
+			return ['wins' => 0, 'losses' => 0];
+		}
+
+		$row = $this->finder('Sylphian\UserPets:UserPets')
+			->where('user_id', $userId)
+			->fetchColumns('duel_wins', 'duel_losses');
+		$row = reset($row) ?: [];
 
 		return [
-			'wins' => $this->countDuelWinsForPets($petIds),
-			'losses' => $this->countDuelLossesForPets($petIds),
+			'wins' => (int) ($row['duel_wins'] ?? 0),
+			'losses' => (int) ($row['duel_losses'] ?? 0),
 		];
 	}
 
 	/**
+	 * Exact count over the duels; used for history paging and the counter rebuild.
+	 *
 	 * @param int[] $petIds
 	 */
 	public function countDuelWinsForPets(array $petIds): int
@@ -333,7 +350,7 @@ class UserPetsDuelRepository extends Repository
 	 */
 	public function getTopUsersByWins(int $limit): array
 	{
-		return $this->getTopUsersBy('winner_pet_id', 'loser_pet_id', 'wins', 'losses', $limit);
+		return $this->getTopUsersByCounter('duel_wins', $limit);
 	}
 
 	/**
@@ -343,14 +360,18 @@ class UserPetsDuelRepository extends Repository
 	 */
 	public function getTopUsersByLosses(int $limit): array
 	{
-		return $this->getTopUsersBy('loser_pet_id', 'winner_pet_id', 'losses', 'wins', $limit);
+		return $this->getTopUsersByCounter('duel_losses', $limit);
 	}
 
 	/**
-	 * Ranks pets on one result column, adds the other count for those pets only, then maps pets to
-	 * their owners. Pets without an owner row are skipped.
+	 * A user has at most one pet, so ranking pets ranks their owners. Ties go to the newer pet:
+	 * with both directions descending the counter index alone gives the order, without a sort
+	 * over every pet that has a result. Pets without an owner row are not ranked.
+	 *
+	 * @param 'duel_wins'|'duel_losses' $column
+	 * @return array<int,array{user_id:int,wins:int,losses:int}>
 	 */
-	protected function getTopUsersBy(string $rankColumn, string $otherColumn, string $rankKey, string $otherKey, int $limit): array
+	protected function getTopUsersByCounter(string $column, int $limit): array
 	{
 		$limit = max(0, $limit);
 		if ($limit === 0)
@@ -358,71 +379,167 @@ class UserPetsDuelRepository extends Repository
 			return [];
 		}
 
+		$rows = $this->finder('Sylphian\UserPets:UserPets')
+			->with('User', true)
+			->where($column, '>', 0)
+			->order($column, 'DESC')
+			->order('pet_id', 'DESC')
+			->limit($limit)
+			->fetchColumns('user_id', 'duel_wins', 'duel_losses');
+
+		return array_values(array_map(fn (array $row) => [
+			'user_id' => (int) $row['user_id'],
+			'wins' => (int) $row['duel_wins'],
+			'losses' => (int) $row['duel_losses'],
+		], $rows));
+	}
+
+	/**
+	 * Called inside the transaction that completed the duel. The increments are done in SQL so
+	 * two duels of the same pet finishing at once both count; the entities are updated to match
+	 * so a later save of them does not see a change.
+	 */
+	public function incrementDuelCounters(UserPets $winnerPet, UserPets $loserPet): void
+	{
 		$db = $this->db();
 
-		$ranked = $db->fetchPairs($db->limit(
+		$db->query('UPDATE ' . self::PETS_TABLE . ' SET duel_wins = duel_wins + 1 WHERE pet_id = ?', $winnerPet->pet_id);
+		$db->query('UPDATE ' . self::PETS_TABLE . ' SET duel_losses = duel_losses + 1 WHERE pet_id = ?', $loserPet->pet_id);
+
+		$winnerPet->setAsSaved('duel_wins', $winnerPet->duel_wins + 1);
+		$loserPet->setAsSaved('duel_losses', $loserPet->duel_losses + 1);
+	}
+
+	/**
+	 * Sets duel_wins and duel_losses of the given pets to the number of completed duels they won
+	 * and lost. Safe to run any number of times.
+	 *
+	 * @param int[] $petIds
+	 */
+	public function recountDuelCounters(array $petIds): void
+	{
+		$petIds = array_values(array_unique(array_filter(array_map('intval', $petIds), fn (int $id) => $id > 0)));
+		if (!$petIds)
+		{
+			return;
+		}
+
+		$db = $this->db();
+		$db->query(
 			'
-				SELECT ' . $rankColumn . ', COUNT(*) AS result_count
-				FROM ' . self::TABLE . '
-				WHERE ' . $rankColumn . ' > 0
-					AND status = \'completed\'
-				GROUP BY ' . $rankColumn . '
-				ORDER BY result_count DESC, ' . $rankColumn . '
+				UPDATE ' . self::PETS_TABLE . ' AS pet
+				SET pet.duel_wins = (
+						SELECT COUNT(*)
+						FROM ' . self::TABLE . ' AS duel
+						WHERE duel.winner_pet_id = pet.pet_id
+							AND duel.status = ?
+					),
+					pet.duel_losses = (
+						SELECT COUNT(*)
+						FROM ' . self::TABLE . ' AS duel
+						WHERE duel.loser_pet_id = pet.pet_id
+							AND duel.status = ?
+					)
+				WHERE pet.pet_id IN (' . $db->quote($petIds) . ')
 			',
-			$limit
-		));
-		if (!$ranked)
+			['completed', 'completed']
+		);
+	}
+
+	/**
+	 * Days after which an unanswered request is withdrawn; 0 keeps requests until answered.
+	 */
+	public function getRequestExpiryDays(): int
+	{
+		return max(0, (int) (\XF::options()->sylphian_userpets_duel_request_expiry_days ?? 0));
+	}
+
+	/**
+	 * When a pending request is withdrawn, or 0 when it never is (no expiry or not pending).
+	 * The hourly cron does the withdrawing, so it can happen up to an hour later.
+	 */
+	public function getRequestExpiryDate(UserPetsDuel $duel): int
+	{
+		$days = $this->getRequestExpiryDays();
+		if ($days <= 0 || $duel->status !== 'pending')
+		{
+			return 0;
+		}
+
+		return $duel->created_at + $days * 86400;
+	}
+
+	/**
+	 * Pending requests created before the cut-off, oldest first, with both pets and owners.
+	 *
+	 * @return AbstractCollection<UserPetsDuel>
+	 */
+	public function findExpiredPendingDuels(int $createdBefore, int $limit): AbstractCollection
+	{
+		if ($createdBefore <= 0 || $limit <= 0)
+		{
+			return $this->em->getEmptyCollection();
+		}
+
+		return $this->getDuelFinderWithPets()
+			->where('status', 'pending')
+			->where('created_at', '<', $createdBefore)
+			->order('duel_id')
+			->limit($limit)
+			->fetch();
+	}
+
+	/**
+	 * Accepted duels that should have been resolved by now but have no DuelResolve job queued.
+	 * There is no accepted date: accepting sets the challenger's last_duel_time in the same
+	 * transaction, so the later of that and the creation date stands for it. A duel whose job
+	 * is still queued (or running) is left to that job; queueing it again would reset its
+	 * attempt counter and release its run lock.
+	 *
+	 * @return int[]
+	 */
+	public function getStuckAcceptedDuelIds(int $acceptedBefore, int $limit): array
+	{
+		if ($acceptedBefore <= 0 || $limit <= 0)
 		{
 			return [];
 		}
 
-		$petIds = array_map('intval', array_keys($ranked));
-		$quotedPetIds = $db->quote($petIds);
+		$db = $this->db();
 
-		$other = $db->fetchPairs(
-			'
-				SELECT ' . $otherColumn . ', COUNT(*)
-				FROM ' . self::TABLE . '
-				WHERE ' . $otherColumn . ' IN (' . $quotedPetIds . ')
-					AND status = \'completed\'
-				GROUP BY ' . $otherColumn . '
-			'
-		);
-
-		$owners = $db->fetchPairs(
-			'
-				SELECT pet_id, user_id
-				FROM xf_user_pets
-				WHERE pet_id IN (' . $quotedPetIds . ')
-			'
-		);
-
-		$byUser = [];
-		foreach ($ranked AS $petId => $count)
+		$duelIds = array_map('intval', $db->fetchAllColumn(
+			$db->limit(
+				'
+					SELECT duel.duel_id
+					FROM ' . self::TABLE . ' AS duel
+					LEFT JOIN ' . self::PETS_TABLE . ' AS challenger ON (challenger.pet_id = duel.challenger_pet_id)
+					WHERE duel.status = ?
+						AND GREATEST(duel.created_at, IFNULL(challenger.last_duel_time, 0)) < ?
+					ORDER BY duel.duel_id
+				',
+				$limit
+			),
+			['accepted', $acceptedBefore]
+		));
+		if (!$duelIds)
 		{
-			$userId = (int) ($owners[$petId] ?? 0);
-			if (!$userId)
-			{
-				continue;
-			}
-
-			if (!isset($byUser[$userId]))
-			{
-				$byUser[$userId] = ['user_id' => $userId, $rankKey => 0, $otherKey => 0];
-			}
-
-			$byUser[$userId][$rankKey] += (int) $count;
-			$byUser[$userId][$otherKey] += (int) ($other[$petId] ?? 0);
+			return [];
 		}
 
-		$rows = array_values($byUser);
-		usort($rows, fn (array $a, array $b) => [$b[$rankKey], $a['user_id']] <=> [$a[$rankKey], $b['user_id']]);
+		$keys = array_map(fn (int $duelId) => $this->getResolveJobKey($duelId), $duelIds);
+		$queued = array_flip($db->fetchAllColumn(
+			'SELECT unique_key FROM xf_job WHERE unique_key IN (' . $db->quote($keys) . ')'
+		));
 
-		return array_map(fn (array $row) => [
-			'user_id' => $row['user_id'],
-			'wins' => $row['wins'],
-			'losses' => $row['losses'],
-		], $rows);
+		return array_values(array_filter(
+			$duelIds,
+			fn (int $duelId) => !isset($queued[$this->getResolveJobKey($duelId)])
+		));
+	}
+
+	public function getResolveJobKey(int $duelId): string
+	{
+		return self::RESOLVE_JOB_KEY_PREFIX . $duelId;
 	}
 
 	public function findExistingPendingDuelBetweenPets(int $petAId, int $petBId): ?UserPetsDuel
@@ -573,7 +690,8 @@ class UserPetsDuelRepository extends Repository
 	/**
 	 * For user merge when both users have a pet and the source pet is removed: the source pet's
 	 * finished duels move to the target pet. Duels between the two pets would become self-duels
-	 * and open duels of the source pet can no longer be fought, so both are removed.
+	 * and open duels of the source pet can no longer be fought, so both are removed. The win and
+	 * loss counters of both pets are recounted afterwards.
 	 *
 	 * @return int rows changed or removed
 	 */
@@ -597,6 +715,8 @@ class UserPetsDuelRepository extends Repository
 		{
 			$changed += $db->update(self::TABLE, [$column => $toPetId], $column . ' = ?', $fromPetId);
 		}
+
+		$this->recountDuelCounters([$fromPetId, $toPetId]);
 
 		return $changed;
 	}

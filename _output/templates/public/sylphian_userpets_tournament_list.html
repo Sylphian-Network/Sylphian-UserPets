@@ -21,9 +21,10 @@
 									<div class="contentRow-snippet">{{ snippet($tournament.description, 200) }}</div>
 								</xf:if>
 								<ul class="listInline listInline--bullet contentRow-minor">
-									<li><xf:macro id="sylphian_userpets_macros::tournament_status" arg-status="{$tournament.status}" /></li>
+									<li><xf:macro id="sylphian_userpets_tournament_macros::tournament_status" arg-status="{$tournament.status}" /></li>
 									<li>{{ phrase('sylphian_userpets_tournament_max_participants_x', {'count': $tournament.max_participants|number}) }}</li>
 									<li>{{ phrase('sylphian_userpets_tournament_reward_x_xp', {'xp': $tournament.prize_experience|number}) }}</li>
+									<xf:macro id="sylphian_userpets_tournament_macros::schedule_inline" arg-tournament="{$tournament}" />
 								</ul>
 							</div>
 						</div>

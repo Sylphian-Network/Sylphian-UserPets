@@ -1,0 +1,19 @@
+<xf:set var="$ownerName" value="{{ $pet.User ? $pet.User.username : phrase('unknown_member') }}" />
+<xf:title>{{ phrase('sylphian_userpets_set_xp') }}</xf:title>
+<xf:description>{{ phrase('sylphian_userpets_widget_title', {'username': $ownerName}) }}</xf:description>
+
+<xf:form action="{{ link('sylphian_userpets/pets/set-xp') }}" ajax="true" class="block">
+	<div class="block-container">
+		<div class="block-body">
+			<xf:formrow label="{{ phrase('sylphian_userpets_level_label') }}">
+				{$pet.level|number}
+			</xf:formrow>
+
+			<xf:numberboxrow name="experience" value="{$pet.experience}" min="0" max="{$maxExperience}"
+				label="{{ phrase('sylphian_userpets_experience') }}"
+				explain="{{ phrase('sylphian_userpets_set_xp_explain') }}" />
+		</div>
+		<xf:submitrow icon="save" />
+	</div>
+	<xf:hiddenval name="pet_id">{$pet.pet_id}</xf:hiddenval>
+</xf:form>

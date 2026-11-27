@@ -7,14 +7,18 @@ use XF\Entity\MemberStat;
 use XF\Finder\UserFinder;
 
 /**
- * Pet member stats rank pets first, then keep the users that pass the stat's criteria and
- * have not disabled their pet. Values are returned as plain integers: the stats are
- * defined with a numeric sort order so XenForo formats them for each viewer, also when
- * the results come from the member stat cache.
+ * Pet member stats rank pets first (ordered reads of indexed pet columns), then keep the users
+ * that pass the stat's criteria and have not disabled their pet; the users come in one query
+ * with the relations the opt-out check reads. Values are returned as plain integers: the stats
+ * are defined with a numeric sort order so XenForo formats them for each viewer, also when the
+ * results come from the member stat cache.
  */
 abstract class AbstractPetStat
 {
 	public const UNLIMITED_USER_CAP = 200;
+
+	/** Relations of the ranked users, loaded with them; UserPetOptOut reads the last two. */
+	public const USER_WITH = ['Profile', 'UserPet', 'PermissionCombination'];
 
 	public static function getUserLimit(MemberStat $memberStat): int
 	{
@@ -42,7 +46,7 @@ abstract class AbstractPetStat
 
 		$users = $finder
 			->where('user_id', array_keys($rankedValues))
-			->with('Profile')
+			->with(self::USER_WITH)
 			->fetch();
 
 		$limit = self::getUserLimit($memberStat);

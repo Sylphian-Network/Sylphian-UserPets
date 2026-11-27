@@ -25,6 +25,13 @@ use XF\Phrase;
  * @property int $registration_closed_at
  * @property int $started_at
  * @property int $completed_at
+ * @property int $registration_open_date 0 = opened by an admin
+ * @property int $registration_close_date 0 = closed by an admin
+ * @property int $start_date 0 = started by an admin
+ * @property int $round_interval_hours Automatic mode: hours between rounds; 0 = all rounds at once
+ * @property int $next_round_date
+ * @property int $repeat_days 0 = no repeat; otherwise a copy is scheduled this many days later
+ * @property int $repeat_of_id The tournament this one was repeated from
  *
  * RELATIONS
  * @property UserPets|null $WinnerPet
@@ -45,6 +52,16 @@ class UserPetsTournament extends Entity
 	public const MAX_PARTICIPANTS = 512;
 
 	public const ADMIN_PERMISSION = 'syl_userpetsTournaments';
+
+	public const SCHEDULE_REGISTRATION_OPEN = 'registration_open';
+	public const SCHEDULE_REGISTRATION_CLOSE = 'registration_close';
+	public const SCHEDULE_START = 'start';
+	public const SCHEDULE_NEXT_ROUND = 'next_round';
+
+	/**
+	 * Schedule date columns in the order the steps happen.
+	 */
+	public const SCHEDULE_DATE_COLUMNS = ['registration_open_date', 'registration_close_date', 'start_date'];
 
 	/**
 	 * @return list<string>
@@ -94,7 +111,8 @@ class UserPetsTournament extends Entity
 	}
 
 	/**
-	 * Whether the user may sign up. A pet is not required: joining creates one.
+	 * Whether the user may sign up: the joinTournament permission and a pet that is not
+	 * opted out. A pet row is not required: joining creates one.
 	 */
 	public function canJoin(?User $user = null, &$error = null): bool
 	{
@@ -108,6 +126,12 @@ class UserPetsTournament extends Entity
 		if ($this->status !== self::STATUS_REGISTRATION_OPEN)
 		{
 			$error = \XF::phrase('sylphian_userpets_tournament_registration_closed');
+			return false;
+		}
+
+		if (!$user->hasPermission('sylUserPets', 'joinTournament'))
+		{
+			$error = \XF::phrase('do_not_have_permission');
 			return false;
 		}
 
@@ -160,6 +184,107 @@ class UserPetsTournament extends Entity
 		return !$this->isFinished();
 	}
 
+	/**
+	 * A schedule date can change only while its step has not happened yet.
+	 */
+	public function canEditRegistrationOpenDate(): bool
+	{
+		return !$this->exists() || $this->status === self::STATUS_DRAFT;
+	}
+
+	public function canEditRegistrationCloseDate(): bool
+	{
+		return !$this->exists()
+			|| $this->status === self::STATUS_DRAFT
+			|| $this->status === self::STATUS_REGISTRATION_OPEN;
+	}
+
+	public function canEditStartDate(): bool
+	{
+		return !$this->exists() || $this->isRegistrationPhase();
+	}
+
+	public function canEditRoundInterval(): bool
+	{
+		return $this->canEditResolutionMode();
+	}
+
+	public function canEditRepeat(): bool
+	{
+		return !$this->isFinished();
+	}
+
+	/**
+	 * Automatic mode with an interval plays one round per interval instead of every round
+	 * at the start.
+	 */
+	public function hasRoundInterval(): bool
+	{
+		return $this->resolution_mode === self::MODE_AUTOMATIC && $this->round_interval_hours > 0;
+	}
+
+	public function hasSchedule(): bool
+	{
+		return $this->registration_open_date > 0
+			|| $this->registration_close_date > 0
+			|| $this->start_date > 0
+			|| $this->hasRoundInterval();
+	}
+
+	/**
+	 * The scheduled steps still ahead for the current status, in the order they happen,
+	 * keyed by the SCHEDULE_* constants. Empty when nothing is scheduled any more.
+	 *
+	 * @return array<string, int>
+	 */
+	public function getUpcomingSchedule(): array
+	{
+		$dates = [];
+
+		switch ($this->status)
+		{
+			case self::STATUS_DRAFT:
+				$dates[self::SCHEDULE_REGISTRATION_OPEN] = $this->registration_open_date;
+				$dates[self::SCHEDULE_REGISTRATION_CLOSE] = $this->registration_close_date;
+				$dates[self::SCHEDULE_START] = $this->start_date;
+				break;
+
+			case self::STATUS_REGISTRATION_OPEN:
+				$dates[self::SCHEDULE_REGISTRATION_CLOSE] = $this->registration_close_date;
+				$dates[self::SCHEDULE_START] = $this->start_date;
+				break;
+
+			case self::STATUS_REGISTRATION_CLOSED:
+				$dates[self::SCHEDULE_START] = $this->start_date;
+				break;
+
+			case self::STATUS_IN_PROGRESS:
+				if ($this->hasRoundInterval())
+				{
+					$dates[self::SCHEDULE_NEXT_ROUND] = $this->next_round_date;
+				}
+				break;
+		}
+
+		return array_filter($dates, static fn (int $date): bool => $date > 0);
+	}
+
+	/**
+	 * @return array{step:string, date:int}|null
+	 */
+	public function getNextScheduledStep(): ?array
+	{
+		$schedule = $this->getUpcomingSchedule();
+		if (!$schedule)
+		{
+			return null;
+		}
+
+		$step = array_key_first($schedule);
+
+		return ['step' => $step, 'date' => $schedule[$step]];
+	}
+
 	public function getStatusPhrase(): Phrase
 	{
 		return \XF::phrase('sylphian_userpets_tournament_status_' . $this->status);
@@ -177,6 +302,52 @@ class UserPetsTournament extends Entity
 					'max_participants'
 				);
 			}
+		}
+
+		$this->validateSchedule();
+
+		if ($this->isUpdate()
+			&& $this->status === self::STATUS_IN_PROGRESS
+			&& ($this->isChanged('resolution_mode') || $this->isChanged('round_interval_hours'))
+		)
+		{
+			$this->next_round_date = $this->hasRoundInterval()
+				? \XF::$time + $this->round_interval_hours * 3600
+				: 0;
+		}
+	}
+
+	/**
+	 * Registration opens before it closes and the tournament starts no earlier than the
+	 * close; a date that is set or moved must lie ahead. Dates that are already past and
+	 * untouched stay valid, so an edit never fails because of a step that has happened.
+	 */
+	protected function validateSchedule(): void
+	{
+		$open = $this->registration_open_date;
+		$close = $this->registration_close_date;
+		$start = $this->start_date;
+
+		foreach (self::SCHEDULE_DATE_COLUMNS AS $column)
+		{
+			if ($this->isChanged($column) && $this->get($column) > 0 && $this->get($column) <= \XF::$time)
+			{
+				$this->error(\XF::phrase('please_enter_a_date_in_the_future'), $column);
+			}
+		}
+
+		if ($open && $close && $close <= $open)
+		{
+			$this->error(\XF::phrase('sylphian_userpets_tournament_close_after_open'), 'registration_close_date');
+		}
+
+		if ($close && $start && $start < $close)
+		{
+			$this->error(\XF::phrase('sylphian_userpets_tournament_start_after_close'), 'start_date');
+		}
+		elseif ($open && $start && $start <= $open)
+		{
+			$this->error(\XF::phrase('sylphian_userpets_tournament_start_after_open'), 'start_date');
 		}
 	}
 
@@ -228,6 +399,13 @@ class UserPetsTournament extends Entity
 			'registration_closed_at' => ['type' => self::UINT, 'default' => 0],
 			'started_at' => ['type' => self::UINT, 'default' => 0],
 			'completed_at' => ['type' => self::UINT, 'default' => 0],
+			'registration_open_date' => ['type' => self::UINT, 'default' => 0],
+			'registration_close_date' => ['type' => self::UINT, 'default' => 0],
+			'start_date' => ['type' => self::UINT, 'default' => 0],
+			'round_interval_hours' => ['type' => self::UINT, 'default' => 0, 'max' => 65535],
+			'next_round_date' => ['type' => self::UINT, 'default' => 0],
+			'repeat_days' => ['type' => self::UINT, 'default' => 0, 'max' => 65535],
+			'repeat_of_id' => ['type' => self::UINT, 'default' => 0],
 		];
 
 		$structure->getters = [];

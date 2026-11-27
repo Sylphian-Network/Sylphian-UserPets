@@ -1,0 +1,1 @@
+Please confirm that you want to reset the following pet. Its XP goes back to 0, its level to 1 and its hunger, sleepiness and happiness to 100. Its duel and tournament counters and its XP history are kept:

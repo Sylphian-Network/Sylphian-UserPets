@@ -1,0 +1,1 @@
+Leave empty to start by hand. If fewer than 2 pets have joined by then, the tournament is cancelled.

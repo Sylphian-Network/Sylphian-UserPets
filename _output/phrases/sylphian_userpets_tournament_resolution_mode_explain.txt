@@ -1,1 +1,1 @@
-In manual mode, an administrator advances each round. In automatic mode, all matches are resolved automatically once the tournament starts.
+In manual mode, an administrator plays each round. In automatic mode, the rounds play by themselves: all at once when the tournament starts, or one at a time when hours between rounds are set.

@@ -1,0 +1,1 @@
+Your duel request to {username} was not answered in time and has been withdrawn.

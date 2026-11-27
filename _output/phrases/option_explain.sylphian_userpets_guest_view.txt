@@ -1,0 +1,1 @@
+Guests see a member's pet on their profile (read-only) and the profile's Pet tab.

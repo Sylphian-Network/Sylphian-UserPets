@@ -2,15 +2,16 @@
 
 namespace Sylphian\UserPets\Repository;
 
-use Sylphian\Library\Repository\UserFieldRepository as LibraryUserFieldRepository;
+use Sylphian\UserPets\Entity\UserPets;
 use Sylphian\UserPets\Entity\UserPetsSpritesheet;
 use Sylphian\UserPets\Repository\Traits\FileSystemTrait;
 use Sylphian\UserPets\Repository\Traits\MirrorOperationsTrait;
 use Sylphian\UserPets\Repository\Traits\SpritesheetFinderTrait;
 use XF\Http\Upload;
 use XF\Mvc\Entity\Repository;
+use XF\Phrase;
 use XF\PrintableException;
-use XF\Repository\UserFieldRepository;
+use XF\Repository\OptionRepository;
 use XF\Util\File;
 
 class UserPetsSpritesheetRepository extends Repository
@@ -19,7 +20,11 @@ class UserPetsSpritesheetRepository extends Repository
 	use MirrorOperationsTrait;
 	use SpritesheetFinderTrait;
 
-	public const USER_FIELD_ID = 'syl_userpets_spritesheet';
+	public const DEFAULT_SPRITESHEET_OPTION = 'sylphian_userpets_default_spritesheet';
+
+	public const MIN_EVOLVE_LEVEL = 2;
+
+	protected const REFERENCE_BATCH_SIZE = 1000;
 
 	/**
 	 * Returns health info for the directories this repo uses.
@@ -92,9 +97,10 @@ class UserPetsSpritesheetRepository extends Repository
 
 	/**
 	 * Registered spritesheets plus unregistered image files in the primary directory.
-	 * Each entry: name, url, size, mtime, entity (?UserPetsSpritesheet), exists.
+	 * title is the sheet title or, without one, the file name; evolution is the chain
+	 * of appearances the sheet evolves through (see buildEvolutionChain()).
 	 *
-	 * @return list<array{name:string, url:string, size:int, mtime:int, entity:?UserPetsSpritesheet, exists:bool}>
+	 * @return list<array{name:string, url:string, size:int, mtime:int, entity:?UserPetsSpritesheet, exists:bool, title:string, evolve_level:int, evolves_to:string, evolution:list<array{filename:string, title:string, level:int, exists:bool}>}>
 	 */
 	public function buildIndexList(): array
 	{
@@ -113,6 +119,9 @@ class UserPetsSpritesheetRepository extends Repository
 				'mtime'  => $exists ? (int) filemtime($full) : 0,
 				'entity' => $entity,
 				'exists' => $exists,
+				'title'  => ($entity && $entity->title !== '') ? $entity->title : $name,
+				'evolve_level' => $entity ? (int) $entity->evolve_level : 0,
+				'evolves_to' => $entity ? (string) $entity->evolves_to : '',
 			];
 		};
 
@@ -147,7 +156,76 @@ class UserPetsSpritesheetRepository extends Repository
 		}
 
 		ksort($files, SORT_NATURAL | SORT_FLAG_CASE);
+
+		$chains = [];
+		foreach ($files AS $name => $file)
+		{
+			$chains[$name] = static::buildEvolutionChain($files, (string) $name);
+		}
+		foreach ($chains AS $name => $chain)
+		{
+			$files[$name]['evolution'] = $chain;
+		}
+
 		return array_values($files);
+	}
+
+	/**
+	 * Index rows keyed by file name, the shape resolveEvolvedFilename() and
+	 * getEvolutionErrors() take.
+	 *
+	 * @param list<array{name:string}> $files rows of buildIndexList()
+	 *
+	 * @return array<string, array>
+	 */
+	public static function indexByFilename(array $files): array
+	{
+		$byName = [];
+		foreach ($files AS $file)
+		{
+			$byName[(string) $file['name']] = $file;
+		}
+
+		return $byName;
+	}
+
+	/**
+	 * Sheets an admin can pick (default appearance, evolution target): every indexed
+	 * sheet whose file exists.
+	 *
+	 * @return array<string, string> file name => title
+	 */
+	public function getSpritesheetChoices(string $exclude = ''): array
+	{
+		$choices = [];
+		foreach ($this->buildIndexList() AS $file)
+		{
+			if ($file['exists'] && $file['name'] !== $exclude)
+			{
+				$choices[$file['name']] = $file['title'];
+			}
+		}
+
+		return $choices;
+	}
+
+	/**
+	 * Choices for the "Evolves into" select: the other sheets, plus the current target
+	 * when its file is gone, so that saving reports it instead of silently dropping it.
+	 *
+	 * @return array<string, string> file name => title
+	 */
+	public function getEvolutionTargetChoices(UserPetsSpritesheet $sheet): array
+	{
+		$choices = $this->getSpritesheetChoices((string) $sheet->filename);
+
+		$current = (string) $sheet->evolves_to;
+		if ($current !== '' && !isset($choices[$current]))
+		{
+			$choices[$current] = $current;
+		}
+
+		return $choices;
 	}
 
 	/**
@@ -205,11 +283,12 @@ class UserPetsSpritesheetRepository extends Repository
 	/**
 	 * Creates or updates a spritesheet record and its file: renames the file when the
 	 * name changes, replaces it when an image is uploaded and keeps the dev mirror in
-	 * step. Everything is validated before the first file is touched.
+	 * step. A rename moves every reference (pets, other sheets' evolution, the default
+	 * option) to the new name. Everything is validated before the first file is touched.
 	 *
 	 * @param int $id Existing entity ID (0 if new).
 	 * @param string $origFilename File name the form was opened for ('' when adding).
-	 * @param array<string,mixed> $input filename, title, frame_width, frame_height, frames_per_animation, fps
+	 * @param array<string,mixed> $input filename, title, frame_width, frame_height, frames_per_animation, fps, evolves_to, evolve_level
 	 * @param Upload|null $upload Uploaded image, if any.
 	 *
 	 * @return array{entity?: UserPetsSpritesheet, errors?: array}
@@ -289,6 +368,27 @@ class UserPetsSpritesheetRepository extends Repository
 			return $this->errors(\XF::phrase('sylphian_userpets_error_new_filename_exists'));
 		}
 
+		$evolvesTo = trim((string) ($input['evolves_to'] ?? ''));
+		$evolveLevel = max(0, (int) ($input['evolve_level'] ?? 0));
+		if ($evolvesTo === '')
+		{
+			$evolveLevel = 0;
+		}
+		else
+		{
+			$evolutionErrors = static::getEvolutionErrors(
+				static::indexByFilename($this->buildIndexList()),
+				$newName,
+				$evolvesTo,
+				$evolveLevel,
+				$entity->exists() ? (string) $entity->getExistingValue('filename') : (string) $origName
+			);
+			if ($evolutionErrors)
+			{
+				return ['errors' => $evolutionErrors];
+			}
+		}
+
 		$entity->bulkSet([
 			'filename' => $newName,
 			'title' => (string) ($input['title'] ?? ''),
@@ -296,6 +396,8 @@ class UserPetsSpritesheetRepository extends Repository
 			'frame_height' => max(1, (int) ($input['frame_height'] ?? 1)),
 			'frames_per_animation' => max(1, (int) ($input['frames_per_animation'] ?? 1)),
 			'fps' => max(1, (int) ($input['fps'] ?? 1)),
+			'evolves_to' => $evolvesTo,
+			'evolve_level' => $evolveLevel,
 		]);
 
 		$entity->preSave();
@@ -372,14 +474,22 @@ class UserPetsSpritesheetRepository extends Repository
 			]));
 		}
 
-		$this->syncUserFieldOptionsSafely($renaming ? [$origName => $newName] : []);
+		if ($renaming)
+		{
+			$this->updateReferencesSafely(fn () => $this->renameSpritesheetReferences($origName, $newName));
+		}
+		else
+		{
+			$this->clearCaches();
+		}
 
 		return ['entity' => $entity];
 	}
 
 	/**
-	 * Deletes a spritesheet file and its record. Only a plain file name directly
-	 * inside the spritesheet directory is accepted.
+	 * Deletes a spritesheet file and its record, and points every reference to it back
+	 * to the default appearance. Only a plain file name directly inside the spritesheet
+	 * directory is accepted.
 	 *
 	 * @return array list of errors; empty on success
 	 */
@@ -440,224 +550,368 @@ class UserPetsSpritesheetRepository extends Repository
 		}
 
 		$this->mirrorDelete($name);
-		$this->syncUserFieldOptionsSafely();
+		$this->updateReferencesSafely(fn () => $this->clearSpritesheetReferences($name));
 
 		return [];
 	}
 
 	/**
-	 * Rebuilds the choices of the spritesheet user field and moves stored values that
-	 * still name a file (or a renamed sheet) onto the current choice ids.
+	 * The appearance a pet of $level shows when its sheet is $filename: follows
+	 * evolves_to while level >= evolve_level > 0 and the target is in $sheetsByFilename
+	 * (and not marked 'exists' => false). A loop in the data ends at the last sheet
+	 * not yet visited. Returns $filename when no step applies.
 	 *
-	 * @param array<string, string> $renamedFilenames old file name => new file name
+	 * @param array<string, array{evolve_level?:int, evolves_to?:string, exists?:bool}> $sheetsByFilename
 	 */
-	public function syncUserFieldOptions(array $renamedFilenames = []): array
+	public static function resolveEvolvedFilename(array $sheetsByFilename, string $filename, int $level): string
 	{
-		/** @var UserPetsRepository $petsRepo */
-		$petsRepo = $this->repository('Sylphian\UserPets:UserPets');
-		$petsRepo->clearSpritesheetCaches();
-		$choices = $petsRepo->getAvailableSpriteSheets();
+		$current = $filename;
+		$visited = [$current => true];
 
-		/** @var LibraryUserFieldRepository $libraryFieldRepo */
-		$libraryFieldRepo = $this->repository('Sylphian\Library:UserFieldRepository');
-		$result = $libraryFieldRepo->updateChoicesIfChanged(self::USER_FIELD_ID, $choices);
+		while (isset($sheetsByFilename[$current]))
+		{
+			$sheet = $sheetsByFilename[$current];
+			$evolveLevel = (int) ($sheet['evolve_level'] ?? 0);
+			$target = (string) ($sheet['evolves_to'] ?? '');
 
-		$this->normalizeUserFieldValues($renamedFilenames);
+			if ($evolveLevel <= 0
+				|| $level < $evolveLevel
+				|| $target === ''
+				|| isset($visited[$target])
+				|| !static::isSheetAvailable($sheetsByFilename, $target)
+			)
+			{
+				break;
+			}
 
-		return $result;
+			$visited[$target] = true;
+			$current = $target;
+		}
+
+		return $current;
 	}
 
 	/**
-	 * Rewrites spritesheet user field values that are not a current choice id but name
-	 * a known sheet (file name, base name, a legacy id or a renamed sheet) to that
-	 * sheet's choice id, then rebuilds the custom field cache of the affected users.
-	 * Values already holding a choice id, and values matching nothing, are untouched.
+	 * The evolution steps starting at $filename, for display. level is the level at
+	 * which a pet of this sheet reaches the step: a step whose own level is lower than
+	 * an earlier one is reached together with that earlier step. The chain ends at a
+	 * missing target (included with exists = false) or before a sheet already in it.
 	 *
-	 * @param array<string, string> $renamedFilenames old file name => new file name
+	 * @param array<string, array{title?:string, evolve_level?:int, evolves_to?:string, exists?:bool}> $sheetsByFilename
 	 *
-	 * @return int number of users whose value changed
+	 * @return list<array{filename:string, title:string, level:int, exists:bool}>
 	 */
-	public function normalizeUserFieldValues(array $renamedFilenames = []): int
+	public static function buildEvolutionChain(array $sheetsByFilename, string $filename): array
 	{
-		/** @var UserPetsRepository $petsRepo */
-		$petsRepo = $this->repository('Sylphian\UserPets:UserPets');
+		$steps = [];
+		$visited = [$filename => true];
+		$current = $filename;
+		$reachedAt = 0;
 
-		$choiceFiles = [];
-		foreach ($this->buildIndexList() AS $file)
+		while (isset($sheetsByFilename[$current]))
 		{
-			$choiceFiles[$petsRepo->getSpritesheetChoiceId($file['name'])] = $file['name'];
-		}
+			$sheet = $sheetsByFilename[$current];
+			$evolveLevel = (int) ($sheet['evolve_level'] ?? 0);
+			$target = (string) ($sheet['evolves_to'] ?? '');
 
-		if (!$choiceFiles)
-		{
-			return 0;
-		}
-
-		$aliases = $this->buildUserFieldAliases($choiceFiles, $renamedFilenames);
-
-		$db = $this->db();
-		$currentIds = [];
-		foreach (array_keys($choiceFiles) AS $choiceId)
-		{
-			$currentIds[] = 'CAST(' . $db->quote((string) $choiceId) . ' AS BINARY)';
-		}
-
-		$rows = $db->fetchAll(
-			'SELECT user_id, field_value
-			FROM xf_user_field_value
-			WHERE field_id = ?
-				AND LOWER(field_value) IN (' . $db->quote(array_map('strval', array_keys($aliases))) . ')
-				AND CAST(field_value AS BINARY) NOT IN (' . implode(', ', $currentIds) . ')',
-			self::USER_FIELD_ID
-		);
-
-		$userIdsByChoice = [];
-		foreach ($rows AS $row)
-		{
-			$choiceId = $aliases[mb_strtolower((string) $row['field_value'])] ?? null;
-			if ($choiceId !== null && $choiceId !== $row['field_value'])
+			if ($evolveLevel <= 0 || $target === '' || isset($visited[$target]))
 			{
-				$userIdsByChoice[$choiceId][] = (int) $row['user_id'];
-			}
-		}
-
-		if (!$userIdsByChoice)
-		{
-			return 0;
-		}
-
-		$changedUserIds = [];
-		foreach ($userIdsByChoice AS $choiceId => $userIds)
-		{
-			foreach (array_chunk($userIds, 500) AS $chunk)
-			{
-				$db->update(
-					'xf_user_field_value',
-					['field_value' => (string) $choiceId],
-					'field_id = ? AND user_id IN (' . $db->quote($chunk) . ')',
-					self::USER_FIELD_ID
-				);
+				break;
 			}
 
-			$changedUserIds = array_merge($changedUserIds, $userIds);
+			$reachedAt = max($reachedAt, $evolveLevel);
+			$exists = static::isSheetAvailable($sheetsByFilename, $target);
+			$steps[] = [
+				'filename' => $target,
+				'title' => (string) ($sheetsByFilename[$target]['title'] ?? $target),
+				'level' => $reachedAt,
+				'exists' => $exists,
+			];
+
+			if (!$exists)
+			{
+				break;
+			}
+
+			$visited[$target] = true;
+			$current = $target;
 		}
 
-		$this->rebuildUserFieldValueCaches($changedUserIds);
-
-		return count($changedUserIds);
+		return $steps;
 	}
 
 	/**
-	 * @param list<int> $userIds
-	 */
-	protected function rebuildUserFieldValueCaches(array $userIds): void
-	{
-		/** @var UserFieldRepository $fieldRepo */
-		$fieldRepo = $this->repository('XF:UserField');
-		$db = $this->db();
-
-		foreach (array_chunk(array_values(array_unique($userIds)), 500) AS $chunk)
-		{
-			$db->beginTransaction();
-			foreach ($chunk AS $userId)
-			{
-				$fieldRepo->rebuildUserFieldValuesCache($userId);
-			}
-			$db->commit();
-		}
-	}
-
-	/**
-	 * Lower-cased alias => choice id. Exact names win over loose ones (base name, base
-	 * name with symbols replaced), and the first sheet wins a loose alias that two
-	 * sheets share, as UserPetsRepository::resolveSpritesheetFilename() resolves it.
+	 * Checks an evolution before it is saved: the target is another sheet that exists,
+	 * the level is at least MIN_EVOLVE_LEVEL, and the chain from the saved sheet never
+	 * comes back to a sheet already in it. $originalFilename is the sheet's name before
+	 * this save; when it differs from $filename, references to it count as references
+	 * to $filename, as renameSpritesheetReferences() will make them.
 	 *
-	 * @param array<string, string> $choiceFiles choice id => file name
-	 * @param array<string, string> $renamedFilenames old file name => new file name
+	 * @param array<string, array{evolve_level?:int, evolves_to?:string, exists?:bool}> $sheetsByFilename
 	 *
-	 * @return array<string, string>
+	 * @return list<Phrase> empty when the evolution may be saved
 	 */
-	protected function buildUserFieldAliases(array $choiceFiles, array $renamedFilenames): array
+	public static function getEvolutionErrors(
+		array $sheetsByFilename,
+		string $filename,
+		string $evolvesTo,
+		int $evolveLevel,
+		string $originalFilename = ''
+	): array
 	{
-		/** @var UserPetsRepository $petsRepo */
-		$petsRepo = $this->repository('Sylphian\UserPets:UserPets');
-
-		$aliases = [];
-		$add = static function (string $alias, string $choiceId) use (&$aliases): void
+		$evolvesTo = trim($evolvesTo);
+		if ($evolvesTo === '')
 		{
-			$alias = mb_strtolower(trim($alias));
-			if ($alias !== '' && !isset($aliases[$alias]))
-			{
-				$aliases[$alias] = $choiceId;
-			}
-		};
-
-		foreach ($choiceFiles AS $choiceId => $filename)
-		{
-			$add((string) $choiceId, (string) $choiceId);
-			$add($filename, (string) $choiceId);
+			return [];
 		}
 
-		$renamedChoices = [];
-		foreach ($renamedFilenames AS $oldName => $newName)
+		if ($evolvesTo === $filename || ($originalFilename !== '' && $evolvesTo === $originalFilename))
 		{
-			$newChoiceId = $petsRepo->getSpritesheetChoiceId((string) $newName);
-			if (!isset($choiceFiles[$newChoiceId]))
+			return [\XF::phrase('sylphian_userpets_error_evolution_self')];
+		}
+
+		if (!static::isSheetAvailable($sheetsByFilename, $evolvesTo))
+		{
+			return [\XF::phrase('sylphian_userpets_error_evolution_target_missing')];
+		}
+
+		if ($evolveLevel < self::MIN_EVOLVE_LEVEL)
+		{
+			return [\XF::phrase('sylphian_userpets_error_evolution_level', ['level' => self::MIN_EVOLVE_LEVEL])];
+		}
+
+		$next = [];
+		foreach ($sheetsByFilename AS $name => $sheet)
+		{
+			$name = (string) $name;
+			$target = (string) ($sheet['evolves_to'] ?? '');
+			if ($name === $originalFilename || $target === '' || (int) ($sheet['evolve_level'] ?? 0) <= 0)
 			{
 				continue;
 			}
 
-			$add($petsRepo->getSpritesheetChoiceId((string) $oldName), $newChoiceId);
-			$add((string) $oldName, $newChoiceId);
-			$renamedChoices[(string) $oldName] = $newChoiceId;
+			$next[$name] = ($originalFilename !== '' && $target === $originalFilename) ? $filename : $target;
 		}
+		$next[$filename] = $evolvesTo;
 
-		foreach ($choiceFiles AS $choiceId => $filename)
+		$visited = [];
+		$current = $filename;
+		while (isset($next[$current]))
 		{
-			foreach ($this->getLooseAliases($filename) AS $alias)
+			$visited[$current] = true;
+			$current = $next[$current];
+
+			if (isset($visited[$current]))
 			{
-				$add($alias, (string) $choiceId);
+				return [\XF::phrase('sylphian_userpets_error_evolution_cycle')];
 			}
 		}
 
-		foreach ($renamedChoices AS $oldName => $choiceId)
+		return [];
+	}
+
+	/**
+	 * Points pets and other sheets' evolution that use $old at $new, moves the default
+	 * spritesheet option along and clears the spritesheet caches. File names compare
+	 * byte for byte: the columns' collation would also match other capitalisations.
+	 */
+	public function renameSpritesheetReferences(string $old, string $new): void
+	{
+		$old = trim($old);
+		$new = trim($new);
+		if ($old === '' || $new === '' || $old === $new)
 		{
-			foreach ($this->getLooseAliases($oldName) AS $alias)
-			{
-				$add($alias, $choiceId);
-			}
+			return;
 		}
 
-		return $aliases;
+		$this->replaceReferences($old, $new);
 	}
 
 	/**
-	 * @return list<string>
+	 * Points pets that use $filename back to the default appearance, removes evolution
+	 * into it, resets the default spritesheet option if it names it and clears the
+	 * spritesheet caches.
 	 */
-	protected function getLooseAliases(string $filename): array
+	public function clearSpritesheetReferences(string $filename): void
 	{
-		$base = pathinfo($filename, PATHINFO_FILENAME);
-		$safe = trim((string) preg_replace('/[^a-z0-9_]/i', '_', $base), '_');
+		$filename = trim($filename);
+		if ($filename === '')
+		{
+			return;
+		}
 
-		return array_values(array_filter([$base, $safe], 'strlen'));
+		$this->replaceReferences($filename, '');
 	}
 
 	/**
-	 * @param array<string, string> $renamedFilenames
+	 * @param string $new '' removes the reference
 	 */
-	protected function syncUserFieldOptionsSafely(array $renamedFilenames = []): void
+	protected function replaceReferences(string $old, string $new): void
 	{
+		$db = $this->db();
+		$db->beginTransaction();
+
 		try
 		{
-			$this->syncUserFieldOptions($renamedFilenames);
+			$this->replacePetSpritesheets($old, $new);
+			$this->replaceEvolutionTargets($old, $new);
+
+			$db->commit();
 		}
 		catch (\Throwable $e)
 		{
-			\XF::logException($e, false, 'UserPets spritesheet user field sync failed: ');
+			$db->rollback();
+			throw $e;
+		}
+
+		$this->replaceDefaultSpritesheetOption($old, $new);
+		$this->clearCaches();
+	}
+
+	/**
+	 * Works through the pets in primary key batches, so no statement scans or locks
+	 * more than one batch of rows by an unindexed column.
+	 */
+	protected function replacePetSpritesheets(string $old, string $new): void
+	{
+		$db = $this->db();
+		$lastPetId = 0;
+
+		do
+		{
+			$petIds = array_map('intval', $db->fetchAllColumn(
+				$db->limit(
+					'SELECT pet_id
+					FROM xf_user_pets
+					WHERE pet_id > ?
+						AND CAST(spritesheet AS BINARY) = CAST(? AS BINARY)
+					ORDER BY pet_id',
+					static::REFERENCE_BATCH_SIZE
+				),
+				[$lastPetId, $old]
+			));
+			if (!$petIds)
+			{
+				break;
+			}
+
+			$db->update(
+				'xf_user_pets',
+				['spritesheet' => $new],
+				'pet_id IN (' . $db->quote($petIds) . ') AND CAST(spritesheet AS BINARY) = CAST(? AS BINARY)',
+				$old
+			);
+
+			foreach ($petIds AS $petId)
+			{
+				$cached = $this->em->findCached('Sylphian\UserPets:UserPets', $petId);
+				if ($cached instanceof UserPets && $cached->spritesheet === $old)
+				{
+					$cached->setAsSaved('spritesheet', $new);
+				}
+			}
+
+			$lastPetId = end($petIds);
+		}
+		while (count($petIds) === static::REFERENCE_BATCH_SIZE);
+	}
+
+	protected function replaceEvolutionTargets(string $old, string $new): void
+	{
+		$db = $this->db();
+		$values = $new === '' ? ['evolves_to' => '', 'evolve_level' => 0] : ['evolves_to' => $new];
+
+		$sheetIds = array_map('intval', $db->fetchAllColumn(
+			'SELECT spritesheet_id
+			FROM xf_user_pets_spritesheet
+			WHERE CAST(evolves_to AS BINARY) = CAST(? AS BINARY)',
+			$old
+		));
+		if (!$sheetIds)
+		{
+			return;
+		}
+
+		$db->update(
+			'xf_user_pets_spritesheet',
+			$values,
+			'spritesheet_id IN (' . $db->quote($sheetIds) . ')'
+		);
+
+		foreach ($sheetIds AS $sheetId)
+		{
+			$cached = $this->em->findCached('Sylphian\UserPets:UserPetsSpritesheet', $sheetId);
+			if ($cached instanceof UserPetsSpritesheet)
+			{
+				foreach ($values AS $column => $value)
+				{
+					$cached->setAsSaved($column, $value);
+				}
+			}
 		}
 	}
 
-	protected function errors(\XF\Phrase $error): array
+	/**
+	 * The new value is a sheet that was just saved, or '' (the default), so the
+	 * option is written without running its validation again. The option cache is
+	 * only rebuilt at the end of the request, so the loaded options are updated too.
+	 */
+	protected function replaceDefaultSpritesheetOption(string $old, string $new): void
+	{
+		$options = $this->options();
+		if (!isset($options[self::DEFAULT_SPRITESHEET_OPTION])
+			|| (string) $options[self::DEFAULT_SPRITESHEET_OPTION] !== $old
+		)
+		{
+			return;
+		}
+
+		try
+		{
+			/** @var OptionRepository $optionRepo */
+			$optionRepo = $this->repository('XF:Option');
+			$optionRepo->updateOptionSkipVerify(self::DEFAULT_SPRITESHEET_OPTION, $new);
+			$options[self::DEFAULT_SPRITESHEET_OPTION] = $new;
+		}
+		catch (\Throwable $e)
+		{
+			\XF::logException($e, false, 'UserPets default spritesheet option update failed: ');
+		}
+	}
+
+	/**
+	 * A failure here must not turn a completed file operation into an error page; the
+	 * caches are cleared either way.
+	 */
+	protected function updateReferencesSafely(\Closure $update): void
+	{
+		try
+		{
+			$update();
+		}
+		catch (\Throwable $e)
+		{
+			\XF::logException($e, false, 'UserPets spritesheet reference update failed: ');
+			$this->clearCaches();
+		}
+	}
+
+	protected function clearCaches(): void
+	{
+		/** @var UserPetsRepository $petsRepo */
+		$petsRepo = $this->repository('Sylphian\UserPets:UserPets');
+		$petsRepo->clearSpritesheetCaches();
+	}
+
+	/**
+	 * @param array<string, array{exists?:bool}> $sheetsByFilename
+	 */
+	protected static function isSheetAvailable(array $sheetsByFilename, string $filename): bool
+	{
+		return isset($sheetsByFilename[$filename]) && ($sheetsByFilename[$filename]['exists'] ?? true);
+	}
+
+	protected function errors(Phrase $error): array
 	{
 		return ['errors' => [$error]];
 	}

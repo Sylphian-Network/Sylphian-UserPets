@@ -5,6 +5,12 @@
         "version_string": "1.0.0 Alpha",
         "hash": "c08a026273738b00bbdc15988083e8a1"
     },
+    "admin_navigation.sylphian_userpets_pets.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "750e92a6a691645ba02c20d6620583e0"
+    },
     "admin_navigation.sylphian_userpets_rebuild_solution_xp.txt": {
         "global_cache": false,
         "version_id": 1010200,
@@ -22,6 +28,12 @@
         "version_id": 1050070,
         "version_string": "1.5.0",
         "hash": "ea6fd3568e2268a1d57f2898303f2abf"
+    },
+    "admin_permission.syl_userpetsPets.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "a55ca361abf27cd55246b3bb3faee452"
     },
     "admin_permission.syl_userpetsRebuild.txt": {
         "global_cache": false,
@@ -53,6 +65,12 @@
         "version_string": "1.0.0 Alpha",
         "hash": "e6a392006bf70f8f13a8e172121358b4"
     },
+    "alert_opt_out.syl_userpet_duel_expired.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "745f7c3c1f691d09f3a2ea17366a4722"
+    },
     "alert_opt_out.syl_userpet_duel_loss.txt": {
         "global_cache": false,
         "version_id": 1000010,
@@ -71,11 +89,59 @@
         "version_string": "1.0.0 Alpha",
         "hash": "3b62078fadbcd4ada080761ee1a02644"
     },
+    "alert_opt_out.syl_userpet_tournament_cancelled.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "f0afd6e749d5a974f0fc54f36f8438db"
+    },
+    "alert_opt_out.syl_userpet_tournament_champion.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "7ca57fe6b4ac6738d05a8361b4d50ff6"
+    },
+    "alert_opt_out.syl_userpet_tournament_match_lost.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "37cc8688b9aaae47e797c0c85ce3c43b"
+    },
+    "alert_opt_out.syl_userpet_tournament_match_won.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "e4537ad7abdad8a9d1ba5d3e4cdb6af0"
+    },
+    "alert_opt_out.syl_userpet_tournament_started.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "7e8e4497ad9175cb5b1ca001f1eea5e5"
+    },
     "alert_opt_out.syl_userpet_tutorial.txt": {
         "global_cache": false,
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
         "hash": "c7c1b2abbdf624e069ea05a6bae0ea1f"
+    },
+    "cron_entry.sylUserPetsDuels.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "ce56aa3d08cf4277d2e3a287f89febd3"
+    },
+    "cron_entry.sylUserPetsTournaments.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "1df4dbbe02bf93bc8165702616b74bc0"
+    },
+    "cron_entry.sylUserPetsXpLogPrune.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "70d4ce853061720205b080e1ffb0c7d5"
     },
     "member_stat.sylphian_userpets_pet_duel_wins.txt": {
         "global_cache": false,
@@ -137,6 +203,12 @@
         "version_string": "1.5.0",
         "hash": "0d03c6bfeafc2b41c332fcc107aa738a"
     },
+    "option.sylphian_userpets_duel_request_expiry_days.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "43b2cbc80c21359463fbb41e55a85c65"
+    },
     "option.sylphian_userpets_duel_win_exp.txt": {
         "global_cache": false,
         "version_id": 1050070,
@@ -185,6 +257,12 @@
         "version_string": "1.5.0",
         "hash": "a31a11856412bbe8384b6b647fb6ad53"
     },
+    "option.sylphian_userpets_guest_view.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "649eacbb228eba3e47287b17fab0936d"
+    },
     "option.sylphian_userpets_happiness_critical_threshold.txt": {
         "global_cache": false,
         "version_id": 1050070,
@@ -209,11 +287,23 @@
         "version_string": "1.5.0",
         "hash": "c880cc7a011d3bd0845d65fa870e3d47"
     },
+    "option.sylphian_userpets_name_max_length.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "56f7cd2e74b19c5ba1f624d730daa181"
+    },
     "option.sylphian_userpets_polynomial_power.txt": {
         "global_cache": false,
         "version_id": 1050070,
         "version_string": "1.5.0",
         "hash": "4a95d887866266d306f7bc1a192aa497"
+    },
+    "option.sylphian_userpets_postbit.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "9faf56839733a417a52cf55d0a7bada8"
     },
     "option.sylphian_userpets_pst_xp_nodes.txt": {
         "global_cache": false,
@@ -235,9 +325,9 @@
     },
     "option.sylphian_userpets_reg_sprite_req.txt": {
         "global_cache": false,
-        "version_id": 1010080,
-        "version_string": "1.1.1",
-        "hash": "8cb7671f9b405be62cfe1128142862e9"
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "6b48f03a773dc572c0852bd78448fbeb"
     },
     "option.sylphian_userpets_scale_max.txt": {
         "global_cache": false,
@@ -311,6 +401,12 @@
         "version_string": "1.5.0",
         "hash": "99c1396e15aca3953cb235a736d28750"
     },
+    "option.sylphian_userpets_xp_log_days.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "35773ad10ec4a9fb5e865b41a431715c"
+    },
     "option_explain.sylphian_userpets_base_coefficient.txt": {
         "global_cache": false,
         "version_id": 1000010,
@@ -352,6 +448,12 @@
         "version_id": 1050070,
         "version_string": "1.5.0",
         "hash": "77f1ef708b23b94c362e0ce31668cbbe"
+    },
+    "option_explain.sylphian_userpets_duel_request_expiry_days.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "2d1eb426a5356c9c7b9ccee85b67a433"
     },
     "option_explain.sylphian_userpets_duel_win_exp.txt": {
         "global_cache": false,
@@ -401,6 +503,12 @@
         "version_string": "1.0.0 Alpha",
         "hash": "b23364a2638096c75ad76d9e641611b4"
     },
+    "option_explain.sylphian_userpets_guest_view.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "151582b318207ce20f5fa84d5316ff52"
+    },
     "option_explain.sylphian_userpets_happiness_critical_threshold.txt": {
         "global_cache": false,
         "version_id": 1000010,
@@ -425,11 +533,23 @@
         "version_string": "1.0.0 Alpha",
         "hash": "cb6370a99c62f08ea815a0344cdffdd7"
     },
+    "option_explain.sylphian_userpets_name_max_length.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "d26acc69ee3f0a64e0088eeef6bbd014"
+    },
     "option_explain.sylphian_userpets_polynomial_power.txt": {
         "global_cache": false,
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
         "hash": "ad22b71a0aa4642b4ea4a25863b03059"
+    },
+    "option_explain.sylphian_userpets_postbit.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "732cb7070989352063c8011323da7240"
     },
     "option_explain.sylphian_userpets_pst_xp_nodes.txt": {
         "global_cache": false,
@@ -451,9 +571,9 @@
     },
     "option_explain.sylphian_userpets_reg_sprite_req.txt": {
         "global_cache": false,
-        "version_id": 1010080,
-        "version_string": "1.1.1",
-        "hash": "0e2e9c9ecd0443332a9649721c15095e"
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "7065e007519bcd4ac1cd85ea2eefb3bc"
     },
     "option_explain.sylphian_userpets_scale_max.txt": {
         "global_cache": false,
@@ -527,6 +647,12 @@
         "version_string": "1.5.0",
         "hash": "0ba05f021478244f3251dbcb1af92e5b"
     },
+    "option_explain.sylphian_userpets_xp_log_days.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "b5ed2813eb0390489f7ea43caf671385"
+    },
     "option_group.sylphian_userpets.txt": {
         "global_cache": false,
         "version_id": 1000010,
@@ -544,6 +670,24 @@
         "version_id": 1010440,
         "version_string": "1.3.25",
         "hash": "1c9fdd3475c5e1b8cdcd62b1767d13cb"
+    },
+    "permission.sylUserPets_duel.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "6f0dc3f376ccf8fa2bdf32aeacea59fd"
+    },
+    "permission.sylUserPets_havePet.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "631d839eb7da379fb6ca571b2c076570"
+    },
+    "permission.sylUserPets_joinTournament.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "e9c46c45a2bb71debd49eaace5b0f125"
     },
     "permission_interface.sylUserPets.txt": {
         "global_cache": false,
@@ -695,6 +839,12 @@
         "version_string": "1.1.0 Beta",
         "hash": "fc547fe3e473510e0126bab306baca4a"
     },
+    "sylphian_userpets_alert_duel_expired.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "fab005cc585d91aedebcc9a006a427df"
+    },
     "sylphian_userpets_alert_duel_loss.txt": {
         "global_cache": false,
         "version_id": 1010030,
@@ -724,6 +874,36 @@
         "version_id": 1010030,
         "version_string": "1.1.0 Beta",
         "hash": "e774fe04821d8fcba4c4bf9b84a93c48"
+    },
+    "sylphian_userpets_alert_tournament_cancelled.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "05fba0100ffb02f6f1d6d8b3aaaa15e5"
+    },
+    "sylphian_userpets_alert_tournament_champion.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "5c9e3b70db3386baffc040696a45aab6"
+    },
+    "sylphian_userpets_alert_tournament_match_lost.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "a1d8cb28d8fc17cceb7582bb63e8e633"
+    },
+    "sylphian_userpets_alert_tournament_match_won.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "4419b59e762f2c176f60f02cb80f20d9"
+    },
+    "sylphian_userpets_alert_tournament_started.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "f93d5153a60066ab165b7d02da90ca88"
     },
     "sylphian_userpets_alert_tutorial.txt": {
         "global_cache": false,
@@ -875,11 +1055,35 @@
         "version_string": "1.5.0",
         "hash": "9c0a6b8ad737a4d6668ed6fd80351501"
     },
-    "sylphian_userpets_default_spritesheet_warning.txt": {
+    "sylphian_userpets_criteria_pet_age_days_at_least.txt": {
         "global_cache": false,
-        "version_id": 1050070,
-        "version_string": "1.5.0",
-        "hash": "e80b13faa472590c84c9c0420e1a45ee"
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "cd9c569a7ef35b828df78b4c20c01ddd"
+    },
+    "sylphian_userpets_criteria_tournament_wins_at_least.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "214dd82fa045fbd4f38dd64ffb46c172"
+    },
+    "sylphian_userpets_current_appearance.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "222a267cc5778206b253be35ee3ddab5"
+    },
+    "sylphian_userpets_default_appearance.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "78f2e2f14cd3444930baa7c23689a71d"
+    },
+    "sylphian_userpets_default_appearance_warning.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "5f80366f93215f58a25abb75c4b2ca6e"
     },
     "sylphian_userpets_delete_missing_file_warning.txt": {
         "global_cache": false,
@@ -892,6 +1096,18 @@
         "version_id": 1010030,
         "version_string": "1.1.0 Beta",
         "hash": "41fdd3cb3c177c1e642e2f48813c958e"
+    },
+    "sylphian_userpets_disable_my_pet.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "ea695e8a700fd4bea0765f68078eafea"
+    },
+    "sylphian_userpets_disable_my_pet_explain.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "b44e98cf703fbb0697d55fdbc307a723"
     },
     "sylphian_userpets_disabled_pet.txt": {
         "global_cache": false,
@@ -1157,6 +1373,12 @@
         "version_string": "1.5.0",
         "hash": "43ee72c6bc2980c1bec39bcec8b4a6b2"
     },
+    "sylphian_userpets_duel_record_x_y.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "b4092cf9bd04467a2aa36b89457af938"
+    },
     "sylphian_userpets_duel_reject_failed.txt": {
         "global_cache": false,
         "version_id": 1010030,
@@ -1235,6 +1457,12 @@
         "version_string": "1.1.0 Beta",
         "hash": "647228e8101f81d5084b7c6202aec447"
     },
+    "sylphian_userpets_error_choose_appearance.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "3073b03fa265cf288cb14d69f6a3f011"
+    },
     "sylphian_userpets_error_delete_database_record.txt": {
         "global_cache": false,
         "version_id": 1010030,
@@ -1246,6 +1474,30 @@
         "version_id": 1010030,
         "version_string": "1.1.0 Beta",
         "hash": "a65c494ca3a0a2a968bbd5b8fe5de705"
+    },
+    "sylphian_userpets_error_evolution_cycle.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "c729ec56889aa70cc89df2e0b8c07c43"
+    },
+    "sylphian_userpets_error_evolution_level.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "73b676de530e84f7f09c9a414e7e26e6"
+    },
+    "sylphian_userpets_error_evolution_self.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "5d17ce8c120a97ca7edf77fa9ae6bbca"
+    },
+    "sylphian_userpets_error_evolution_target_missing.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "cc187516c730dadfeb327f84c98df112"
     },
     "sylphian_userpets_error_invalid_file_path.txt": {
         "global_cache": false,
@@ -1259,6 +1511,30 @@
         "version_string": "1.1.0 Beta",
         "hash": "5cd63cc57d0abaedfcb8866919a90a67"
     },
+    "sylphian_userpets_error_name_censored.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "df3e9313a447d94189a6946bf4a43d9b"
+    },
+    "sylphian_userpets_error_name_characters.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "5fabd26505396260e83e89bda1a7aee1"
+    },
+    "sylphian_userpets_error_name_link.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "3862defd8947f5355c29276f99861fad"
+    },
+    "sylphian_userpets_error_name_too_long.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "e39a9e4bf87111f3b2752d1394e6f41f"
+    },
     "sylphian_userpets_error_new_filename_exists.txt": {
         "global_cache": false,
         "version_id": 1010030,
@@ -1270,6 +1546,12 @@
         "version_id": 1010030,
         "version_string": "1.1.0 Beta",
         "hash": "ea5f912f694d2f1dad1062035ad3e882"
+    },
+    "sylphian_userpets_error_pet_disabled.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "401f7fa30e94cf6131b0d03c1e2cdfad"
     },
     "sylphian_userpets_error_rename_failed.txt": {
         "global_cache": false,
@@ -1294,6 +1576,42 @@
         "version_id": 1010030,
         "version_string": "1.1.0 Beta",
         "hash": "0265bf6445f9cdd9a3bb4a6fd2b8616d"
+    },
+    "sylphian_userpets_evolution_target_missing.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "544ad835b708c6c97bde09534eab123b"
+    },
+    "sylphian_userpets_evolve_at_level.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "29518a23d3a16c627f6b83526dd3eb68"
+    },
+    "sylphian_userpets_evolve_level_explain.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "e1654cd9603637803e38dbe3634cb754"
+    },
+    "sylphian_userpets_evolves_into.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "a824a83e68f0118ee3270f761b16545a"
+    },
+    "sylphian_userpets_evolves_into_explain.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "5eecd223e44c5538d8fbb01c9fe6ca5a"
+    },
+    "sylphian_userpets_evolves_into_x_at_level_y.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "6bb805c0ac2620349bc2833a433318e7"
     },
     "sylphian_userpets_exp_to_level.txt": {
         "global_cache": false,
@@ -1553,6 +1871,12 @@
         "version_string": "1.5.0",
         "hash": "a0db49ba470c1c9ae2128c3470339153"
     },
+    "sylphian_userpets_level_up_sound.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "e00df70e396e7b0e831275c2a12adf89"
+    },
     "sylphian_userpets_leveling_options.txt": {
         "global_cache": false,
         "version_id": 1050070,
@@ -1564,6 +1888,12 @@
         "version_id": 1010030,
         "version_string": "1.1.0 Beta",
         "hash": "2546d0d65cfe1cff61c3fbf95e9defe6"
+    },
+    "sylphian_userpets_member_has_no_pet.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "7f1f94523e08cdb063eb1fb7240bbff9"
     },
     "sylphian_userpets_no_details_available.txt": {
         "global_cache": false,
@@ -1619,17 +1949,89 @@
         "version_string": "1.5.0",
         "hash": "0d4e2ae2f8f710eecf583055f39b490a"
     },
+    "sylphian_userpets_percent_x.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "ee03ff8da33b6cadb9900ce89b24718f"
+    },
+    "sylphian_userpets_pet_appearance.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "028bd656f518a99e3fdeea3779ef99a4"
+    },
+    "sylphian_userpets_pet_appearance_register_explain.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "e45f1e14b6c3f0cf88bc667654ae277e"
+    },
+    "sylphian_userpets_pet_could_not_be_saved.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "a1cf84b102133bc14b511f78a7b97d32"
+    },
+    "sylphian_userpets_pet_counters.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "26972ef40f50d6a7d5560e603f11d96d"
+    },
+    "sylphian_userpets_pet_is_disabled.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "c4e7b71326af436c342b403fe4717c33"
+    },
+    "sylphian_userpets_pet_level_x.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "876e7f100c27454149cec67441cde282"
+    },
+    "sylphian_userpets_pet_name.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "410bab1c725ac6ae44fde3457aa4ae13"
+    },
+    "sylphian_userpets_pet_name_explain.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "950d020cef76f4dceb240a0db9ee373b"
+    },
     "sylphian_userpets_pet_not_found.txt": {
         "global_cache": false,
         "version_id": 1010030,
         "version_string": "1.1.0 Beta",
         "hash": "bafbd3e70a86fa44be91231226edc0c8"
     },
+    "sylphian_userpets_pet_sound_enabled.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "8f733ec184eb01187ac2bdf5f59636fe"
+    },
     "sylphian_userpets_pet_state.txt": {
         "global_cache": false,
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
         "hash": "e99e633d7e6f468861f68067990b59bb"
+    },
+    "sylphian_userpets_pets.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "750e92a6a691645ba02c20d6620583e0"
+    },
+    "sylphian_userpets_pets_search_explain.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "5c694769ff8ffab5108f6f8d68bc524e"
     },
     "sylphian_userpets_play.txt": {
         "global_cache": false,
@@ -1643,17 +2045,65 @@
         "version_string": "1.1.0 Beta",
         "hash": "584aac41024166be735b4e8b1b259e34"
     },
+    "sylphian_userpets_postbit_badge.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "31f4292b5578d2fe7b14c0dc49bcdfce"
+    },
+    "sylphian_userpets_postbit_none.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "1cf124095a544c1503f322881f956017"
+    },
+    "sylphian_userpets_postbit_sprite.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "cc5a60e02c1f8c4f28ad325e01f16f7a"
+    },
     "sylphian_userpets_primary_spritesheet_storage.txt": {
         "global_cache": false,
         "version_id": 1010030,
         "version_string": "1.1.0 Beta",
         "hash": "e0a3276a2df4276a2ff79f84ff011e7d"
     },
+    "sylphian_userpets_profile_tab.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "7c986af4cf8f6e55a1f846dc498ce91d"
+    },
     "sylphian_userpets_rebuild_content_xp_job.txt": {
         "global_cache": false,
         "version_id": 1010200,
         "version_string": "1.3.1",
         "hash": "4190fd4fd59d9b9a89031e1c6f699694"
+    },
+    "sylphian_userpets_recent_duels.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "c429b7d0ca8cc07f88b24194ac13d3cc"
+    },
+    "sylphian_userpets_recent_duels_empty.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "34c13ba8a76daf264f16cbe0c4ad2671"
+    },
+    "sylphian_userpets_recount_counters.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "920e9d548572d6c890b851c2d3ae85cc"
+    },
+    "sylphian_userpets_recount_counters_explain.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "c4ecba8e11cf4d4ac64491c3ba86f92c"
     },
     "sylphian_userpets_replace_image_explain.txt": {
         "global_cache": false,
@@ -1667,11 +2117,41 @@
         "version_string": "1.1.0 Beta",
         "hash": "f352ba638581d502632c58ebc08849bd"
     },
+    "sylphian_userpets_requested_pet_not_found.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "b02464de2431c0ddc11305a18822e118"
+    },
     "sylphian_userpets_required_experience.txt": {
         "global_cache": false,
         "version_id": 1050070,
         "version_string": "1.5.0",
         "hash": "d842f00711db614f0400ec78d72a5ebd"
+    },
+    "sylphian_userpets_reset_pet.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "c71feac735454a3864c2f0af7a650511"
+    },
+    "sylphian_userpets_reset_pet_confirm.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "dc6819c719bc68a98a087eb2d6e6d2ca"
+    },
+    "sylphian_userpets_set_xp.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "ffcf7b4e797056c2f5db22dbd016a846"
+    },
+    "sylphian_userpets_set_xp_explain.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "240e517d0c21859595bf705b8ac2a650"
     },
     "sylphian_userpets_sleep.txt": {
         "global_cache": false,
@@ -1757,6 +2237,12 @@
         "version_string": "1.1.0 Beta",
         "hash": "65572a364dd80bd5de15a398b8f5150d"
     },
+    "sylphian_userpets_then_into_x_at_level_y.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "e4cb3cc37b808f1f769b917feb602d70"
+    },
     "sylphian_userpets_tournament_action_unavailable.txt": {
         "global_cache": false,
         "version_id": 1050070,
@@ -1822,6 +2308,12 @@
         "version_id": 1050070,
         "version_string": "1.5.0",
         "hash": "8d584b481f8bdcba1803235190acd59e"
+    },
+    "sylphian_userpets_tournament_close_after_open.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "f262f42217496958ddaaafd4db5b22f4"
     },
     "sylphian_userpets_tournament_close_registration.txt": {
         "global_cache": false,
@@ -1919,6 +2411,18 @@
         "version_string": "1.5.0",
         "hash": "667b3ae367c070a2f1b9c2de58514c20"
     },
+    "sylphian_userpets_tournament_next_edition.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "722c2c5f9a27ae5ad7804a6469cc9ebe"
+    },
+    "sylphian_userpets_tournament_next_round.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "5cca6625286aa3db760fe8f90dbd2662"
+    },
     "sylphian_userpets_tournament_no_description.txt": {
         "global_cache": false,
         "version_id": 1050070,
@@ -1949,6 +2453,12 @@
         "version_string": "1.5.0",
         "hash": "2558cf8c874ce4d1c72cbe494c312fff"
     },
+    "sylphian_userpets_tournament_not_scheduled.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "358732977a13ab1120f0ce0e139373a9"
+    },
     "sylphian_userpets_tournament_open_registration.txt": {
         "global_cache": false,
         "version_id": 1050070,
@@ -1967,6 +2477,36 @@
         "version_string": "1.5.0",
         "hash": "ff6b918592d9a9cd1952c4d97a1e86cb"
     },
+    "sylphian_userpets_tournament_registration_closes.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "c233501c75ad9ca640c5ba7fba769252"
+    },
+    "sylphian_userpets_tournament_registration_opens.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "883202b74d21fc98d386f747cbdec7c5"
+    },
+    "sylphian_userpets_tournament_repeat_days.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "20444a6d0a104a2fe36baaafdf6ef7b1"
+    },
+    "sylphian_userpets_tournament_repeat_days_explain.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "1cc6bd28451448468203d6f6a069535d"
+    },
+    "sylphian_userpets_tournament_repeat_of.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "2a96371bbe8a327904089c101ba45149"
+    },
     "sylphian_userpets_tournament_resolution_mode.txt": {
         "global_cache": false,
         "version_id": 1050070,
@@ -1981,9 +2521,9 @@
     },
     "sylphian_userpets_tournament_resolution_mode_explain.txt": {
         "global_cache": false,
-        "version_id": 1050070,
-        "version_string": "1.5.0",
-        "hash": "78c17e10ff3f100360d3a967c2712d28"
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "f4c59beb7aae688cc816bb7aefd1dcba"
     },
     "sylphian_userpets_tournament_resolution_mode_manual.txt": {
         "global_cache": false,
@@ -2008,6 +2548,18 @@
         "version_id": 1010500,
         "version_string": "1.4.2",
         "hash": "beae421a14a34f831c113f61323d1ab3"
+    },
+    "sylphian_userpets_tournament_round_interval.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "87d86db5168431885970d97e9d04dbe9"
+    },
+    "sylphian_userpets_tournament_round_interval_explain.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "c77671faf02db397db45f86d783d807c"
     },
     "sylphian_userpets_tournament_round_of_128.txt": {
         "global_cache": false,
@@ -2063,6 +2615,24 @@
         "version_string": "1.5.0",
         "hash": "11ff9d456b0fb687eec01bab1925639b"
     },
+    "sylphian_userpets_tournament_schedule.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "25f7347236b51a5eae4ba01a7862cb55"
+    },
+    "sylphian_userpets_tournament_schedule_date_explain.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "b83a4e72d97e3f186117786bd52cc1db"
+    },
+    "sylphian_userpets_tournament_schedule_none.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "f2f74ffa64dc4ff37d563dca2b198b9b"
+    },
     "sylphian_userpets_tournament_seed_x.txt": {
         "global_cache": false,
         "version_id": 1050070,
@@ -2074,6 +2644,30 @@
         "version_id": 1050070,
         "version_string": "1.5.0",
         "hash": "1ec1cc23048d055452fa38fe2525a2ad"
+    },
+    "sylphian_userpets_tournament_start_after_close.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "da2728c049a7c3d8080c4e56f91e666d"
+    },
+    "sylphian_userpets_tournament_start_after_open.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "d52393e199b4a831e43f6f151c5b1863"
+    },
+    "sylphian_userpets_tournament_start_date_explain.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "69f1da25feee484f4b3045b652debc78"
+    },
+    "sylphian_userpets_tournament_starts.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "161f25f9025f957f236bd529f7d1eb38"
     },
     "sylphian_userpets_tournament_status_cancelled.txt": {
         "global_cache": false,
@@ -2123,6 +2717,12 @@
         "version_string": "1.5.0",
         "hash": "9ef2444b6d2dd9742b0f70c36af350ef"
     },
+    "sylphian_userpets_tournament_wins.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "ad62a28b1aa22fd061e4faa37a427693"
+    },
     "sylphian_userpets_tournaments_active.txt": {
         "global_cache": false,
         "version_id": 1050070,
@@ -2170,6 +2770,18 @@
         "version_id": 1050070,
         "version_string": "1.5.0",
         "hash": "ea6fd3568e2268a1d57f2898303f2abf"
+    },
+    "sylphian_userpets_tournaments_won.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "38e24e5e2a99fdb5eb5da8fb94ac4fc9"
+    },
+    "sylphian_userpets_tournaments_won_empty.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "36e39d955e819b622ff01f168fee7506"
     },
     "sylphian_userpets_tutorial_complete_first_pet_action.txt": {
         "global_cache": false,
@@ -2261,6 +2873,90 @@
         "version_string": "1.1.0 Beta",
         "hash": "f4e8734a42adae133cc779d5107298e9"
     },
+    "sylphian_userpets_x_xp.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "c6baec80f42791c3f7a02b6967afb8e9"
+    },
+    "sylphian_userpets_xp_history.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "5f4ee72c4d73b57ca6453abf0b068eb5"
+    },
+    "sylphian_userpets_xp_history_empty.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "5d2a31aead5742325c48ef68ce0cada1"
+    },
+    "sylphian_userpets_xp_source_action.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "1e31c58c6587aa1b346ad19e73378b60"
+    },
+    "sylphian_userpets_xp_source_admin.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "8dfcbdca0ce50589d151864bcaadf17a"
+    },
+    "sylphian_userpets_xp_source_duel.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "bb15943ba388d47d5eb3c853d7c52b60"
+    },
+    "sylphian_userpets_xp_source_legacy.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "7aa7fc33627d1973e92eb55cb1e1e203"
+    },
+    "sylphian_userpets_xp_source_other.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "6311ae17c1ee52b36e68aaf4ad066387"
+    },
+    "sylphian_userpets_xp_source_post.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "70365a894e6412e60c8b3dfeaf8b5f24"
+    },
+    "sylphian_userpets_xp_source_recount.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "732eb619f6a893971776e41ebbb860a5"
+    },
+    "sylphian_userpets_xp_source_solution.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "ac1cdd556acaceb4fe4328f6c9f0547b"
+    },
+    "sylphian_userpets_xp_source_thread.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "3d31e464fe20f9cbe47e1aa24292645e"
+    },
+    "sylphian_userpets_xp_source_tournament.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "1d8d6b44d90ced2db76513846f9e68c0"
+    },
+    "sylphian_userpets_xp_source_tutorial.txt": {
+        "global_cache": false,
+        "version_id": 1060070,
+        "version_string": "1.6.0",
+        "hash": "6ef64ed4146d84add89ce80c67e22adf"
+    },
     "sylphian_userpets_you_dont_have_pet.txt": {
         "global_cache": false,
         "version_id": 1010030,
@@ -2290,48 +2986,6 @@
         "version_id": 1050070,
         "version_string": "1.5.0",
         "hash": "ee03ff8da33b6cadb9900ce89b24718f"
-    },
-    "user_field_choice.syl_userpets_disable_pet_disable_option.txt": {
-        "global_cache": true,
-        "version_id": 1050070,
-        "version_string": "1.5.0",
-        "hash": "ea695e8a700fd4bea0765f68078eafea"
-    },
-    "user_field_desc.syl_userpets_custom_name.txt": {
-        "global_cache": true,
-        "version_id": 1050070,
-        "version_string": "1.5.0",
-        "hash": "5a594c5b9d0d12240e8baf90feaa70a2"
-    },
-    "user_field_desc.syl_userpets_disable_pet.txt": {
-        "global_cache": true,
-        "version_id": 1050070,
-        "version_string": "1.5.0",
-        "hash": "b44e98cf703fbb0697d55fdbc307a723"
-    },
-    "user_field_desc.syl_userpets_spritesheet.txt": {
-        "global_cache": true,
-        "version_id": 1050070,
-        "version_string": "1.5.0",
-        "hash": "9049c59e552aaf9fb18a78e9de80fafe"
-    },
-    "user_field_title.syl_userpets_custom_name.txt": {
-        "global_cache": true,
-        "version_id": 1050070,
-        "version_string": "1.5.0",
-        "hash": "670b1d924d2e812f447899bba7a8cfcc"
-    },
-    "user_field_title.syl_userpets_disable_pet.txt": {
-        "global_cache": true,
-        "version_id": 1050070,
-        "version_string": "1.5.0",
-        "hash": "4ad7280b3a80b3e736846958b5d3fbe3"
-    },
-    "user_field_title.syl_userpets_spritesheet.txt": {
-        "global_cache": true,
-        "version_id": 1050070,
-        "version_string": "1.5.0",
-        "hash": "028bd656f518a99e3fdeea3779ef99a4"
     },
     "widget_def.sylphian_userpets_widget.txt": {
         "global_cache": false,

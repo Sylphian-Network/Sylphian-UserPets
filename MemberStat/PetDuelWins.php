@@ -17,6 +17,8 @@ class PetDuelWins extends AbstractPetStat
 	}
 
 	/**
+	 * Ranked by the duel_wins counter on the pet row.
+	 *
 	 * @return array<int,int> user_id => duel wins
 	 */
 	public static function getUsers(MemberStat $memberStat, UserFinder $finder): array

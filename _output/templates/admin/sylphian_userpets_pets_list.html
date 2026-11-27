@@ -1,0 +1,73 @@
+<xf:title>{{ phrase('sylphian_userpets_pets') }}</xf:title>
+
+<xf:form action="{{ link('sylphian_userpets/pets') }}" method="get" class="block">
+	<div class="block-container">
+		<div class="block-body">
+			<xf:textboxrow name="username" value="{$username}" ac="single"
+				label="{{ phrase('user_name') }}"
+				explain="{{ phrase('sylphian_userpets_pets_search_explain') }}" />
+
+			<xf:selectrow name="order" value="{$order}" label="{{ phrase('sort_by') }}">
+				<xf:option value="level">{{ phrase('sylphian_userpets_level_label') }}</xf:option>
+				<xf:option value="experience">{{ phrase('sylphian_userpets_experience') }}</xf:option>
+				<xf:option value="duel_wins">{{ phrase('sylphian_userpets_wins') }}</xf:option>
+				<xf:option value="created_at">{{ phrase('created') }}</xf:option>
+			</xf:selectrow>
+
+			<xf:radiorow name="direction" value="{$direction}" label="{{ phrase('sort_order') }}">
+				<xf:option value="desc">{{ phrase('descending') }}</xf:option>
+				<xf:option value="asc">{{ phrase('ascending') }}</xf:option>
+			</xf:radiorow>
+		</div>
+		<xf:submitrow icon="search" />
+	</div>
+</xf:form>
+
+<xf:if is="$pets is not empty">
+	<xf:form action="{{ link('sylphian_userpets/pets/toggle') }}" ajax="true" class="block">
+		<div class="block-container">
+			<div class="block-body">
+				<xf:datalist data-xf-init="responsive-data-list">
+					<xf:foreach loop="$pets" value="$pet">
+						<xf:set var="$editLink" value="{{ link('sylphian_userpets/pets/edit', null, {'pet_id': $pet.pet_id}) }}" />
+						<xf:set var="$ownerName" value="{{ $pet.User ? $pet.User.username : phrase('unknown_member') }}" />
+						<xf:datarow rowclass="{{ $pet.is_disabled ? 'dataList-row--disabled' : '' }}">
+							<xf:cell class="dataList-cell--min dataList-cell--image dataList-cell--imageSmall" href="{$editLink}">
+								<xf:avatar user="$pet.User" size="s" href="" />
+							</xf:cell>
+							<xf:main href="{$editLink}" label="{$ownerName}" hint="{{ $pet.pet_name|censor }}" />
+							<xf:cell class="dataList-cell--min dataList-cell--hint">
+								{{ phrase('sylphian_userpets_level', {'level': $pet.level|number}) }}
+							</xf:cell>
+							<xf:cell class="dataList-cell--min dataList-cell--hint">
+								{{ phrase('sylphian_userpets_x_xp', {'xp': $pet.experience|number}) }}
+							</xf:cell>
+							<xf:cell class="dataList-cell--min dataList-cell--hint">
+								{{ phrase('sylphian_userpets_duel_record_x_y', {'wins': $pet.duel_wins|number, 'losses': $pet.duel_losses|number}) }}
+							</xf:cell>
+							<xf:cell class="dataList-cell--min dataList-cell--hint">
+								<xf:date time="{$pet.created_at}" />
+							</xf:cell>
+							<xf:toggle name="enabled[{$pet.pet_id}]" selected="{{ !$pet.is_disabled }}"
+								class="dataList-cell--separated" submit="true"
+								tooltip="{{ phrase('enable_disable_x', {'title': $ownerName}) }}" />
+							<xf:action href="{{ link('sylphian_userpets/pets/history', null, {'pet_id': $pet.pet_id}) }}">
+								{{ phrase('history') }}
+							</xf:action>
+						</xf:datarow>
+					</xf:foreach>
+				</xf:datalist>
+			</div>
+			<div class="block-footer">
+				<span class="block-footer-counter">{{ display_totals($pets, $total) }}</span>
+			</div>
+		</div>
+
+		<xf:pagenav page="{$page}" perpage="{$perPage}" total="{$total}"
+			link="sylphian_userpets/pets"
+			params="{$linkParams}"
+			wrapperclass="block-outer block-outer--after" />
+	</xf:form>
+<xf:else />
+	<div class="blockMessage">{{ phrase('no_records_matched') }}</div>
+</xf:if>

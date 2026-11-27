@@ -1,0 +1,160 @@
+<xf:title>{{ phrase('sylphian_userpets_widget_title', {'username': $user.username}) }}</xf:title>
+
+<xf:css src="sylphian_userpets_member_pet.less" />
+
+<xf:if is="!$xpOnly">
+	<div class="block petProfile">
+		<div class="block-container">
+			<h3 class="block-minorHeader petProfile-header">
+				<xf:if is="$pet.pet_name">
+					<span class="petProfile-name">{$pet.pet_name|censor}</span>
+					<span class="petProfile-owner">{$ownerPetTitle}</span>
+				<xf:else />
+					<span class="petProfile-name">{$ownerPetTitle}</span>
+				</xf:if>
+			</h3>
+
+			<div class="block-body block-row petProfile-main">
+				<div class="petProfile-display">
+					<xf:macro id="sylphian_userpets_macros::pet_display"
+						arg-pet="{$pet}"
+						arg-petRender="{$petRender}"
+						arg-label="{{ $pet.pet_name ? $pet.pet_name|censor : $ownerPetTitle }}"
+						arg-stateDisplay="{$stateDisplay}"
+						arg-scaleMin="{$scaleMin}"
+						arg-scaleMax="{$scaleMax}"
+						arg-expNeeded="{$expNeeded}" />
+				</div>
+
+				<div class="petProfile-facts">
+					<dl class="pairs pairs--justified">
+						<dt>{{ phrase('sylphian_userpets_experience') }}</dt>
+						<dd>{{ phrase('sylphian_userpets_x_xp', {'xp': $pet.experience|number}) }}</dd>
+					</dl>
+					<progress class="petProfile-xpBar" max="100" value="{$levelProgress}"
+						aria-label="{{ phrase('sylphian_userpets_exp_to_level', {'exp': $expNeeded|number})|for_attr }}">{$levelProgress}</progress>
+
+					<dl class="pairs pairs--justified">
+						<dt>{{ phrase('sylphian_userpets_wins') }}</dt>
+						<dd>{$pet.duel_wins|number}</dd>
+					</dl>
+					<dl class="pairs pairs--justified">
+						<dt>{{ phrase('sylphian_userpets_losses') }}</dt>
+						<dd>{$pet.duel_losses|number}</dd>
+					</dl>
+					<dl class="pairs pairs--justified">
+						<dt>{{ phrase('sylphian_userpets_tournament_wins') }}</dt>
+						<dd>{$pet.tournament_wins|number}</dd>
+					</dl>
+					<dl class="pairs pairs--justified">
+						<dt>{{ phrase('age') }}</dt>
+						<dd><span data-xf-init="tooltip" title="{{ date($pet.created_at)|for_attr }}">{$petAge}</span></dd>
+					</dl>
+				</div>
+			</div>
+		</div>
+	</div>
+</xf:if>
+
+<div class="block">
+	<div class="block-container">
+		<xf:if is="!$xpOnly">
+			<h3 class="block-minorHeader">{{ phrase('sylphian_userpets_xp_history') }}</h3>
+		</xf:if>
+
+		<xf:if is="$xpLogs is not empty">
+			<ul class="block-body js-petXpLogTarget">
+				<xf:foreach loop="$xpLogs" value="$log">
+					<li class="block-row block-row--separated petXpLog">
+						<span class="petXpLog-amount {{ $log.amount < 0 ? 'petXpLog-amount--negative' : '' }}">{{ $log.amount > 0 ? '+' : '' }}{{ phrase('sylphian_userpets_x_xp', {'xp': $log.amount|number}) }}</span>
+						<span class="petXpLog-source">{$log.getSourcePhrase()}</span>
+						<ul class="listInline listInline--bullet petXpLog-meta">
+							<li>{{ phrase('sylphian_userpets_level', {'level': $log.level_after|number}) }}</li>
+							<li><xf:date time="{$log.log_date}" /></li>
+						</ul>
+					</li>
+				</xf:foreach>
+			</ul>
+
+			<xf:if is="$xpHasMore">
+				<div class="block-footer js-petXpLogMore">
+					<span class="block-footer-controls">
+						<xf:button href="{{ link('members/pet', $user, {'xp_page': $xpPage + 1}) }}"
+							rel="nofollow"
+							data-xf-click="inserter"
+							data-append=".js-petXpLogTarget"
+							data-replace=".js-petXpLogMore">{{ phrase('show_older_items') }}</xf:button>
+					</span>
+				</div>
+			</xf:if>
+		<xf:else />
+			<div class="block-body block-row">{{ phrase('sylphian_userpets_xp_history_empty') }}</div>
+		</xf:if>
+	</div>
+</div>
+
+<xf:if is="!$xpOnly">
+	<div class="block">
+		<div class="block-container">
+			<h3 class="block-minorHeader">{{ phrase('sylphian_userpets_recent_duels') }}</h3>
+
+			<xf:if is="$recentDuels">
+				<ul class="block-body">
+					<xf:foreach loop="$recentDuels" value="$row">
+						<li class="block-row block-row--separated">
+							<div class="contentRow">
+								<div class="contentRow-figure">
+									<xf:avatar user="$row.opponent.User" size="xxs" defaultname="{{ phrase('unknown_member') }}" />
+								</div>
+								<div class="contentRow-main contentRow-main--close">
+									<span class="petDuelResult {{ $row.won ? 'petDuelResult--win' : 'petDuelResult--loss' }}">
+										{{ $row.won ? phrase('sylphian_userpets_duel_result_win') : phrase('sylphian_userpets_duel_result_loss') }}
+									</span>
+									{{ phrase('sylphian_userpets_opponent_pet', {
+										'username': username_link($row.opponent.User, false, {'defaultname': phrase('unknown_member')})
+									}) }}
+									<div class="contentRow-minor">
+										<xf:date time="{{ $row.duel.completed_at ?: $row.duel.created_at }}" />
+									</div>
+								</div>
+							</div>
+						</li>
+					</xf:foreach>
+				</ul>
+			<xf:else />
+				<div class="block-body block-row">{{ phrase('sylphian_userpets_recent_duels_empty') }}</div>
+			</xf:if>
+		</div>
+	</div>
+
+	<div class="block">
+		<div class="block-container">
+			<h3 class="block-minorHeader">{{ phrase('sylphian_userpets_tournaments_won') }}</h3>
+
+			<xf:if is="$tournamentsWon is not empty">
+				<ul class="block-body">
+					<xf:foreach loop="$tournamentsWon" value="$tournament">
+						<li class="block-row block-row--separated">
+							<div class="contentRow">
+								<div class="contentRow-figure">
+									<xf:fa icon="fa-trophy" class="petProfile-trophy" />
+								</div>
+								<div class="contentRow-main contentRow-main--close">
+									<a href="{{ link('userpetstournaments/view', null, {'tournament_id': $tournament.tournament_id}) }}">{$tournament.title}</a>
+									<ul class="listInline listInline--bullet contentRow-minor">
+										<li><xf:date time="{{ $tournament.completed_at ?: $tournament.created_at }}" /></li>
+										<xf:if is="$tournament.prize_experience">
+											<li>{{ phrase('sylphian_userpets_tournament_champion_reward_xp', {'xp': $tournament.prize_experience|number}) }}</li>
+										</xf:if>
+									</ul>
+								</div>
+							</div>
+						</li>
+					</xf:foreach>
+				</ul>
+			<xf:else />
+				<div class="block-body block-row">{{ phrase('sylphian_userpets_tournaments_won_empty') }}</div>
+			</xf:if>
+		</div>
+	</div>
+</xf:if>

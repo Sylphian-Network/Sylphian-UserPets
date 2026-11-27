@@ -21,6 +21,7 @@ class UserPetHandler extends AbstractHandler
 			'duel_declined',    // Pet duel challenge declined
 			'duel_win',         // Pet won a duel
 			'duel_loss',        // Pet lost a duel
+			'duel_expired',     // Unanswered duel challenge withdrawn
 		];
 	}
 

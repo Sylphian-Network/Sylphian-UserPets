@@ -6,10 +6,12 @@ use Sylphian\UserPets\Duel\DurationFormatter;
 use Sylphian\UserPets\Entity\UserPets;
 use Sylphian\UserPets\Entity\UserPetsDuel;
 use Sylphian\UserPets\Helper\DisplayName;
+use Sylphian\UserPets\Helper\DuelPermission;
 use Sylphian\UserPets\Helper\UserPetOptOut;
 use Sylphian\UserPets\Repository\UserPetsDuelRepository;
 use Sylphian\UserPets\Repository\UserPetsRepository;
 use Sylphian\UserPets\Service\DuelChallengeResult;
+use Sylphian\UserPets\Service\PetManager;
 use Sylphian\UserPets\Service\UserPetDuel as DuelService;
 use XF\Mvc\ParameterBag;
 use XF\Mvc\Reply\Error;
@@ -68,6 +70,7 @@ class UserPetDuel extends AbstractController
 
 		return $this->view('Sylphian\UserPets:DuelManage', 'sylphian_userpets_duel_manage', [
 			'pet' => $pet,
+			'canDuel' => DuelPermission::canDuel($visitor),
 			'overview' => $duelRepo->getPetDuelOverview($pet->pet_id),
 			'incomingDuels' => $this->prepareDuelList($incoming->toArray(), $pet),
 			'outgoingDuels' => $this->prepareDuelList($outgoing->toArray(), $pet),
@@ -99,6 +102,11 @@ class UserPetDuel extends AbstractController
 		}
 
 		$visitor = \XF::visitor();
+		if (!DuelPermission::canDuel($visitor))
+		{
+			return $this->noPermission();
+		}
+
 		/** @var UserPets $myPet */
 		$myPet = $this->finder('Sylphian\UserPets:UserPets')
 			->where('user_id', $visitor->user_id)
@@ -110,8 +118,8 @@ class UserPetDuel extends AbstractController
 		}
 
 		/** @var UserPets $opponentPet */
-		$opponentPet = $this->em()->find('Sylphian\UserPets:UserPets', $opponentPetId);
-		if (!$opponentPet)
+		$opponentPet = $this->em()->find('Sylphian\UserPets:UserPets', $opponentPetId, ['User']);
+		if (!$opponentPet || !$opponentPet->User)
 		{
 			return $this->error(\XF::phrase('sylphian_userpets_invalid_opponent'));
 		}
@@ -120,6 +128,15 @@ class UserPetDuel extends AbstractController
 		{
 			return $this->error(\XF::phrase('sylphian_userpets_cannot_challenge_self'));
 		}
+
+		if (!DuelPermission::canBeChallenged($opponentPet->User))
+		{
+			return $this->error(\XF::phrase('sylphian_userpets_disabled_pet'));
+		}
+
+		// shows the stats the fight would use; the decay is only stored when the duel is fought
+		(new PetManager($myPet))->updateStats(false);
+		(new PetManager($opponentPet))->updateStats(false);
 
 		/** @var UserPetsDuelRepository $duelRepo */
 		$duelRepo = $this->repository('Sylphian\UserPets:UserPetsDuel');
@@ -296,6 +313,9 @@ class UserPetDuel extends AbstractController
 
 	protected function prepareDuel(UserPetsDuel $duel, UserPets $currentPet): array
 	{
+		/** @var UserPetsDuelRepository $duelRepo */
+		$duelRepo = $this->repository('Sylphian\UserPets:UserPetsDuel');
+
 		$isChallenger = ($duel->challenger_pet_id === $currentPet->pet_id);
 		$opponentPet = $isChallenger ? $duel->OpponentPet : $duel->ChallengerPet;
 		$result = null;
@@ -318,6 +338,7 @@ class UserPetDuel extends AbstractController
 			'opponentPet' => $opponentPet,
 			'opponentDisplayName' => DisplayName::decode($opponentPet?->User->username ?? ''),
 			'result' => $result,
+			'expiresAt' => $duelRepo->getRequestExpiryDate($duel),
 		];
 	}
 }

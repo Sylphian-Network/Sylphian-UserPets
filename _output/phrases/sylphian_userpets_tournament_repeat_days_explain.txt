@@ -1,0 +1,1 @@
+0 = no repeat. When the tournament completes, or the schedule cancels it for lack of entrants, a draft copy with the same settings is created with its dates moved this many days later.

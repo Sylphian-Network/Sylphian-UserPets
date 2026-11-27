@@ -1,0 +1,17 @@
+{
+    "cron_class": "Sylphian\\UserPets\\Cron\\Duels",
+    "cron_method": "runHourly",
+    "run_rules": {
+        "day_type": "dom",
+        "dom": [
+            -1
+        ],
+        "hours": [
+            -1
+        ],
+        "minutes": [
+            25
+        ]
+    },
+    "active": true
+}

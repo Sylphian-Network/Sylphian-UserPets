@@ -1,1 +1,0 @@
-Your pet uses the default appearance because you have not chosen one yet. You can choose one in <a href="{link}">your preferences</a>.

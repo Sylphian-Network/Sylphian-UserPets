@@ -1,0 +1,1 @@
+The pet's total XP. The level is recalculated, and the change is logged in the XP history under your name.

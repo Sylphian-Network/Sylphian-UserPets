@@ -1,0 +1,4 @@
+{{ phrase('sylphian_userpets_alert_duel_expired', {
+	'username': username_link($user, false, {'defaultname': $extra.opponent_name ?: phrase('sylphian_userpets_unknown_user')})
+}) }}
+<a href="{{ link('userpetsduel', null, {'history_filter': 'cancelled'}) }}" class="fauxBlockLink-blockLink"></a>

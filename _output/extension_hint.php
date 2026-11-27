@@ -12,3 +12,10 @@ namespace Sylphian\UserPets\XF\Entity
 {
 	class XFCP_User extends \XF\Entity\User {}
 }
+
+namespace Sylphian\UserPets\XF\Pub\Controller
+{
+	class XFCP_Account extends \XF\Pub\Controller\AccountController {}
+	class XFCP_Member extends \XF\Pub\Controller\MemberController {}
+	class XFCP_Register extends \XF\Pub\Controller\RegisterController {}
+}

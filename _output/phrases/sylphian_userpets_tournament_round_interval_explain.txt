@@ -1,0 +1,1 @@
+Hours between rounds. With 0, every round is played when the tournament starts; otherwise the first round is played at the start and each later round this many hours after the previous one.

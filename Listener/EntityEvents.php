@@ -6,6 +6,7 @@ use Sylphian\Library\Logger\Logger;
 use Sylphian\UserPets\Repository\UserPetsRepository;
 use Sylphian\UserPets\Service\ContentXpFilter;
 use Sylphian\UserPets\Service\PetDataCleanup;
+use Sylphian\UserPets\XpSource;
 use XF\Entity\Post;
 use XF\Entity\Thread;
 use XF\Entity\User;
@@ -132,7 +133,8 @@ class EntityEvents
 
 	/**
 	 * Every solution change (mark, change, unmark, solution post removed) saves this entity,
-	 * so both the previous and the new solution author are recounted here.
+	 * so both the previous and the new solution author are recounted here. Each change is
+	 * logged against the solution post that the author gained or lost.
 	 */
 	public static function questionSave(Entity $entity): void
 	{
@@ -141,7 +143,7 @@ class EntityEvents
 			return;
 		}
 
-		$userIds = [(int) $entity->solution_user_id];
+		$solutionPosts = [(int) $entity->solution_user_id => (int) $entity->solution_post_id];
 		if ($entity->isUpdate())
 		{
 			if (!$entity->isChanged(['solution_post_id', 'solution_user_id']))
@@ -149,17 +151,32 @@ class EntityEvents
 				return;
 			}
 
-			$userIds[] = (int) $entity->getExistingValue('solution_user_id');
+			$previousUserId = (int) $entity->getExistingValue('solution_user_id');
+			if (!isset($solutionPosts[$previousUserId]))
+			{
+				$solutionPosts[$previousUserId] = (int) $entity->getExistingValue('solution_post_id');
+			}
 		}
 
 		/** @var UserPetsRepository $repo */
 		$repo = \XF::repository('Sylphian\UserPets:UserPets');
 
-		foreach (array_unique(array_filter($userIds)) AS $userId)
+		foreach ($solutionPosts AS $userId => $postId)
 		{
+			if ($userId <= 0)
+			{
+				continue;
+			}
+
 			try
 			{
-				$repo->syncContentExperience($userId, [UserPetsRepository::CONTENT_SOLUTION]);
+				$repo->syncContentExperience(
+					$userId,
+					[UserPetsRepository::CONTENT_SOLUTION],
+					XpSource::SOLUTION,
+					$postId ? 'post' : '',
+					$postId
+				);
 			}
 			catch (\Throwable $e)
 			{
@@ -229,7 +246,7 @@ class EntityEvents
 			{
 				/** @var UserPetsRepository $repo */
 				$repo = \XF::repository('Sylphian\UserPets:UserPets');
-				$repo->syncContentExperience($userId);
+				$repo->syncContentExperience($userId, null, XpSource::RECOUNT);
 			}
 			catch (\Throwable $e)
 			{
@@ -258,7 +275,7 @@ class EntityEvents
 
 		/** @var UserPetsRepository $repo */
 		$repo = \XF::repository('Sylphian\UserPets:UserPets');
-		$repo->awardContentExperience($userId, UserPetsRepository::CONTENT_POST);
+		$repo->awardContentExperience($userId, UserPetsRepository::CONTENT_POST, (int) $post->post_id);
 	}
 
 	protected static function awardNewThread(Thread $thread): void
@@ -271,7 +288,7 @@ class EntityEvents
 
 		/** @var UserPetsRepository $repo */
 		$repo = \XF::repository('Sylphian\UserPets:UserPets');
-		$repo->awardContentExperience($userId, UserPetsRepository::CONTENT_THREAD);
+		$repo->awardContentExperience($userId, UserPetsRepository::CONTENT_THREAD, (int) $thread->thread_id);
 	}
 
 	protected static function threadChangeAffectsCounts(Thread $thread): bool

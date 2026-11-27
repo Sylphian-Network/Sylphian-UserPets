@@ -1,0 +1,25 @@
+<xf:macro id="postbit" arg-display="!" arg-mode="{$xf.options.sylphian_userpets_postbit}">
+	<xf:css src="sylphian_userpets_postbit.less" />
+
+	<xf:set var="$pet" value="{$display.pet}" />
+	<xf:set var="$levelLabel" value="{{ phrase('sylphian_userpets_pet_level_x', {'level': $pet.level|number}) }}" />
+
+	<div class="petPostbit petPostbit--{$mode}">
+		<xf:if is="$mode == 'sprite' && $display.render.url">
+			<xf:set var="$frameWidth" value="{{ max(1, $display.render.frame_width) }}" />
+			<xf:set var="$frameHeight" value="{{ max(1, $display.render.frame_height) }}" />
+			<xf:set var="$columns" value="{{ max(1, $display.render.frames_per_animation) }}" />
+			<xf:comment>The view box is the first idle frame (top left). The image box is one row of the sheet, so "slice" draws the sheet at its natural size and the view box crops one frame.</xf:comment>
+			<svg class="petPostbit-sprite" viewBox="0 0 {$frameWidth} {$frameHeight}" width="32" height="32"
+				aria-hidden="true" focusable="false">
+				<image href="{$display.render.url}" x="0" y="0"
+					width="{{ $frameWidth * $columns }}" height="{$frameHeight}"
+					preserveAspectRatio="xMinYMin slice" />
+			</svg>
+		</xf:if>
+		<span class="petPostbit-level" title="{{ $pet.pet_name ? $pet.pet_name|censor : $levelLabel }}">
+			<xf:fa icon="fa-paw" />
+			{$levelLabel}
+		</span>
+	</div>
+</xf:macro>

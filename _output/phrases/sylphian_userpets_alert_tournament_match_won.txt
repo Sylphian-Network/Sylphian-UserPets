@@ -1,0 +1,1 @@
+Your pet beat {opponent} in round {round} of {title}.

@@ -1,0 +1,6 @@
+{{ phrase('sylphian_userpets_alert_tournament_match_won', {
+	'title': $content.title,
+	'round': $extra.round|number,
+	'opponent': $extra.opponent_name ?: phrase('sylphian_userpets_unknown_user')
+}) }}
+<a href="{{ link('userpetstournaments/view', null, {'tournament_id': $content.tournament_id}) }}" class="fauxBlockLink-blockLink"></a>

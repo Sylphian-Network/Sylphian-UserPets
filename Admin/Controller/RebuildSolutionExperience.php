@@ -17,6 +17,8 @@ class RebuildSolutionExperience extends AbstractController
 	 */
 	public const LEGACY_XP_UNTIL_KEY = 'sylUserPetsLegacyXpUntil';
 
+	public const COUNTER_REBUILD_KEY = 'sylphianUserPetsRebuildCounters';
+
 	protected function preDispatchController($action, ParameterBag $params): void
 	{
 		$this->assertAdminPermission('syl_userpetsRebuild');
@@ -62,6 +64,30 @@ class RebuildSolutionExperience extends AbstractController
 			$this->buildLink('sylphian_userpets/rebuild'),
 			\XF::phrase('sylphian_userpets_content_xp_rebuild_started')
 		);
+	}
+
+	/**
+	 * Recounts every pet's duel wins, duel losses and tournament wins from the finished
+	 * duels and tournaments.
+	 */
+	public function actionRecountCounters(): Redirect
+	{
+		$this->assertPostOnly();
+
+		$jobId = $this->app->jobManager()->enqueueUnique(
+			self::COUNTER_REBUILD_KEY,
+			'Sylphian\UserPets:RebuildPetCounters',
+			[],
+			true
+		);
+
+		$reply = $this->redirect($this->buildLink('tools/run-job', null, [
+			'only_id' => $jobId,
+			'_xfRedirect' => $this->buildLink('sylphian_userpets/rebuild'),
+		]));
+		$reply->setPageParam('skipManualJobRun', true);
+
+		return $reply;
 	}
 
 	public function actionLegacyXp(): View

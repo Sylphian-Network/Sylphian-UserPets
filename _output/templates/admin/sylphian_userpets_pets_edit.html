@@ -1,0 +1,58 @@
+<xf:set var="$ownerName" value="{{ $pet.User ? $pet.User.username : phrase('unknown_member') }}" />
+<xf:title>{{ phrase('sylphian_userpets_widget_title', {'username': $ownerName}) }}</xf:title>
+
+<xf:pageaction>
+	<div class="buttonGroup">
+		<xf:button href="{{ link('sylphian_userpets/pets/set-xp', null, {'pet_id': $pet.pet_id}) }}" icon="edit" overlay="true">
+			{{ phrase('sylphian_userpets_set_xp') }}
+		</xf:button>
+		<xf:button href="{{ link('sylphian_userpets/pets/history', null, {'pet_id': $pet.pet_id}) }}" fa="fa-history">
+			{{ phrase('sylphian_userpets_xp_history') }}
+		</xf:button>
+		<xf:button href="{{ link('sylphian_userpets/pets/reset', null, {'pet_id': $pet.pet_id}) }}" fa="fa-undo" overlay="true">
+			{{ phrase('sylphian_userpets_reset_pet') }}
+		</xf:button>
+	</div>
+</xf:pageaction>
+
+<xf:form action="{{ link('sylphian_userpets/pets/save') }}" ajax="true" class="block">
+	<div class="block-container">
+		<div class="block-body">
+			<xf:formrow label="{{ phrase('user') }}">
+				<xf:if is="$pet.User">
+					<a href="{{ link('users/edit', $pet.User) }}">{$pet.User.username}</a>
+				<xf:else />
+					{{ phrase('unknown_member') }}
+				</xf:if>
+			</xf:formrow>
+
+			<xf:formrow label="{{ phrase('sylphian_userpets_level_label') }}">
+				{$pet.level|number}
+			</xf:formrow>
+
+			<xf:formrow label="{{ phrase('sylphian_userpets_experience') }}">
+				{{ phrase('sylphian_userpets_x_xp', {'xp': $pet.experience|number}) }}
+			</xf:formrow>
+
+			<xf:textboxrow name="pet_name" value="{$pet.pet_name}" maxlength="{$nameMaxLength}"
+				label="{{ phrase('sylphian_userpets_pet_name') }}"
+				explain="{{ phrase('sylphian_userpets_pet_name_explain', {'max': $nameMaxLength}) }}" />
+
+			<xf:selectrow name="spritesheet" value="{$pet.spritesheet}" label="{{ phrase('sylphian_userpets_pet_appearance') }}">
+				<xf:foreach loop="$appearanceChoices" key="$filename" value="$appearanceLabel">
+					<xf:option value="{$filename}">{$appearanceLabel}</xf:option>
+				</xf:foreach>
+			</xf:selectrow>
+
+			<xf:checkboxrow>
+				<xf:option name="is_disabled" selected="{$pet.is_disabled}"
+					label="{{ phrase('sylphian_userpets_pet_is_disabled') }}"
+					hint="{{ phrase('sylphian_userpets_disable_my_pet_explain') }}" />
+				<xf:option name="sound_enabled" selected="{$pet.sound_enabled}"
+					label="{{ phrase('sylphian_userpets_pet_sound_enabled') }}" />
+			</xf:checkboxrow>
+		</div>
+		<xf:submitrow sticky="true" icon="save" />
+	</div>
+	<xf:hiddenval name="pet_id">{$pet.pet_id}</xf:hiddenval>
+</xf:form>

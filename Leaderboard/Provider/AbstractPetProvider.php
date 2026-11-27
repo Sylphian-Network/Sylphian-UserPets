@@ -8,13 +8,17 @@ use XF\App;
 use XF\Entity\User;
 
 /**
- * The ranking is an aggregate over the whole duel or pet table, so the ranked rows (ids and
- * numbers only) are cached briefly when a cache is configured. Users and their profiles are
- * loaded fresh, in one query, for every view.
+ * The ranking is an ordered read of the pet table's counter columns; the ranked rows (ids and
+ * numbers only) are cached briefly when a cache is configured. Users are loaded fresh for every
+ * view in one query, together with what the display and the opt-out check read (profile, pet
+ * row, permission combination), so filtering costs no query per user.
  */
 abstract class AbstractPetProvider extends AbstractProvider
 {
 	public const int CACHE_TTL = 300;
+
+	/** Relations of the ranked users, loaded with them; UserPetOptOut reads the last two. */
+	public const array USER_WITH = ['Profile', 'UserPet', 'PermissionCombination'];
 
 	/**
 	 * Ranked candidates, best first: each row has a user_id and the provider's metric values.
@@ -44,7 +48,7 @@ abstract class AbstractPetProvider extends AbstractProvider
 		}
 
 		$userIds = array_map('intval', array_column($ranked, 'user_id'));
-		$users = $app->em()->findByIds('XF:User', $userIds, ['Profile']);
+		$users = $app->em()->findByIds('XF:User', $userIds, self::USER_WITH);
 
 		$rows = [];
 		$position = 1;

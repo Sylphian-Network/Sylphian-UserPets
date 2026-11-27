@@ -7,11 +7,11 @@ use Sylphian\UserPets\Entity\UserPets;
 use Sylphian\UserPets\Helper\UserPetOptOut;
 use Sylphian\UserPets\Service\ContentXpFilter;
 use Sylphian\UserPets\Service\PetLeveling;
+use Sylphian\UserPets\XpSource;
 use XF\Db\DuplicateKeyException;
 use XF\Entity\User;
 use XF\Mvc\Entity\Repository;
 use XF\Repository\UserAlertRepository;
-use XF\Repository\UserFieldRepository;
 
 class UserPetsRepository extends Repository
 {
@@ -28,17 +28,26 @@ class UserPetsRepository extends Repository
 		self::CONTENT_SOLUTION => ['solution_reward_count', 'solution_reward_experience', 'sylphian_userpets_experience_per_solution'],
 	];
 
-	public const SPRITESHEET_INDEX_CACHE_KEY = 'sylphianUserPetsSpritesheetIndex';
+	/**
+	 * Versioned: a cached index of an older shape must never be read.
+	 */
+	public const SPRITESHEET_INDEX_CACHE_KEY = 'sylphianUserPetsSheetIndexV2';
 
 	public const SPRITESHEET_INDEX_CACHE_TTL = 300;
 
 	/**
-	 * @var array<string,string>|null
+	 * The add-on's own sheet, used when no sheet is available at all.
 	 */
-	protected ?array $spritesheetChoiceFileMap = null;
+	public const DEFAULT_SPRITESHEET = 'sylphian_spritesheet.png';
+
+	public const DEFAULT_FRAME_SIZE = 192;
+
+	public const DEFAULT_FRAMES_PER_ANIMATION = 4;
+
+	public const DEFAULT_FPS = 4;
 
 	/**
-	 * @var array{choices:array<string,string>,sheets:array<string,array>}|null
+	 * @var array{sheets:array<string,array>}|null
 	 */
 	protected ?array $spritesheetRenderIndex = null;
 
@@ -137,159 +146,18 @@ class UserPetsRepository extends Repository
 
 		if (!UserPetOptOut::isDisabledByUserId($userId))
 		{
-			$this->syncPetContentExperience($pet, array_keys(self::CONTENT_TRACKING), false);
+			$this->syncPetContentExperience($pet, array_keys(self::CONTENT_TRACKING), false, XpSource::RECOUNT);
 		}
 
 		return $pet;
 	}
 
 	/**
-	 * Get available sprite sheet options
-	 *
-	 * @return array List of available sprite sheets as field_choices array
-	 */
-	public function getAvailableSpriteSheets(): array
-	{
-		$options = [];
-
-		/** @var UserPetsSpritesheetRepository $spritesheetRepo */
-		$spritesheetRepo = $this->repository('Sylphian\UserPets:UserPetsSpritesheetRepository');
-		$files = $spritesheetRepo->buildIndexList();
-
-		foreach ($files AS $file)
-		{
-			$filename = (string) ($file['name'] ?? '');
-			if ($filename === '')
-			{
-				continue;
-			}
-
-			$entity = $file['entity'] ?? null;
-			$displayLabel = '';
-			if ($entity && !empty($entity->title))
-			{
-				$displayLabel = (string) $entity->title;
-			}
-
-			if ($displayLabel === '')
-			{
-				$displayLabel = ucwords(str_replace(['_', '-'], ' ', pathinfo($filename, PATHINFO_FILENAME)));
-			}
-
-			$options[$this->getSpritesheetChoiceId($filename)] = $displayLabel;
-		}
-
-		if (empty($options))
-		{
-			$options['empty'] = (string) \XF::phrase('sylphian_userpets_spritesheet_choice_none');
-		}
-
-		return $options;
-	}
-
-	public function getSpritesheetChoiceId(string $filename): string
-	{
-		$base = strtolower(pathinfo($filename, PATHINFO_FILENAME));
-		$safe = (string) preg_replace('/[^a-z0-9_]/i', '_', $base);
-		$safe = (string) preg_replace('/_+/', '_', $safe);
-		$safe = trim($safe, '_');
-
-		if ($safe === '')
-		{
-			$safe = 'sheet';
-		}
-
-		$safe = substr($safe, 0, 12);
-
-		return 'ss_' . $safe . '_' . substr(md5(strtolower($filename)), 0, 8);
-	}
-
-	/**
-	 * Built from the live spritesheet index once per request. Admin pages and option
-	 * validation use this; the public widget uses getSpritesheetRenderIndex().
-	 *
-	 * @return array<string,string> Map of safe custom field option IDs to real spritesheet filenames.
-	 */
-	public function getSpritesheetChoiceFileMap(): array
-	{
-		if ($this->spritesheetChoiceFileMap !== null)
-		{
-			return $this->spritesheetChoiceFileMap;
-		}
-
-		/** @var UserPetsSpritesheetRepository $spritesheetRepo */
-		$spritesheetRepo = $this->repository('Sylphian\UserPets:UserPetsSpritesheetRepository');
-		$files = $spritesheetRepo->buildIndexList();
-
-		$map = [];
-		foreach ($files AS $file)
-		{
-			$filename = (string) ($file['name'] ?? '');
-			if ($filename === '')
-			{
-				continue;
-			}
-
-			$map[$this->getSpritesheetChoiceId($filename)] = $filename;
-		}
-
-		$this->spritesheetChoiceFileMap = $map;
-
-		return $map;
-	}
-
-	public function resolveSpritesheetFilename(string $value): ?string
-	{
-		return $this->resolveSpritesheetFilenameFromMap($value, $this->getSpritesheetChoiceFileMap());
-	}
-
-	/**
-	 * @param array<string,string> $choiceMap choice ID => filename
-	 */
-	public function resolveSpritesheetFilenameFromMap(string $value, array $choiceMap): ?string
-	{
-		$value = trim($value);
-		if ($value === '' || $value === 'empty')
-		{
-			return null;
-		}
-
-		if (isset($choiceMap[$value]))
-		{
-			return $choiceMap[$value];
-		}
-
-		$needle = strtolower($value);
-		$aliases = [];
-
-		foreach ($choiceMap AS $choiceId => $filename)
-		{
-			$aliases[strtolower($choiceId)] = $filename;
-
-			$filenameLower = strtolower($filename);
-			$base = strtolower(pathinfo($filename, PATHINFO_FILENAME));
-			$safe = strtolower(trim((string) preg_replace('/[^a-z0-9_]/i', '_', $base), '_'));
-
-			$aliases[$filenameLower] = $filename;
-			if (!isset($aliases[$base]))
-			{
-				$aliases[$base] = $filename;
-			}
-			if ($safe !== '' && !isset($aliases[$safe]))
-			{
-				$aliases[$safe] = $filename;
-			}
-		}
-
-		return $aliases[$needle] ?? null;
-	}
-
-	/**
-	 * Spritesheet data the public pet widget needs, without a directory scan on cache hits:
+	 * Spritesheet data the pet renderers need, without a directory scan on cache hits:
 	 * kept in the global cache (Redis) for a short time and once per request.
 	 * Falls back to building it from the live index when no cache is configured.
 	 *
-	 * @return array{choices:array<string,string>,sheets:array<string,array{frame_width:int,frame_height:int,frames_per_animation:int,fps:int,has_entity:bool,exists:bool}>}
+	 * @return array{sheets:array<string,array{title:string,frame_width:int,frame_height:int,frames_per_animation:int,fps:int,has_entity:bool,exists:bool,evolve_level:int,evolves_to:string}>}
 	 */
 	public function getSpritesheetRenderIndex(): array
 	{
@@ -309,7 +177,7 @@ class UserPetsRepository extends Repository
 				if ($item->isHit())
 				{
 					$value = $item->get();
-					if (is_array($value) && isset($value['choices'], $value['sheets']))
+					if (is_array($value) && isset($value['sheets']) && is_array($value['sheets']))
 					{
 						$this->spritesheetRenderIndex = $value;
 						return $value;
@@ -346,7 +214,6 @@ class UserPetsRepository extends Repository
 	 */
 	public function clearSpritesheetCaches(): void
 	{
-		$this->spritesheetChoiceFileMap = null;
 		$this->spritesheetRenderIndex = null;
 
 		$cache = $this->getSharedCache();
@@ -362,83 +229,46 @@ class UserPetsRepository extends Repository
 		}
 	}
 
-	public function normalizeSpritesheetUserFieldValues(): int
+	/**
+	 * How a pet is drawn: its own sheet if that file is available, otherwise the default
+	 * sheet option, otherwise the first available sheet; then the evolution for its level.
+	 * Reads only the cached render index, so it is cheap for many pets on one page.
+	 *
+	 * @param UserPets|null $pet null draws the default sheet at level 1
+	 * @return array{url:string,filename:string,frame_width:int,frame_height:int,frames_per_animation:int,fps:int,usingDefault:bool}
+	 */
+	public function getRenderConfigForPet(?UserPets $pet): array
 	{
-		$choiceMap = $this->getSpritesheetChoiceFileMap();
-		if (!$choiceMap)
-		{
-			return 0;
-		}
+		$sheets = $this->getAvailableRenderSheets();
 
-		$aliases = [];
-		foreach ($choiceMap AS $choiceId => $filename)
-		{
-			$filenameLower = strtolower($filename);
-			$base = strtolower(pathinfo($filename, PATHINFO_FILENAME));
-			$safe = strtolower(trim((string) preg_replace('/[^a-z0-9_]/i', '_', $base), '_'));
+		$ownChoice = $pet ? trim((string) $pet->spritesheet) : '';
+		$usingDefault = $ownChoice === '' || !isset($sheets[$ownChoice]);
+		$filename = $usingDefault ? $this->getDefaultRenderFilename($sheets) : $ownChoice;
 
-			$aliases[strtolower($choiceId)] = $choiceId;
-			$aliases[$filenameLower] = $choiceId;
-			$aliases[$base] = $choiceId;
-			if ($safe !== '')
+		/** @var UserPetsSpritesheetRepository $spritesheetRepo */
+		$spritesheetRepo = $this->repository('Sylphian\UserPets:UserPetsSpritesheetRepository');
+
+		if (isset($sheets[$filename]))
+		{
+			$level = $pet ? max(1, (int) $pet->level) : 1;
+			$evolved = $spritesheetRepo->resolveEvolvedFilename($sheets, $filename, $level);
+			if (isset($sheets[$evolved]))
 			{
-				$aliases[$safe] = $choiceId;
+				$filename = $evolved;
 			}
 		}
 
-		$db = $this->db();
-		$values = $db->fetchAllColumn(
-			'
-				SELECT DISTINCT field_value
-				FROM xf_user_field_value
-				WHERE field_id = ?
-					AND field_value <> ?
-			',
-			['syl_userpets_spritesheet', '']
-		);
+		$sheet = $sheets[$filename] ?? [];
 
-		$updated = 0;
-		$changedUserIds = [];
-
-		foreach ($values AS $current)
-		{
-			$current = (string) $current;
-			$choiceId = $aliases[strtolower($current)] ?? null;
-
-			if (!$choiceId || $choiceId === $current)
-			{
-				continue;
-			}
-
-			$userIds = $db->fetchAllColumn(
-				'SELECT user_id FROM xf_user_field_value WHERE field_id = ? AND field_value = ?',
-				['syl_userpets_spritesheet', $current]
-			);
-
-			$updated += $db->update(
-				'xf_user_field_value',
-				['field_value' => $choiceId],
-				'field_id = ? AND field_value = ?',
-				['syl_userpets_spritesheet', $current]
-			);
-
-			foreach ($userIds AS $userId)
-			{
-				$changedUserIds[(int) $userId] = true;
-			}
-		}
-
-		if ($changedUserIds)
-		{
-			/** @var UserFieldRepository $userFieldRepo */
-			$userFieldRepo = $this->repository('XF:UserField');
-			foreach (array_keys($changedUserIds) AS $userId)
-			{
-				$userFieldRepo->rebuildUserFieldValuesCache($userId);
-			}
-		}
-
-		return $updated;
+		return [
+			'url' => $spritesheetRepo->getFileUrl($filename),
+			'filename' => $filename,
+			'frame_width' => (int) ($sheet['frame_width'] ?? self::DEFAULT_FRAME_SIZE),
+			'frame_height' => (int) ($sheet['frame_height'] ?? self::DEFAULT_FRAME_SIZE),
+			'frames_per_animation' => (int) ($sheet['frames_per_animation'] ?? self::DEFAULT_FRAMES_PER_ANIMATION),
+			'fps' => (int) ($sheet['fps'] ?? self::DEFAULT_FPS),
+			'usingDefault' => $usingDefault,
+		];
 	}
 
 	public function getPetCount(): int
@@ -494,57 +324,107 @@ class UserPetsRepository extends Repository
 		];
 	}
 
-	public function syncSpritesheetRegistrationRequirement(bool $enabled): void
-	{
-		/** @var \XF\Entity\UserField|null $field */
-		$field = $this->finder('XF:UserField')
-			->where('field_id', 'syl_userpets_spritesheet')
-			->fetchOne();
-
-		if (!$field)
-		{
-			return;
-		}
-
-		$field->required = $enabled;
-		$field->show_registration = $enabled;
-		$field->save();
-	}
-
 	/**
-	 * Adds experience to a loaded pet, recalculates its level, saves it and sends the
-	 * level-up alert. Any other pending changes on the entity are saved with it.
+	 * Adds experience to a loaded pet, recalculates its level, saves it, writes the change to
+	 * the XP log and sends the level-up alert. Any other pending changes on the entity are
+	 * saved with it; with amount 0 the pet is still saved but nothing is logged.
 	 *
 	 * Does not check the opt-out; callers acting for a user must.
 	 *
+	 * @param string $source One of XpSource
+	 * @param int $actorUserId The member who made the change, for XpSource::ADMIN
 	 * @return bool False if the pet could not be saved
 	 */
-	public function savePetWithExperience(UserPets $pet, int $amount): bool
+	public function savePetWithExperience(
+		UserPets $pet,
+		int $amount,
+		string $source = XpSource::OTHER,
+		string $contentType = '',
+		int $contentId = 0,
+		int $actorUserId = 0
+	): bool
 	{
+		return $this->applyExperienceChange($pet, $amount, true, $source, $contentType, $contentId, $actorUserId) !== null;
+	}
+
+	/**
+	 * The one path that changes a pet's experience. The pet and its XP log row are written
+	 * in one transaction, so experience never changes without a log row. The row holds the
+	 * change that was applied: experience cannot go below 0, so a removal larger than the
+	 * pet's XP logs only what was removed.
+	 *
+	 * For a saved pet the row is written first: if it fails, the entity was never saved and
+	 * still matches the database, so the caller may retry with it.
+	 *
+	 * @param bool $sendAlert Alert the owner on a level-up
+	 * @param string $source One of XpSource
+	 * @param int $actorUserId The member who made the change, for XpSource::ADMIN
+	 * @return int|null The experience actually added (negative when removed), null if the save failed
+	 */
+	public function applyExperienceChange(
+		UserPets $pet,
+		int $amount,
+		bool $sendAlert,
+		string $source,
+		string $contentType = '',
+		int $contentId = 0,
+		int $actorUserId = 0
+	): ?int
+	{
+		$oldExperience = (int) $pet->experience;
 		$oldLevel = (int) $pet->level;
 		$leveledUp = (new PetLeveling())->addExperience($pet, $amount);
+		$applied = (int) $pet->experience - $oldExperience;
+
+		$db = $this->db();
+		$xpLogRepo = $this->getXpLogRepo();
+		$db->beginTransaction();
 
 		try
 		{
-			$pet->save();
+			if ($pet->exists())
+			{
+				$xpLogRepo->log($pet, $applied, $source, $contentType, $contentId, $actorUserId);
+				$pet->save(true, false);
+			}
+			else
+			{
+				$pet->save(true, false);
+				$xpLogRepo->log($pet, $applied, $source, $contentType, $contentId, $actorUserId);
+			}
+
+			$db->commit();
 		}
-		catch (\Exception $e)
+		catch (\Throwable $e)
 		{
+			$db->rollback();
+
+			// a retry with the same entity must not add the amount twice; a failed save
+			// leaves the entity locked for writes, hence forceSet
+			$pet->set('experience', $oldExperience, ['forceSet' => true]);
+			$pet->set('level', $oldLevel, ['forceSet' => true]);
+
+			if (!($e instanceof \Exception))
+			{
+				throw $e;
+			}
+
 			Logger::error('Could not save pet experience: ' . $e->getMessage(), [
 				'pet_id' => $pet->pet_id,
 				'user_id' => $pet->user_id,
 				'amount' => $amount,
+				'source' => $source,
 			]);
 
-			return false;
+			return null;
 		}
 
-		if ($leveledUp)
+		if ($leveledUp && $sendAlert)
 		{
-			$this->sendLevelUpAlert($pet, $oldLevel, $amount);
+			$this->sendLevelUpAlert($pet, $oldLevel, $applied);
 		}
 
-		return true;
+		return $applied;
 	}
 
 	/**
@@ -552,9 +432,17 @@ class UserPetsRepository extends Repository
 	 * tutorials). Opted-out users get nothing.
 	 *
 	 * @param bool $updateActionTime Also restarts the pet action cooldown
+	 * @param string $source One of XpSource
 	 * @return bool True if experience was added and saved
 	 */
-	public function awardExperienceToPet(UserPets $pet, int $amount, bool $updateActionTime = false): bool
+	public function awardExperienceToPet(
+		UserPets $pet,
+		int $amount,
+		bool $updateActionTime = false,
+		string $source = XpSource::OTHER,
+		string $contentType = '',
+		int $contentId = 0
+	): bool
 	{
 		if ($amount <= 0 || !$pet->pet_id || UserPetOptOut::isDisabledByUserId((int) $pet->user_id))
 		{
@@ -566,7 +454,7 @@ class UserPetsRepository extends Repository
 			$pet->last_action_time = \XF::$time;
 		}
 
-		return $this->savePetWithExperience($pet, $amount);
+		return $this->savePetWithExperience($pet, $amount, $source, $contentType, $contentId);
 	}
 
 	/**
@@ -575,9 +463,17 @@ class UserPetsRepository extends Repository
 	 * @param int $userId The user ID to award experience to
 	 * @param int $amountOfExp The amount of experience to award
 	 * @param bool $updateActionTime Whether to update the last_action_time field
+	 * @param string $source One of XpSource
 	 * @return bool True if experience was added and saved
 	 */
-	public function awardPetExperience(int $userId, int $amountOfExp, bool $updateActionTime = true): bool
+	public function awardPetExperience(
+		int $userId,
+		int $amountOfExp,
+		bool $updateActionTime = true,
+		string $source = XpSource::OTHER,
+		string $contentType = '',
+		int $contentId = 0
+	): bool
 	{
 		if ($amountOfExp <= 0)
 		{
@@ -590,7 +486,7 @@ class UserPetsRepository extends Repository
 			return false;
 		}
 
-		return $this->awardExperienceToPet($pet, $amountOfExp, $updateActionTime);
+		return $this->awardExperienceToPet($pet, $amountOfExp, $updateActionTime, $source, $contentType, $contentId);
 	}
 
 	/**
@@ -599,14 +495,17 @@ class UserPetsRepository extends Repository
 	 * users without a pet are credited by the backfill when their pet is created.
 	 *
 	 * @param string $contentType self::CONTENT_THREAD or self::CONTENT_POST
+	 * @param int $contentId The thread or post ID, kept in the XP log
 	 * @return bool True if experience was added and saved
 	 */
-	public function awardContentExperience(int $userId, string $contentType): bool
+	public function awardContentExperience(int $userId, string $contentType, int $contentId = 0): bool
 	{
-		if ($contentType !== self::CONTENT_THREAD && $contentType !== self::CONTENT_POST)
+		$source = match ($contentType)
 		{
-			throw new \InvalidArgumentException("Unsupported content type '{$contentType}'");
-		}
+			self::CONTENT_THREAD => XpSource::THREAD,
+			self::CONTENT_POST => XpSource::POST,
+			default => throw new \InvalidArgumentException("Unsupported content type '{$contentType}'"),
+		};
 
 		$amount = $this->getContentExperiencePerUnit($contentType);
 		if ($userId <= 0 || $amount <= 0 || UserPetOptOut::isDisabledByUserId($userId))
@@ -624,7 +523,7 @@ class UserPetsRepository extends Repository
 		$pet->$countField = (int) $pet->$countField + 1;
 		$pet->$experienceField = (int) $pet->$experienceField + $amount;
 
-		return $this->savePetWithExperience($pet, $amount);
+		return $this->savePetWithExperience($pet, $amount, $source, $contentType, $contentId);
 	}
 
 	public function getContentExperiencePerUnit(string $contentType): int
@@ -643,9 +542,18 @@ class UserPetsRepository extends Repository
 	 * the difference to what is tracked. Idempotent; opted-out users are left untouched.
 	 *
 	 * @param string[]|null $contentTypes Limit to these CONTENT_* types
+	 * @param string $source Logged with the difference: XpSource::RECOUNT, or XpSource::SOLUTION
+	 *     when an accepted solution changed
+	 * @param string $logContentType The content the change is logged against, if any
 	 * @return bool True if the pet changed
 	 */
-	public function syncContentExperience(int $userId, ?array $contentTypes = null): bool
+	public function syncContentExperience(
+		int $userId,
+		?array $contentTypes = null,
+		string $source = XpSource::RECOUNT,
+		string $logContentType = '',
+		int $logContentId = 0
+	): bool
 	{
 		if ($userId <= 0 || UserPetOptOut::isDisabledByUserId($userId))
 		{
@@ -658,7 +566,14 @@ class UserPetsRepository extends Repository
 			return false;
 		}
 
-		return $this->syncPetContentExperience($pet, $contentTypes ?? array_keys(self::CONTENT_TRACKING));
+		return $this->syncPetContentExperience(
+			$pet,
+			$contentTypes ?? array_keys(self::CONTENT_TRACKING),
+			true,
+			$source,
+			$logContentType,
+			$logContentId
+		);
 	}
 
 	public function syncThreadExperience(int $userId): void
@@ -865,10 +780,55 @@ class UserPetsRepository extends Repository
 	}
 
 	/**
+	 * Adds the tournament wins of the given pets to another pet and clears them on the
+	 * given pets, so a repeated merge cannot count them twice.
+	 *
+	 * @param int[] $fromPetIds
+	 * @return int The number of wins moved
+	 */
+	public function moveTournamentWins(array $fromPetIds, int $toPetId): int
+	{
+		$fromPetIds = array_values(array_diff(
+			array_unique(array_filter(array_map('intval', $fromPetIds))),
+			[$toPetId]
+		));
+		if (!$fromPetIds || $toPetId <= 0)
+		{
+			return 0;
+		}
+
+		$db = $this->db();
+
+		return (int) $db->executeTransaction(function () use ($db, $fromPetIds, $toPetId): int
+		{
+			$wins = (int) $db->fetchOne(
+				'SELECT COALESCE(SUM(tournament_wins), 0) FROM xf_user_pets WHERE pet_id IN (' . $db->quote($fromPetIds) . ') FOR UPDATE'
+			);
+			if ($wins <= 0)
+			{
+				return 0;
+			}
+
+			$db->query('UPDATE xf_user_pets SET tournament_wins = tournament_wins + ? WHERE pet_id = ?', [$wins, $toPetId]);
+			$db->update('xf_user_pets', ['tournament_wins' => 0], 'pet_id IN (' . $db->quote($fromPetIds) . ')');
+
+			return $wins;
+		});
+	}
+
+	/**
 	 * @param string[] $contentTypes
 	 * @param bool $sendAlert Alert the owner on a level-up
+	 * @param string $source One of XpSource, logged with the difference
 	 */
-	protected function syncPetContentExperience(UserPets $pet, array $contentTypes, bool $sendAlert = true): bool
+	protected function syncPetContentExperience(
+		UserPets $pet,
+		array $contentTypes,
+		bool $sendAlert = true,
+		string $source = XpSource::RECOUNT,
+		string $logContentType = '',
+		int $logContentId = 0
+	): bool
 	{
 		$delta = 0;
 		$changed = false;
@@ -902,28 +862,7 @@ class UserPetsRepository extends Repository
 			return false;
 		}
 
-		if ($sendAlert)
-		{
-			return $this->savePetWithExperience($pet, $delta);
-		}
-
-		(new PetLeveling())->addExperience($pet, $delta);
-
-		try
-		{
-			$pet->save();
-		}
-		catch (\Exception $e)
-		{
-			Logger::error('Could not sync pet content experience: ' . $e->getMessage(), [
-				'pet_id' => $pet->pet_id,
-				'user_id' => $pet->user_id,
-			]);
-
-			return false;
-		}
-
-		return true;
+		return $this->applyExperienceChange($pet, $delta, $sendAlert, $source, $logContentType, $logContentId) !== null;
 	}
 
 	protected function sendLevelUpAlert(UserPets $pet, int $oldLevel, int $amountOfExp): void
@@ -953,14 +892,51 @@ class UserPetsRepository extends Repository
 	}
 
 	/**
-	 * @return array{choices:array<string,string>,sheets:array<string,array>}
+	 * Sheets a pet can be drawn with: the file exists. Keyed by file name, in index order.
+	 *
+	 * @return array<string,array{title:string,frame_width:int,frame_height:int,frames_per_animation:int,fps:int,has_entity:bool,exists:bool,evolve_level:int,evolves_to:string}>
+	 */
+	protected function getAvailableRenderSheets(): array
+	{
+		$sheets = [];
+		foreach ($this->getSpritesheetRenderIndex()['sheets'] AS $filename => $sheet)
+		{
+			if (!empty($sheet['exists']))
+			{
+				$sheets[(string) $filename] = $sheet;
+			}
+		}
+
+		return $sheets;
+	}
+
+	/**
+	 * @param array<string,array> $sheets Available sheets, see getAvailableRenderSheets()
+	 */
+	protected function getDefaultRenderFilename(array $sheets): string
+	{
+		$option = trim((string) \XF::options()->sylphian_userpets_default_spritesheet);
+		if ($option !== '' && isset($sheets[$option]))
+		{
+			return $option;
+		}
+
+		if ($sheets)
+		{
+			return (string) array_key_first($sheets);
+		}
+
+		return $option !== '' ? $option : self::DEFAULT_SPRITESHEET;
+	}
+
+	/**
+	 * @return array{sheets:array<string,array{title:string,frame_width:int,frame_height:int,frames_per_animation:int,fps:int,has_entity:bool,exists:bool,evolve_level:int,evolves_to:string}>}
 	 */
 	protected function buildSpritesheetRenderIndex(): array
 	{
 		/** @var UserPetsSpritesheetRepository $spritesheetRepo */
 		$spritesheetRepo = $this->repository('Sylphian\UserPets:UserPetsSpritesheetRepository');
 
-		$choices = [];
 		$sheets = [];
 
 		foreach ($spritesheetRepo->buildIndexList() AS $file)
@@ -973,18 +949,30 @@ class UserPetsRepository extends Repository
 
 			$entity = $file['entity'] ?? null;
 
-			$choices[$this->getSpritesheetChoiceId($filename)] = $filename;
+			$title = trim((string) ($file['title'] ?? ($entity?->title ?? '')));
+
 			$sheets[$filename] = [
-				'frame_width' => (int) ($entity?->frame_width ?: 192),
-				'frame_height' => (int) ($entity?->frame_height ?: 192),
-				'frames_per_animation' => (int) ($entity?->frames_per_animation ?: 4),
-				'fps' => (int) ($entity?->fps ?: 4),
+				'title' => $title !== '' ? $title : $filename,
+				'frame_width' => (int) ($entity?->frame_width ?: self::DEFAULT_FRAME_SIZE),
+				'frame_height' => (int) ($entity?->frame_height ?: self::DEFAULT_FRAME_SIZE),
+				'frames_per_animation' => (int) ($entity?->frames_per_animation ?: self::DEFAULT_FRAMES_PER_ANIMATION),
+				'fps' => (int) ($entity?->fps ?: self::DEFAULT_FPS),
 				'has_entity' => $entity !== null,
 				'exists' => (bool) ($file['exists'] ?? false),
+				'evolve_level' => max(0, (int) ($file['evolve_level'] ?? $entity?->evolve_level ?? 0)),
+				'evolves_to' => (string) ($file['evolves_to'] ?? $entity?->evolves_to ?? ''),
 			];
 		}
 
-		return ['choices' => $choices, 'sheets' => $sheets];
+		return ['sheets' => $sheets];
+	}
+
+	protected function getXpLogRepo(): UserPetsXpLogRepository
+	{
+		/** @var UserPetsXpLogRepository $repo */
+		$repo = $this->repository(UserPetsXpLogRepository::class);
+
+		return $repo;
 	}
 
 	/**

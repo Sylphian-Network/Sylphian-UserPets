@@ -1,0 +1,1 @@
+Days to keep the history of XP changes. 0 keeps it forever.

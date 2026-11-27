@@ -41,6 +41,18 @@
 				label="{{ phrase('sylphian_userpets_frames_per_animation_columns') }}" />
 			<xf:numberboxrow name="fps" value="{$entity.fps}" min="1" max="120" step="1"
 				label="{{ phrase('sylphian_userpets_fps_widget_label') }}" />
+
+			<hr class="formRowSep" />
+
+			<xf:selectrow name="evolves_to" value="{$entity.evolves_to}"
+				label="{{ phrase('sylphian_userpets_evolves_into') }}"
+				explain="{{ phrase('sylphian_userpets_evolves_into_explain') }}">
+				<xf:option value="">{{ phrase('none') }}</xf:option>
+				<xf:options source="{$evolutionTargets}" />
+			</xf:selectrow>
+			<xf:numberboxrow name="evolve_level" value="{{ max($entity.evolve_level, $minEvolveLevel) }}" min="{$minEvolveLevel}" max="65535" step="1"
+				label="{{ phrase('sylphian_userpets_evolve_at_level') }}"
+				explain="{{ phrase('sylphian_userpets_evolve_level_explain', {'level': $minEvolveLevel}) }}" />
 		</div>
 
 		<xf:hiddenval name="spritesheet_id" value="{{ $entity.spritesheet_id ?: 0 }}" />

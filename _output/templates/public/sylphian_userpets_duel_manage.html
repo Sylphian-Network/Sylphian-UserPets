@@ -58,7 +58,7 @@
 		<div class="block-body">
 			<xf:if is="$incomingDuels">
 				<xf:foreach loop="$incomingDuels" value="$duelItem">
-					<xf:macro id="duel_row" arg-duelItem="{$duelItem}" arg-mode="incoming" />
+					<xf:macro id="duel_row" arg-duelItem="{$duelItem}" arg-mode="incoming" arg-canDuel="{$canDuel}" />
 				</xf:foreach>
 			<xf:else />
 				<div class="block-row">{{ phrase('sylphian_userpets_duel_manage_incoming_empty') }}</div>
@@ -129,7 +129,7 @@
 		class="tabs-tab{{ $filter == $current ? ' is-active' : '' }}">{$label}</a>
 </xf:macro>
 
-<xf:macro id="duel_row" arg-duelItem="!" arg-mode="!">
+<xf:macro id="duel_row" arg-duelItem="!" arg-mode="!" arg-canDuel="{{ false }}">
 	<xf:set var="$duel" value="{$duelItem.duel}" />
 	<xf:set var="$opponent" value="{$duelItem.opponentPet.User}" />
 
@@ -144,8 +144,14 @@
 					<ul class="listInline listInline--bullet contentRow-minor">
 						<xf:if is="$mode == 'incoming'">
 							<li>{{ phrase('sylphian_userpets_duel_manage_requested_x', {'date': date_dynamic($duel.created_at)}) }}</li>
+							<xf:if is="$duelItem.expiresAt">
+								<li>{{ phrase('expires_x', {'date': date_dynamic($duelItem.expiresAt)}) }}</li>
+							</xf:if>
 						<xf:elseif is="$mode == 'outgoing'" />
 							<li>{{ phrase('sylphian_userpets_duel_manage_sent_x', {'date': date_dynamic($duel.created_at)}) }}</li>
+							<xf:if is="$duelItem.expiresAt">
+								<li>{{ phrase('expires_x', {'date': date_dynamic($duelItem.expiresAt)}) }}</li>
+							</xf:if>
 						<xf:else />
 							<xf:if is="$mode == 'history'">
 								<li>
@@ -166,10 +172,12 @@
 
 				<div class="petDuel-side">
 					<xf:if is="$mode == 'incoming'">
-						<xf:form action="{{ link('userpetsduel/acceptchallenge') }}" ajax="true">
-							<xf:hiddenval name="duel_id">{$duel.duel_id}</xf:hiddenval>
-							<xf:button type="submit" class="button--small button--primary" fa="fa-check">{{ phrase('sylphian_userpets_duel_action_accept') }}</xf:button>
-						</xf:form>
+						<xf:if is="$canDuel">
+							<xf:form action="{{ link('userpetsduel/acceptchallenge') }}" ajax="true">
+								<xf:hiddenval name="duel_id">{$duel.duel_id}</xf:hiddenval>
+								<xf:button type="submit" class="button--small button--primary" fa="fa-check">{{ phrase('sylphian_userpets_duel_action_accept') }}</xf:button>
+							</xf:form>
+						</xf:if>
 						<xf:form action="{{ link('userpetsduel/rejectchallenge') }}" ajax="true">
 							<xf:hiddenval name="duel_id">{$duel.duel_id}</xf:hiddenval>
 							<xf:button type="submit" class="button--small" fa="fa-times">{{ phrase('sylphian_userpets_duel_action_reject') }}</xf:button>

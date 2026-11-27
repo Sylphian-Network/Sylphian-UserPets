@@ -1,0 +1,9 @@
+{
+    "template": "register_connected_account",
+    "description": "Pet appearance picker on the connected account registration form",
+    "execution_order": 10,
+    "enabled": true,
+    "action": "str_replace",
+    "find": "<xf:macro id=\"register_macros::custom_fields\" />",
+    "replace": "$0\n\n<xf:if is=\"$sylUserPetsAppearances is not empty\">\n\t<xf:formrow label=\"{{ phrase('sylphian_userpets_pet_appearance') }}\"\n\t\thint=\"{{ phrase('required') }}\"\n\t\texplain=\"{{ phrase('sylphian_userpets_pet_appearance_register_explain') }}\">\n\t\t<xf:macro id=\"sylphian_userpets_macros::appearance_picker\"\n\t\t\targ-name=\"sylphian_userpets_spritesheet\"\n\t\t\targ-choices=\"{$sylUserPetsAppearances}\"\n\t\t\targ-required=\"{{ true }}\" />\n\t</xf:formrow>\n</xf:if>"
+}

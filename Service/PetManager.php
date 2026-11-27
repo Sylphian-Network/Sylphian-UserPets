@@ -7,6 +7,7 @@ use Sylphian\UserPets\Repository\UserPetsRepository;
 use Sylphian\UserPets\Stats\Happiness;
 use Sylphian\UserPets\Stats\Hunger;
 use Sylphian\UserPets\Stats\Sleepiness;
+use Sylphian\UserPets\XpSource;
 use XF\PrintableException;
 
 /**
@@ -73,7 +74,8 @@ class PetManager
 
 	/**
 	 * Brings a pet's stats up to date (decay since the last update) and saves it when
-	 * anything changed. Duels and tournaments call this before comparing pets.
+	 * anything changed. Duels and tournaments call this before they change the pet.
+	 * Never call it while rendering a page: use updateStats(false) there.
 	 *
 	 * @throws PrintableException If saving the pet fails
 	 */
@@ -88,7 +90,8 @@ class PetManager
 	 * The remainder of a started interval is kept: last_update only advances by the
 	 * intervals that were applied, so frequent views do not slow the decay down.
 	 *
-	 * @param bool $save Save the pet when stats changed
+	 * @param bool $save Save the pet when stats changed; false only changes the entity in
+	 *     memory, which is what page renders use
 	 * @return bool True if at least one interval was applied
 	 * @throws PrintableException If saving the pet fails
 	 */
@@ -164,8 +167,9 @@ class PetManager
 	}
 
 	/**
-	 * Performs a pet action: applies pending decay, the action itself and the action XP,
-	 * then saves the pet once.
+	 * Performs a pet action: applies the pending decay first, then the action and the action
+	 * XP, and stores all of it in one save together with the XP log row, so the decay is
+	 * persisted with the action and never half of it.
 	 *
 	 * The caller is responsible for the opt-out and cooldown checks.
 	 *
@@ -190,6 +194,10 @@ class PetManager
 		/** @var UserPetsRepository $petsRepo */
 		$petsRepo = \XF::repository('Sylphian\UserPets:UserPets');
 
-		return $petsRepo->savePetWithExperience($this->pet, (new PetLeveling())->getExperienceForAction($action));
+		return $petsRepo->savePetWithExperience(
+			$this->pet,
+			(new PetLeveling())->getExperienceForAction($action),
+			XpSource::ACTION
+		);
 	}
 }

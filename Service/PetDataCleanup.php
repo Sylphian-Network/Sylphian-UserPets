@@ -6,13 +6,14 @@ use Sylphian\UserPets\Repository\UserPetsDuelRepository;
 use Sylphian\UserPets\Repository\UserPetsRepository;
 use Sylphian\UserPets\Repository\UserPetsTournamentRepository;
 use Sylphian\UserPets\Repository\UserPetsTutorialRepository;
+use Sylphian\UserPets\Repository\UserPetsXpLogRepository;
 use XF\Repository\UserAlertRepository;
 use XF\Service\AbstractService;
 
 /**
- * Removes or hands over the pet data of a user (pet rows, tutorial progress, open duels,
- * places in tournaments that have not started and the alerts about the pet) when the user
- * is deleted or merged into another account. Finished duels and brackets are kept as history.
+ * Removes or hands over the pet data of a user (pet rows, XP history, tutorial progress, open
+ * duels, places in tournaments that have not started and the alerts about the pet) when the
+ * user is deleted or merged into another account. Finished duels and brackets are kept as history.
  */
 class PetDataCleanup extends AbstractService
 {
@@ -38,6 +39,7 @@ class PetDataCleanup extends AbstractService
 		$this->getDuelRepo()->deleteOpenDuelsForPets($petIds);
 		$this->getTournamentRepo()->removeUserFromPendingTournaments($userId);
 		$this->getTutorialRepo()->deleteTutorialsForUser($userId);
+		$this->getXpLogRepo()->deleteLogsForPets($petIds);
 		$petsRepo->deletePetsForUser($userId);
 
 		if ($petIds)
@@ -51,9 +53,10 @@ class PetDataCleanup extends AbstractService
 	}
 
 	/**
-	 * Keeps the target's own pet when it has one; otherwise the source's pet and tutorial
-	 * progress move over. Whatever stays on the source is removed when the merge deletes
-	 * the source user.
+	 * Keeps the target's own pet when it has one; otherwise the source's pet, its XP history
+	 * and the tutorial progress move over. When both have a pet, the target's pet takes the
+	 * source pet's XP history, duels and tournament wins. Whatever stays on the source is
+	 * removed when the merge deletes the source user.
 	 *
 	 * @return bool True if the source pet was handed to the target
 	 */
@@ -72,22 +75,29 @@ class PetDataCleanup extends AbstractService
 		if (!$targetPetIds && $sourcePetIds)
 		{
 			$petsRepo->reassignPets($sourceUserId, $targetUserId);
+			$this->getXpLogRepo()->reassignLogsToUser($sourcePetIds, $targetUserId);
 			$this->getTutorialRepo()->reassignTutorials($sourceUserId, $targetUserId);
-			$this->db()->update(
-				'xf_user_pets_tournament_entries',
-				['user_id' => $targetUserId],
-				'user_id = ?',
-				$sourceUserId,
-				'IGNORE'
-			);
+			$this->getTournamentRepo()->reassignEntriesToUser($sourceUserId, $targetUserId);
 			$transferred = true;
 		}
 		else if ($targetPetIds && $sourcePetIds)
 		{
-			// The target keeps its own pet, so the source pet's duel record counts for it.
+			// The target keeps its own pet, so the source pet's record counts for it.
+			$targetPetId = $targetPetIds[0];
+			$xpLogRepo = $this->getXpLogRepo();
+			$duelRepo = $this->getDuelRepo();
+
 			foreach ($sourcePetIds AS $sourcePetId)
 			{
-				$this->getDuelRepo()->mergeDuelsIntoPet($sourcePetId, $targetPetIds[0]);
+				$xpLogRepo->reassignLogs($sourcePetId, $targetPetId, $targetUserId);
+			}
+			$petsRepo->moveTournamentWins($sourcePetIds, $targetPetId);
+
+			// The tournament rows move too, so a later counter recount keeps the merged titles.
+			foreach ($sourcePetIds AS $sourcePetId)
+			{
+				$this->getTournamentRepo()->mergePetIntoPet($sourcePetId, $targetPetId, $targetUserId);
+				$duelRepo->mergeDuelsIntoPet($sourcePetId, $targetPetId);
 			}
 		}
 
@@ -121,6 +131,14 @@ class PetDataCleanup extends AbstractService
 	{
 		/** @var UserPetsTournamentRepository $repo */
 		$repo = $this->repository(UserPetsTournamentRepository::class);
+
+		return $repo;
+	}
+
+	protected function getXpLogRepo(): UserPetsXpLogRepository
+	{
+		/** @var UserPetsXpLogRepository $repo */
+		$repo = $this->repository(UserPetsXpLogRepository::class);
 
 		return $repo;
 	}

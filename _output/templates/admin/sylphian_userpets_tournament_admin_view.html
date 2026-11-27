@@ -12,7 +12,7 @@
 	<div class="block-container">
 		<div class="block-body">
 			<xf:formrow label="{{ phrase('status') }}">
-				<xf:macro id="public:sylphian_userpets_macros::tournament_status" arg-status="{$tournament.status}" />
+				<xf:macro id="public:sylphian_userpets_tournament_macros::tournament_status" arg-status="{$tournament.status}" />
 			</xf:formrow>
 			<xf:formrow label="{{ phrase('participants') }}">
 				{{ phrase('sylphian_userpets_tournament_entries_x_of_y', {'count': $entries|count|number, 'max': $tournament.max_participants|number}) }}
@@ -21,8 +21,55 @@
 				{$tournament.prize_experience|number}
 			</xf:formrow>
 			<xf:formrow label="{{ phrase('sylphian_userpets_tournament_resolution_mode') }}">
-				<xf:macro id="public:sylphian_userpets_macros::resolution_mode" arg-mode="{$tournament.resolution_mode}" />
+				<xf:macro id="public:sylphian_userpets_tournament_macros::resolution_mode" arg-mode="{$tournament.resolution_mode}" />
 			</xf:formrow>
+			<xf:if is="$tournament.hasRoundInterval()">
+				<xf:formrow label="{{ phrase('sylphian_userpets_tournament_round_interval') }}">
+					{$tournament.round_interval_hours|number}
+				</xf:formrow>
+			</xf:if>
+
+			<xf:set var="$schedule" value="{{ $tournament.getUpcomingSchedule() }}" />
+			<xf:if is="$schedule is not empty || !$tournament.isFinished() || $tournament.repeat_days || $repeatCopy || $repeatSource">
+				<hr class="formRowSep" />
+			</xf:if>
+
+			<xf:if is="$schedule is not empty">
+				<xf:if is="$schedule.registration_open">
+					<xf:formrow label="{{ phrase('sylphian_userpets_tournament_registration_opens') }}"><xf:date time="{$schedule.registration_open}" /></xf:formrow>
+				</xf:if>
+				<xf:if is="$schedule.registration_close">
+					<xf:formrow label="{{ phrase('sylphian_userpets_tournament_registration_closes') }}"><xf:date time="{$schedule.registration_close}" /></xf:formrow>
+				</xf:if>
+				<xf:if is="$schedule.start">
+					<xf:formrow label="{{ phrase('sylphian_userpets_tournament_starts') }}"><xf:date time="{$schedule.start}" /></xf:formrow>
+				</xf:if>
+				<xf:if is="$schedule.next_round">
+					<xf:formrow label="{{ phrase('sylphian_userpets_tournament_next_round') }}"><xf:date time="{$schedule.next_round}" /></xf:formrow>
+				</xf:if>
+			<xf:elseif is="!$tournament.isFinished()" />
+				<xf:formrow label="{{ phrase('sylphian_userpets_tournament_schedule') }}">
+					<span class="u-muted">{{ phrase('sylphian_userpets_tournament_schedule_none') }}</span>
+				</xf:formrow>
+			</xf:if>
+
+			<xf:if is="$tournament.repeat_days">
+				<xf:formrow label="{{ phrase('sylphian_userpets_tournament_repeat_days') }}">
+					{{ phrase('x_days', {'days': $tournament.repeat_days|number}) }}
+				</xf:formrow>
+			</xf:if>
+			<xf:if is="$repeatCopy">
+				<xf:formrow label="{{ phrase('sylphian_userpets_tournament_next_edition') }}">
+					<a href="{{ link('sylphian_userpets/tournaments/view', null, {'tournament_id': $repeatCopy.tournament_id}) }}">{$repeatCopy.title}</a>
+					<xf:macro id="public:sylphian_userpets_tournament_macros::tournament_status" arg-status="{$repeatCopy.status}" />
+				</xf:formrow>
+			</xf:if>
+			<xf:if is="$repeatSource">
+				<xf:formrow label="{{ phrase('sylphian_userpets_tournament_repeat_of') }}">
+					<a href="{{ link('sylphian_userpets/tournaments/view', null, {'tournament_id': $repeatSource.tournament_id}) }}">{$repeatSource.title}</a>
+					<xf:macro id="public:sylphian_userpets_tournament_macros::tournament_status" arg-status="{$repeatSource.status}" />
+				</xf:formrow>
+			</xf:if>
 		</div>
 
 		<xf:if is="$tournament.canOpenRegistration() || $tournament.canCloseRegistration() || $tournament.canStart() || $tournament.canAdvance() || $tournament.canCancel()">
@@ -89,7 +136,7 @@
 		<h2 class="block-header">{{ phrase('sylphian_userpets_tournament_bracket') }}</h2>
 		<div class="block-body block-row">
 			<xf:if is="$bracketRounds">
-				<xf:macro id="public:sylphian_userpets_macros::tournament_bracket" arg-rounds="{$bracketRounds}" />
+				<xf:macro id="public:sylphian_userpets_tournament_macros::tournament_bracket" arg-rounds="{$bracketRounds}" />
 			<xf:else />
 				{{ phrase('sylphian_userpets_tournament_bracket_empty') }}
 			</xf:if>

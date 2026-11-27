@@ -1,0 +1,7 @@
+{{ phrase('sylphian_userpets_alert_tournament_champion', {
+	'title': $content.title
+}) }}
+<xf:if is="$extra.prize > 0">
+	<br />{{ phrase('sylphian_userpets_alert_duel_win_exp', {'exp': $extra.prize|number}) }}
+</xf:if>
+<a href="{{ link('userpetstournaments/view', null, {'tournament_id': $content.tournament_id}) }}" class="fauxBlockLink-blockLink"></a>

@@ -1,0 +1,130 @@
+.petProfile-header
+{
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: @xf-paddingSmall @xf-paddingMedium;
+}
+
+.petProfile-owner
+{
+	font-size: @xf-fontSizeSmaller;
+	font-weight: @xf-fontWeightNormal;
+	color: @xf-textColorMuted;
+}
+
+.petProfile-main
+{
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	gap: @xf-paddingLarge;
+}
+
+.petProfile-display
+{
+	flex: 2 1 260px;
+	min-width: 0;
+}
+
+.petProfile-facts
+{
+	flex: 1 1 200px;
+	min-width: 0;
+
+	.pairs + .pairs
+	{
+		margin-top: @xf-paddingSmall;
+	}
+}
+
+.petProfile-xpBar
+{
+	display: block;
+	width: 100%;
+	height: 10px;
+	margin: @xf-paddingSmall 0 @xf-paddingMedium;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	border: @xf-borderSize solid @xf-borderColorFaint;
+	border-radius: @xf-borderRadiusSmall;
+	background: @xf-sylUserPetsProgressBarBackground;
+	color: @xf-sylUserPetsProgressBarFill;
+	overflow: hidden;
+
+	&::-webkit-progress-bar
+	{
+		background: @xf-sylUserPetsProgressBarBackground;
+	}
+
+	&::-webkit-progress-value
+	{
+		background: @xf-sylUserPetsProgressBarFill;
+	}
+
+	&::-moz-progress-bar
+	{
+		background: @xf-sylUserPetsProgressBarFill;
+	}
+}
+
+.petXpLog
+{
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: @xf-paddingSmall @xf-paddingMedium;
+}
+
+.petXpLog-amount
+{
+	min-width: 6em;
+	font-weight: @xf-fontWeightHeavy;
+	color: @xf-successColor;
+
+	&.petXpLog-amount--negative
+	{
+		color: @xf-errorColor;
+	}
+}
+
+.petXpLog-source
+{
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.petXpLog-meta
+{
+	font-size: @xf-fontSizeSmaller;
+	color: @xf-textColorMuted;
+}
+
+.petDuelResult
+{
+	display: inline-block;
+	margin-right: @xf-paddingSmall;
+	padding: 0 @xf-paddingSmall;
+	border-radius: @xf-borderRadiusSmall;
+	font-size: @xf-fontSizeSmaller;
+	font-weight: @xf-fontWeightHeavy;
+
+	&.petDuelResult--win
+	{
+		color: @xf-successColor;
+		background: @xf-successBg;
+	}
+
+	&.petDuelResult--loss
+	{
+		color: @xf-errorColor;
+		background: @xf-errorBg;
+	}
+}
+
+.petProfile-trophy
+{
+	color: @xf-textColorAttention;
+	font-size: @xf-fontSizeLarger;
+}

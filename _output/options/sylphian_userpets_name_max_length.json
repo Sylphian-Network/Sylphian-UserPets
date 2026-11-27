@@ -1,0 +1,13 @@
+{
+    "edit_format": "spinbox",
+    "edit_format_params": "min=1\nmax=50",
+    "data_type": "positive_integer",
+    "default_value": "15",
+    "relations": {
+        "sylphian_userpets": 3
+    },
+    "sub_options": [],
+    "validation_class": "",
+    "validation_method": "",
+    "advanced": false
+}

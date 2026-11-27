@@ -30,3 +30,14 @@
 		<xf:submitrow icon="refresh" submit="{{ phrase('sylphian_userpets_content_xp_rebuild_run') }}" />
 	</div>
 </xf:form>
+
+<xf:form action="{{ link('sylphian_userpets/rebuild/recount-counters') }}" class="block">
+	<div class="block-container">
+		<h2 class="block-header">{{ phrase('sylphian_userpets_recount_counters') }}</h2>
+		<div class="block-body">
+			<xf:inforow>{{ phrase('sylphian_userpets_recount_counters_explain') }}</xf:inforow>
+		</div>
+
+		<xf:submitrow icon="refresh" submit="{{ phrase('sylphian_userpets_recount_counters') }}" />
+	</div>
+</xf:form>

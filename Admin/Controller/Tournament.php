@@ -97,6 +97,11 @@ class Tournament extends AbstractController
 		return $this->redirect($this->buildLink('sylphian_userpets/tournaments'));
 	}
 
+	/**
+	 * Schedule dates arrive as date-time inputs in the visitor's time zone; an empty one is
+	 * 0, which leaves that step to an admin. A setting whose step has already happened is
+	 * not editable and is ignored.
+	 */
 	protected function tournamentSaveProcess(UserPetsTournament $tournament): FormAction
 	{
 		$input = $this->filter([
@@ -105,6 +110,11 @@ class Tournament extends AbstractController
 			'max_participants' => 'uint',
 			'prize_experience' => 'uint',
 			'resolution_mode' => 'str',
+			'round_interval_hours' => 'uint',
+			'registration_open_date' => 'datetime',
+			'registration_close_date' => 'datetime',
+			'start_date' => 'datetime',
+			'repeat_days' => 'uint',
 		]);
 
 		$values = [
@@ -123,6 +133,27 @@ class Tournament extends AbstractController
 		if ($tournament->canEditResolutionMode())
 		{
 			$values['resolution_mode'] = $input['resolution_mode'];
+		}
+		if ($tournament->canEditRoundInterval())
+		{
+			$mode = $values['resolution_mode'] ?? $tournament->resolution_mode;
+			$values['round_interval_hours'] = $mode === UserPetsTournament::MODE_AUTOMATIC ? $input['round_interval_hours'] : 0;
+		}
+		if ($tournament->canEditRegistrationOpenDate())
+		{
+			$values['registration_open_date'] = $input['registration_open_date'];
+		}
+		if ($tournament->canEditRegistrationCloseDate())
+		{
+			$values['registration_close_date'] = $input['registration_close_date'];
+		}
+		if ($tournament->canEditStartDate())
+		{
+			$values['start_date'] = $input['start_date'];
+		}
+		if ($tournament->canEditRepeat())
+		{
+			$values['repeat_days'] = $input['repeat_days'];
 		}
 
 		$form = $this->formAction();
@@ -196,6 +227,8 @@ class Tournament extends AbstractController
 				'entries' => $this->repo()->getEntriesForTournament($tournament->tournament_id),
 				'bracketRounds' => $this->repo()->getDisplayBracketData($tournament),
 				'entryCount' => $this->repo()->getEntryCount($tournament->tournament_id),
+				'repeatSource' => $tournament->repeat_of_id ? $this->repo()->findTournamentById($tournament->repeat_of_id) : null,
+				'repeatCopy' => $this->repo()->findRepeatCopy($tournament->tournament_id),
 			]
 		);
 	}

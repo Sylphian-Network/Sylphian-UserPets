@@ -1,0 +1,36 @@
+<xf:title>{{ phrase('sylphian_userpets_your_pet') }}</xf:title>
+
+<xf:wrap template="account_wrapper" />
+
+<xf:form action="{{ link('account/pet') }}" ajax="true" class="block" data-force-flash-message="true">
+	<div class="block-container">
+		<div class="block-body">
+			<xf:textboxrow name="pet_name" value="{$petName}"
+				maxlength="{$nameMaxLength}"
+				placeholder="{$defaultName}"
+				label="{{ phrase('sylphian_userpets_pet_name') }}"
+				explain="{{ phrase('sylphian_userpets_pet_name_explain', {'max': $nameMaxLength}) }}" />
+
+			<xf:formrow label="{{ phrase('sylphian_userpets_pet_appearance') }}">
+				<xf:if is="$appearances is not empty">
+					<xf:macro id="sylphian_userpets_macros::appearance_picker"
+						arg-name="spritesheet"
+						arg-choices="{$appearances}"
+						arg-selected="{$selectedSpritesheet}"
+						arg-current="{$currentSpritesheet}" />
+				<xf:else />
+					{{ phrase('sylphian_userpets_no_spritesheet') }}
+				</xf:if>
+			</xf:formrow>
+
+			<xf:checkboxrow label="{{ phrase('options') }}">
+				<xf:option name="sound_enabled" selected="{$soundEnabled}"
+					label="{{ phrase('sylphian_userpets_level_up_sound') }}" />
+				<xf:option name="is_disabled" selected="{$isDisabled}"
+					label="{{ phrase('sylphian_userpets_disable_my_pet') }}"
+					hint="{{ phrase('sylphian_userpets_disable_my_pet_explain') }}" />
+			</xf:checkboxrow>
+		</div>
+		<xf:submitrow icon="save" sticky="true" />
+	</div>
+</xf:form>

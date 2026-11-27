@@ -6,6 +6,7 @@ use Sylphian\Library\Logger\Logger;
 use Sylphian\UserPets\Helper\UserPetOptOut;
 use Sylphian\UserPets\Repository\UserPetsRepository;
 use Sylphian\UserPets\Tutorial\TutorialRegistry;
+use Sylphian\UserPets\XpSource;
 use XF\Entity\User;
 use XF\Job\AbstractJob;
 use XF\Job\JobResult;
@@ -61,7 +62,7 @@ class TutorialReward extends AbstractJob
 
 			if (!$this->data['awarded'])
 			{
-				if (!$petsRepo->awardExperienceToPet($pet, $expAmount))
+				if (!$petsRepo->awardExperienceToPet($pet, $expAmount, false, XpSource::TUTORIAL))
 				{
 					throw new \RuntimeException("Could not save the tutorial reward for user_id {$userId}");
 				}

@@ -1,0 +1,1 @@
+Pets at this level or higher use the new appearance. The level must be at least {level}.

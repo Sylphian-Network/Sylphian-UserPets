@@ -65,6 +65,23 @@
 									{{ phrase('sylphian_userpets_no_details_available') }}
 								</xf:if>
 							</xf:cell>
+							<xf:cell class="dataList-cell--hint">
+								<xf:if is="$f.evolution is not empty">
+									<ul class="listInline listInline--comma">
+										<xf:foreach loop="$f.evolution" key="$i" value="$step">
+											<li>
+												<xf:if is="!$step.exists">
+													{{ phrase('sylphian_userpets_evolution_target_missing', {'filename': $step.filename}) }}
+												<xf:elseif is="$i == 0" />
+													{{ phrase('sylphian_userpets_evolves_into_x_at_level_y', {'title': $step.title, 'level': $step.level}) }}
+												<xf:else />
+													{{ phrase('sylphian_userpets_then_into_x_at_level_y', {'title': $step.title, 'level': $step.level}) }}
+												</xf:if>
+											</li>
+										</xf:foreach>
+									</ul>
+								</xf:if>
+							</xf:cell>
 							<xf:cell class="dataList-cell--min dataList-cell--hint">
 								<xf:if is="$f.exists">{{ file_size($f.size) }}</xf:if>
 							</xf:cell>

@@ -4,5 +4,11 @@
     },
     "syl_userpet-entity.json": {
         "hash": "0d0e766152ddd7c6efeac93aba4dc8b8"
+    },
+    "syl_userpet_tournament-alert_handler_class.json": {
+        "hash": "489d83f30acc047a7ffa62450e9cc471"
+    },
+    "syl_userpet_tournament-entity.json": {
+        "hash": "d87077bdf219d87f14c765b4641d76f7"
     }
 }

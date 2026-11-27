@@ -1,0 +1,1 @@
+This evolution would create a loop: a sheet in the chain would evolve back into an earlier one.

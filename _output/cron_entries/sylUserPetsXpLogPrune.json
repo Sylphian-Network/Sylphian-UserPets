@@ -1,0 +1,17 @@
+{
+    "cron_class": "Sylphian\\UserPets\\Cron\\XpLog",
+    "cron_method": "pruneOldLogs",
+    "run_rules": {
+        "day_type": "dom",
+        "dom": [
+            -1
+        ],
+        "hours": [
+            4
+        ],
+        "minutes": [
+            15
+        ]
+    },
+    "active": true
+}

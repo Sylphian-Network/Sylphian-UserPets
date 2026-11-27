@@ -2,6 +2,7 @@
 
 namespace Sylphian\UserPets\Repository;
 
+use XF\Db\AbstractAdapter;
 use Sylphian\UserPets\Entity\UserPetsTournament;
 use Sylphian\UserPets\Entity\UserPetsTournamentEntry;
 use Sylphian\UserPets\Entity\UserPetsTournamentMatch;
@@ -67,6 +68,17 @@ class UserPetsTournamentRepository extends Repository
 			->order('round_number')
 			->order('match_number')
 			->fetch();
+	}
+
+	/**
+	 * @return list<int>
+	 */
+	public function getEntrantUserIds(int $tournamentId): array
+	{
+		return array_map('intval', $this->db()->fetchAllColumn(
+			'SELECT DISTINCT user_id FROM xf_user_pets_tournament_entries WHERE tournament_id = ? AND user_id > 0',
+			$tournamentId
+		));
 	}
 
 	public function getEntryCount(int $tournamentId): int
@@ -211,14 +223,24 @@ class UserPetsTournamentRepository extends Repository
 	}
 
 	/**
-	 * Moves the tournament to $toStatus only while it is still in one of $fromStatuses.
+	 * Moves the tournament to $toStatus only while it is still in one of $fromStatuses and,
+	 * with $dueColumn, only while that schedule date is set and no later than $dueBy. The
+	 * condition is part of the UPDATE, so of two parallel callers only one makes the change.
 	 *
 	 * @param list<string> $fromStatuses
 	 * @param array<string, int|string> $extraColumns
+	 * @param string $dueColumn one of UserPetsTournament::SCHEDULE_DATE_COLUMNS, or '' for none
 	 *
 	 * @return bool whether this call made the change
 	 */
-	public function changeStatusIf(int $tournamentId, array $fromStatuses, string $toStatus, array $extraColumns = []): bool
+	public function changeStatusIf(
+		int $tournamentId,
+		array $fromStatuses,
+		string $toStatus,
+		array $extraColumns = [],
+		string $dueColumn = '',
+		int $dueBy = 0
+	): bool
 	{
 		if (!$fromStatuses)
 		{
@@ -226,14 +248,140 @@ class UserPetsTournamentRepository extends Repository
 		}
 
 		$db = $this->db();
+		$where = 'tournament_id = ? AND status IN (' . $db->quote(array_values($fromStatuses)) . ')';
+		$params = [$tournamentId];
+
+		if ($dueColumn !== '')
+		{
+			if (!in_array($dueColumn, UserPetsTournament::SCHEDULE_DATE_COLUMNS, true))
+			{
+				throw new \InvalidArgumentException("Unknown schedule column '$dueColumn'.");
+			}
+
+			$where .= " AND $dueColumn > 0 AND $dueColumn <= ?";
+			$params[] = $dueBy;
+		}
+
 		$affected = $db->update(
 			'xf_user_pets_tournaments',
 			['status' => $toStatus] + $extraColumns,
-			'tournament_id = ? AND status IN (' . $db->quote(array_values($fromStatuses)) . ')',
-			$tournamentId
+			$where,
+			$params
 		);
 
 		return $affected > 0;
+	}
+
+	public function setNextRoundDate(int $tournamentId, int $nextRoundDate): void
+	{
+		$this->db()->update(
+			'xf_user_pets_tournaments',
+			['next_round_date' => $nextRoundDate],
+			'tournament_id = ?',
+			$tournamentId
+		);
+	}
+
+	/**
+	 * Adds a tournament win to the champion's pet with an atomic increment, so it cannot
+	 * overwrite a parallel change to the same row.
+	 */
+	public function incrementTournamentWins(int $petId): bool
+	{
+		if ($petId <= 0)
+		{
+			return false;
+		}
+
+		return $this->db()->query(
+			'UPDATE xf_user_pets SET tournament_wins = tournament_wins + 1 WHERE pet_id = ?',
+			$petId
+		)->rowsAffected() > 0;
+	}
+
+	public function hasRepeatCopy(int $sourceTournamentId): bool
+	{
+		if ($sourceTournamentId <= 0)
+		{
+			return false;
+		}
+
+		return $this->finder('Sylphian\UserPets:UserPetsTournament')
+			->where('repeat_of_id', $sourceTournamentId)
+			->total() > 0;
+	}
+
+	public function findRepeatCopy(int $sourceTournamentId): ?UserPetsTournament
+	{
+		/** @var UserPetsTournament|null $copy */
+		$copy = $this->finder('Sylphian\UserPets:UserPetsTournament')
+			->where('repeat_of_id', $sourceTournamentId)
+			->order('tournament_id')
+			->fetchOne();
+
+		return $copy;
+	}
+
+	/**
+	 * Drafts whose registration opening is due, oldest date first.
+	 *
+	 * @return ArrayCollection<int, UserPetsTournament>
+	 */
+	public function findDueRegistrationOpenings(int $now, int $limit): ArrayCollection
+	{
+		return $this->findDue([UserPetsTournament::STATUS_DRAFT], 'registration_open_date', $now, $limit);
+	}
+
+	/**
+	 * @return ArrayCollection<int, UserPetsTournament>
+	 */
+	public function findDueRegistrationClosings(int $now, int $limit): ArrayCollection
+	{
+		return $this->findDue([UserPetsTournament::STATUS_REGISTRATION_OPEN], 'registration_close_date', $now, $limit);
+	}
+
+	/**
+	 * @return ArrayCollection<int, UserPetsTournament>
+	 */
+	public function findDueStarts(int $now, int $limit): ArrayCollection
+	{
+		return $this->findDue(UserPetsTournament::getStartableStatuses(), 'start_date', $now, $limit);
+	}
+
+	/**
+	 * Running automatic tournaments with a round interval whose next round is due.
+	 *
+	 * @return ArrayCollection<int, UserPetsTournament>
+	 */
+	public function findDueRounds(int $now, int $limit): ArrayCollection
+	{
+		return $this->finder('Sylphian\UserPets:UserPetsTournament')
+			->where('status', UserPetsTournament::STATUS_IN_PROGRESS)
+			->where('resolution_mode', UserPetsTournament::MODE_AUTOMATIC)
+			->where('round_interval_hours', '>', 0)
+			->where('next_round_date', '>', 0)
+			->where('next_round_date', '<=', $now)
+			->order('next_round_date')
+			->order('tournament_id')
+			->limit(max(1, $limit))
+			->fetch();
+	}
+
+	/**
+	 * @param list<string> $statuses
+	 *
+	 * @return ArrayCollection<int, UserPetsTournament>
+	 */
+	protected function findDue(array $statuses, string $dateColumn, int $now, int $limit): ArrayCollection
+	{
+		return $this->finder('Sylphian\UserPets:UserPetsTournament')
+			->where('status', $statuses)
+			->where($dateColumn, '>', 0)
+			->where($dateColumn, '<=', $now)
+			->order($dateColumn)
+			->order('tournament_id')
+			->limit(max(1, $limit))
+			->fetch();
 	}
 
 	/**
@@ -299,6 +447,62 @@ class UserPetsTournamentRepository extends Repository
 	public function clearMatchesForTournament(int $tournamentId): void
 	{
 		$this->db()->delete('xf_user_pets_tournament_matches', 'tournament_id = ?', $tournamentId);
+	}
+
+	/**
+	 * A merged account's pet takes over the source pet's tournament history: titles, bracket
+	 * slots and entries. An entry the target pet already has in the same tournament is kept and
+	 * the source pet's duplicate stays behind; it goes with the source user's other data.
+	 *
+	 * @return int rows changed
+	 */
+	public function mergePetIntoPet(int $fromPetId, int $toPetId, int $toUserId): int
+	{
+		if ($fromPetId <= 0 || $toPetId <= 0 || $toUserId <= 0 || $fromPetId === $toPetId)
+		{
+			return 0;
+		}
+
+		$db = $this->db();
+
+		return (int) $db->executeTransaction(function () use ($db, $fromPetId, $toPetId, $toUserId): int
+		{
+			$changed = $db->update('xf_user_pets_tournaments', ['winner_pet_id' => $toPetId], 'winner_pet_id = ?', $fromPetId);
+
+			foreach (['pet_a_id', 'pet_b_id', 'winner_pet_id', 'loser_pet_id'] AS $column)
+			{
+				$changed += $db->update('xf_user_pets_tournament_matches', [$column => $toPetId], $column . ' = ?', $fromPetId);
+			}
+
+			$changed += $db->update(
+				'xf_user_pets_tournament_entries',
+				['pet_id' => $toPetId, 'user_id' => $toUserId],
+				'pet_id = ?',
+				$fromPetId,
+				'IGNORE'
+			);
+
+			return $changed;
+		}, AbstractAdapter::ALLOW_DEADLOCK_RERUN);
+	}
+
+	/**
+	 * A pet handed to another account keeps its places; the entries follow the new owner.
+	 */
+	public function reassignEntriesToUser(int $fromUserId, int $toUserId): int
+	{
+		if ($fromUserId <= 0 || $toUserId <= 0 || $fromUserId === $toUserId)
+		{
+			return 0;
+		}
+
+		return (int) $this->db()->update(
+			'xf_user_pets_tournament_entries',
+			['user_id' => $toUserId],
+			'user_id = ?',
+			$fromUserId,
+			'IGNORE'
+		);
 	}
 
 	/**

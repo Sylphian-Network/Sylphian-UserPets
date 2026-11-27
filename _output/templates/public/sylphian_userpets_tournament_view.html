@@ -25,12 +25,18 @@
 			</div>
 			<div class="block-row block-row--minor">
 				<ul class="listInline listInline--bullet">
-					<li><xf:macro id="sylphian_userpets_macros::tournament_status" arg-status="{$tournament.status}" /></li>
+					<li><xf:macro id="sylphian_userpets_tournament_macros::tournament_status" arg-status="{$tournament.status}" /></li>
 					<li><xf:fa icon="fa-users" /> {{ phrase('sylphian_userpets_tournament_entries_x_of_y', {'count': $entryCount|number, 'max': $tournament.max_participants|number}) }}</li>
 					<li><xf:fa icon="fa-gem" /> {{ phrase('sylphian_userpets_tournament_reward_x_xp', {'xp': $tournament.prize_experience|number}) }}</li>
-					<li><xf:fa icon="fa-cogs" /> <xf:macro id="sylphian_userpets_macros::resolution_mode" arg-mode="{$tournament.resolution_mode}" /></li>
+					<li><xf:fa icon="fa-cogs" /> <xf:macro id="sylphian_userpets_tournament_macros::resolution_mode" arg-mode="{$tournament.resolution_mode}" /></li>
 				</ul>
 			</div>
+			<xf:if is="!$tournament.isFinished()">
+				<div class="block-row petTournament-schedule">
+					<h3 class="block-textHeader">{{ phrase('sylphian_userpets_tournament_schedule') }}</h3>
+					<xf:macro id="sylphian_userpets_tournament_macros::schedule_pairs" arg-tournament="{$tournament}" />
+				</div>
+			</xf:if>
 			<xf:if is="$isJoined && $tournament.isRegistrationPhase()">
 				<div class="block-row">
 					<div class="block-rowMessage block-rowMessage--success block-rowMessage--iconic">{{ phrase('sylphian_userpets_tournament_already_joined') }}</div>
@@ -91,7 +97,7 @@
 		<h2 class="block-header">{{ phrase('sylphian_userpets_tournament_bracket') }}</h2>
 		<div class="block-body block-row">
 			<xf:if is="$bracketRounds">
-				<xf:macro id="sylphian_userpets_macros::tournament_bracket" arg-rounds="{$bracketRounds}" />
+				<xf:macro id="sylphian_userpets_tournament_macros::tournament_bracket" arg-rounds="{$bracketRounds}" />
 			<xf:else />
 				{{ phrase('sylphian_userpets_tournament_bracket_empty') }}
 			</xf:if>

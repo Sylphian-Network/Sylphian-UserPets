@@ -1,0 +1,15 @@
+<xf:set var="$ownerName" value="{{ $pet.User ? $pet.User.username : phrase('unknown_member') }}" />
+<xf:title>{{ phrase('sylphian_userpets_reset_pet') }}</xf:title>
+
+<xf:form action="{{ link('sylphian_userpets/pets/reset') }}" ajax="true" class="block">
+	<div class="block-container">
+		<div class="block-body">
+			<xf:inforow rowtype="confirm">
+				{{ phrase('sylphian_userpets_reset_pet_confirm') }}
+				<strong>{{ phrase('sylphian_userpets_widget_title', {'username': $ownerName}) }}</strong>
+			</xf:inforow>
+		</div>
+		<xf:submitrow icon="confirm" submit="{{ phrase('reset') }}" />
+	</div>
+	<xf:hiddenval name="pet_id">{$pet.pet_id}</xf:hiddenval>
+</xf:form>

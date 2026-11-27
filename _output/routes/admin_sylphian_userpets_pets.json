@@ -1,0 +1,11 @@
+{
+    "route_type": "admin",
+    "route_prefix": "sylphian_userpets",
+    "sub_name": "pets",
+    "format": "pets/",
+    "build_class": "",
+    "build_method": "",
+    "controller": "Sylphian\\UserPets\\Admin\\Controller\\Pets",
+    "context": "",
+    "action_prefix": ""
+}

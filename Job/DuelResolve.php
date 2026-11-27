@@ -10,19 +10,23 @@ use Sylphian\UserPets\Helper\DisplayName;
 use Sylphian\UserPets\Helper\UserPetOptOut;
 use Sylphian\UserPets\Repository\UserPetsDuelRepository;
 use Sylphian\UserPets\Repository\UserPetsRepository;
+use Sylphian\UserPets\XpSource;
 use XF\Entity\User;
 use XF\Job\AbstractJob;
 use XF\Job\JobResult;
 use XF\Repository\UserAlertRepository;
 
 /**
- * Fights an accepted duel. The accepted -> completed change is conditional and the rewards are
- * written in the same transaction after it, so a resumed or duplicated run finds the duel
- * completed and awards nothing.
+ * Fights an accepted duel. The accepted -> completed change is conditional and the win/loss
+ * counters and rewards are written in the same transaction after it, so a resumed or duplicated
+ * run finds the duel completed and neither counts nor awards anything.
  */
 class DuelResolve extends AbstractJob
 {
 	public const int MAX_ATTEMPTS = 5;
+
+	/** Content type written to the XP history for duel wins. */
+	public const string XP_CONTENT_TYPE = 'syl_userpet_duel';
 
 	protected $defaultData = [
 		'duel_id' => 0,
@@ -124,6 +128,8 @@ class DuelResolve extends AbstractJob
 				return null;
 			}
 
+			$duelRepo->incrementDuelCounters($winnerPet, $loserPet);
+
 			if ($loseStats > 0)
 			{
 				$loserPet->hunger = max(0, $loserPet->hunger - $loseStats);
@@ -132,7 +138,14 @@ class DuelResolve extends AbstractJob
 				$loserPet->save(true, false);
 			}
 
-			$awardedExp = $this->getPetsRepo()->awardExperienceToPet($winnerPet, $winExp) ? $winExp : 0;
+			$awardedExp = $this->getPetsRepo()->awardExperienceToPet(
+				$winnerPet,
+				$winExp,
+				false,
+				XpSource::DUEL,
+				self::XP_CONTENT_TYPE,
+				$duelId
+			) ? $winExp : 0;
 
 			$db->commit();
 		}

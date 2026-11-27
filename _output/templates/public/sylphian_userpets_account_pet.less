@@ -1,0 +1,93 @@
+// Appearance picker: XenForo's radio list laid out as a grid of cards. The label text is
+// the card, so the checked state can be shown with a sibling selector.
+.inputChoices.petPicker
+{
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(~"min(132px, 100%)", 1fr));
+	gap: @xf-paddingMedium;
+
+	> .inputChoices-choice
+	{
+		margin: 0;
+		padding: 0;
+		min-width: 0;
+	}
+
+	.iconic.petPicker-choice
+	{
+		display: block;
+		height: 100%;
+		cursor: pointer;
+
+		> input + i
+		{
+			top: @xf-paddingSmall;
+			left: @xf-paddingSmall;
+			z-index: 1;
+		}
+
+		> .iconic-label
+		{
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: @xf-paddingSmall;
+			height: 100%;
+			padding: @xf-paddingLarge @xf-paddingMedium @xf-paddingMedium;
+			border: @xf-borderSize solid @xf-borderColor;
+			border-radius: @xf-borderRadiusMedium;
+			background: @xf-contentBg;
+			text-align: center;
+			overflow-wrap: anywhere;
+		}
+
+		&:hover > .iconic-label
+		{
+			border-color: @xf-borderColorHeavy;
+		}
+
+		> input:checked ~ .iconic-label
+		{
+			border-color: @xf-borderColorAttention;
+			background: @xf-contentHighlightBg;
+		}
+
+		> input:focus-visible ~ .iconic-label
+		{
+			border-color: @xf-borderColorAttention;
+		}
+	}
+}
+
+.petPicker-figure
+{
+	display: flex;
+	align-items: flex-end;
+	justify-content: center;
+	width: 96px;
+	max-width: 100%;
+	aspect-ratio: 1 / 1;
+
+	img,
+	canvas
+	{
+		display: block;
+		max-width: 100%;
+		max-height: 100%;
+		width: auto;
+		height: auto;
+		object-fit: contain;
+	}
+}
+
+.petPicker-title
+{
+	min-width: 0;
+	font-weight: @xf-fontWeightHeavy;
+}
+
+.petPicker-current
+{
+	font-size: @xf-fontSizeSmaller;
+	color: @xf-textColorMuted;
+}

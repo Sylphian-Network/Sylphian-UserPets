@@ -1,0 +1,1 @@
+A sprite sheet cannot evolve into itself.

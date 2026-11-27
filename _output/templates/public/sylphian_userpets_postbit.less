@@ -1,0 +1,49 @@
+.petPostbit
+{
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: @xf-paddingSmall;
+	margin-top: @xf-paddingSmall;
+
+	@media (max-width: @xf-messageSingleColumnWidth)
+	{
+		justify-content: flex-start;
+	}
+}
+
+.petPostbit-sprite
+{
+	display: block;
+	width: 32px;
+	height: 32px;
+	flex: none;
+
+	image
+	{
+		image-rendering: pixelated;
+	}
+}
+
+.petPostbit-level
+{
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 1px @xf-paddingMedium;
+	border: @xf-borderSize solid @xf-borderColorLight;
+	border-radius: @xf-borderRadiusLarge;
+	background: @xf-contentHighlightBg;
+	color: @xf-textColorDimmed;
+	font-size: @xf-fontSizeSmallest;
+	line-height: 1.5;
+	white-space: nowrap;
+
+	svg,
+	i,
+	.fa--xf
+	{
+		color: @xf-textColorMuted;
+	}
+}

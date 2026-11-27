@@ -26,6 +26,13 @@ use XF\Mvc\Entity\Structure;
  * @property int    $solution_reward_count
  * @property int    $solution_reward_experience
  * @property int    $created_at
+ * @property string $pet_name
+ * @property string $spritesheet File name of the chosen appearance; '' means the default one
+ * @property bool   $is_disabled
+ * @property bool   $sound_enabled
+ * @property int    $duel_wins
+ * @property int    $duel_losses
+ * @property int    $tournament_wins
  *
  * RELATIONS
  * @property User $User
@@ -56,6 +63,13 @@ class UserPets extends Entity
 			'solution_reward_count' => ['type' => self::UINT, 'default' => 0],
 			'solution_reward_experience' => ['type' => self::UINT, 'default' => 0],
 			'created_at' => ['type' => self::UINT, 'default' => \XF::$time],
+			'pet_name' => ['type' => self::STR, 'default' => '', 'maxLength' => 50],
+			'spritesheet' => ['type' => self::STR, 'default' => '', 'maxLength' => 255],
+			'is_disabled' => ['type' => self::BOOL, 'default' => false],
+			'sound_enabled' => ['type' => self::BOOL, 'default' => true],
+			'duel_wins' => ['type' => self::UINT, 'default' => 0],
+			'duel_losses' => ['type' => self::UINT, 'default' => 0],
+			'tournament_wins' => ['type' => self::UINT, 'default' => 0],
 		];
 
 		$structure->getters = [];

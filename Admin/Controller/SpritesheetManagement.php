@@ -55,6 +55,8 @@ class SpritesheetManagement extends AbstractController
 			[
 				'entity'  => $entity,
 				'baseUrl' => $this->repo()->getBaseUrl(),
+				'evolutionTargets' => $this->repo()->getEvolutionTargetChoices($entity),
+				'minEvolveLevel' => UserPetsSpritesheetRepository::MIN_EVOLVE_LEVEL,
 			]
 		);
 	}
@@ -81,6 +83,8 @@ class SpritesheetManagement extends AbstractController
 				'filename' => $data['entity']->filename,
 				'fileUrl'  => $data['fileUrl'],
 				'exists'   => $data['exists'],
+				'evolutionTargets' => $this->repo()->getEvolutionTargetChoices($data['entity']),
+				'minEvolveLevel' => UserPetsSpritesheetRepository::MIN_EVOLVE_LEVEL,
 			]
 		);
 	}
@@ -96,6 +100,8 @@ class SpritesheetManagement extends AbstractController
 			'frame_height'          => 'uint',
 			'frames_per_animation'  => 'uint',
 			'fps'                   => 'uint',
+			'evolves_to'            => 'str',
+			'evolve_level'          => 'uint',
 		]);
 
 		$result = $this->repo()->saveSpritesheet(

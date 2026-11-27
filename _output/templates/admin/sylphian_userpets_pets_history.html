@@ -1,0 +1,41 @@
+<xf:set var="$ownerName" value="{{ $pet.User ? $pet.User.username : phrase('unknown_member') }}" />
+<xf:title>{{ phrase('sylphian_userpets_xp_history') }}</xf:title>
+<xf:description>{{ phrase('sylphian_userpets_widget_title', {'username': $ownerName}) }}</xf:description>
+
+<xf:breadcrumb href="{{ link('sylphian_userpets/pets/edit', null, {'pet_id': $pet.pet_id}) }}">{{ phrase('sylphian_userpets_widget_title', {'username': $ownerName}) }}</xf:breadcrumb>
+
+<xf:if is="$logs is not empty">
+	<div class="block">
+		<div class="block-container">
+			<div class="block-body">
+				<xf:datalist data-xf-init="responsive-data-list">
+					<xf:foreach loop="$logs" value="$log">
+						<xf:datarow>
+							<xf:main label="{$log.getSourcePhrase()}"
+								hint="{{ $log.actor_user_id ? phrase('by_user_x', {'name': ($log.Actor ? $log.Actor.username : phrase('unknown_member'))}) : '' }}" />
+							<xf:cell class="dataList-cell--min">
+								{{ $log.amount > 0 ? '+' : '' }}{{ phrase('sylphian_userpets_x_xp', {'xp': $log.amount|number}) }}
+							</xf:cell>
+							<xf:cell class="dataList-cell--min dataList-cell--hint">
+								{{ phrase('sylphian_userpets_level', {'level': $log.level_after|number}) }}
+							</xf:cell>
+							<xf:cell class="dataList-cell--min dataList-cell--hint">
+								<xf:date time="{$log.log_date}" />
+							</xf:cell>
+						</xf:datarow>
+					</xf:foreach>
+				</xf:datalist>
+			</div>
+			<div class="block-footer">
+				<span class="block-footer-counter">{{ display_totals($logs, $total) }}</span>
+			</div>
+		</div>
+
+		<xf:pagenav page="{$page}" perpage="{$perPage}" total="{$total}"
+			link="sylphian_userpets/pets/history"
+			params="{{ {'pet_id': $pet.pet_id} }}"
+			wrapperclass="block-outer block-outer--after" />
+	</div>
+<xf:else />
+	<div class="blockMessage">{{ phrase('sylphian_userpets_xp_history_empty') }}</div>
+</xf:if>

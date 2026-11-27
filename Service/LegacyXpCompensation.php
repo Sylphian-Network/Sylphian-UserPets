@@ -2,11 +2,11 @@
 
 namespace Sylphian\UserPets\Service;
 
-use Sylphian\Library\Logger\Logger;
 use Sylphian\UserPets\Entity\UserPets;
 use Sylphian\UserPets\Repository\UserPetsRepository;
 use Sylphian\UserPets\Repository\UserPetsTournamentRepository;
 use Sylphian\UserPets\Tutorial\TutorialRegistry;
+use Sylphian\UserPets\XpSource;
 use XF\Service\AbstractService;
 
 /**
@@ -29,7 +29,7 @@ use XF\Service\AbstractService;
  *
  * Only awards inside the window (notBefore, notAfter] are considered. notAfter must be the
  * moment the site moved to 1.5.0: later awards were already paid correctly.
- * Pet actions are not covered (they are not logged).
+ * Pet actions are not covered (nothing recorded them before 1.6.0).
  */
 class LegacyXpCompensation extends AbstractService
 {
@@ -66,7 +66,8 @@ class LegacyXpCompensation extends AbstractService
 	}
 
 	/**
-	 * Adds the shortfall to the pet and recalculates its level without sending alerts.
+	 * Adds the shortfall to the pet and recalculates its level without sending alerts. The
+	 * change is written to the XP log as XpSource::LEGACY.
 	 *
 	 * @param bool $allowDecrease Also remove XP where the flat 10 was more than configured
 	 * @return int The experience actually added (negative only with $allowDecrease)
@@ -86,25 +87,7 @@ class LegacyXpCompensation extends AbstractService
 			return 0;
 		}
 
-		$before = (int) $pet->experience;
-		(new PetLeveling())->addExperience($pet, $amount);
-
-		try
-		{
-			$pet->save();
-		}
-		catch (\Exception $e)
-		{
-			Logger::error('Could not apply legacy pet XP compensation: ' . $e->getMessage(), [
-				'pet_id' => $pet->pet_id,
-				'user_id' => $pet->user_id,
-				'amount' => $amount,
-			]);
-
-			return 0;
-		}
-
-		return (int) $pet->experience - $before;
+		return $this->getPetsRepo()->applyExperienceChange($pet, $amount, false, XpSource::LEGACY) ?? 0;
 	}
 
 	protected function getContentShortfall(UserPetsRepository $repo, string $contentType, int $userId, int $after, int $until): int

@@ -15,7 +15,10 @@
 								label="{$tournament.title}"
 								hint="{{ phrase('sylphian_userpets_tournament_created_on_x', {'date': date($tournament.created_at)}) }}" />
 							<xf:cell class="dataList-cell--min">
-								<xf:macro id="public:sylphian_userpets_macros::tournament_status" arg-status="{$tournament.status}" />
+								<xf:macro id="public:sylphian_userpets_tournament_macros::tournament_status" arg-status="{$tournament.status}" />
+							</xf:cell>
+							<xf:cell class="dataList-cell--min dataList-cell--hint">
+								<xf:macro id="public:sylphian_userpets_tournament_macros::next_step" arg-tournament="{$tournament}" />
 							</xf:cell>
 							<xf:cell class="dataList-cell--min dataList-cell--hint">
 								{{ phrase('sylphian_userpets_tournament_max_participants_x', {'count': $tournament.max_participants|number}) }}
