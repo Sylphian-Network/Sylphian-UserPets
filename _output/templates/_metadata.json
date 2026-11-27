@@ -30,9 +30,9 @@
         "hash": "d41d8cd98f00b204e9800998ecf8427e"
     },
     "public/alert_syl_userpet_duel_challenge.html": {
-        "version_id": 1000010,
-        "version_string": "1.0.0 Alpha",
-        "hash": "6037f72601025dbb3a6338411501f6a0"
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "1edc335f1b1d22c2011b679d04896f20"
     },
     "public/alert_syl_userpet_duel_declined.html": {
         "version_id": 1000010,

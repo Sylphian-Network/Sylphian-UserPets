@@ -521,6 +521,12 @@
         "version_string": "1.0.0 Alpha",
         "hash": "27d4ba053155c4f68f6beb7c1a0f5f0c"
     },
+    "sylphian_userpets_alert_duel_challenge.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "f15791cb47629b77a8e5761a07df21d2"
+    },
     "sylphian_userpets_cannot_challenge_self.txt": {
         "global_cache": false,
         "version_id": 1020070,
@@ -562,6 +568,12 @@
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
         "hash": "6546ab407ad1c3715a30ab88d4661eb4"
+    },
+    "sylphian_userpets_decline.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "0d3627289b893d3eea08e52589ed06ae"
     },
     "sylphian_userpets_default_spritesheet_warning.txt": {
         "global_cache": false,
