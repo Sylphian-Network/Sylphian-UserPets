@@ -557,6 +557,12 @@
         "version_string": "1.2.0",
         "hash": "221cc3f333eabdb47261b922bd6811a4"
     },
+    "sylphian_userpets_alert_levelup.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "e774fe04821d8fcba4c4bf9b84a93c48"
+    },
     "sylphian_userpets_cannot_challenge_self.txt": {
         "global_cache": false,
         "version_id": 1020070,

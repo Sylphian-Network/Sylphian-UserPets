@@ -1,0 +1,1 @@
+Your pet has leveled up from level {old_level} to level {new_level} by gaining {exp} experience!
