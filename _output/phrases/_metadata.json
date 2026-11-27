@@ -593,6 +593,36 @@
         "version_string": "1.2.0",
         "hash": "1326e91a55686554f6506c68a328507e"
     },
+    "sylphian_userpets_column_experience.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "4038d5a85906029f46137a4164c51073"
+    },
+    "sylphian_userpets_column_level.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "a0db49ba470c1c9ae2128c3470339153"
+    },
+    "sylphian_userpets_column_losses.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "2546d0d65cfe1cff61c3fbf95e9defe6"
+    },
+    "sylphian_userpets_column_win_loss_rate.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "7e0b7c1b2637dd896b1b3e968c70268a"
+    },
+    "sylphian_userpets_column_wins.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "f4e8734a42adae133cc779d5107298e9"
+    },
     "sylphian_userpets_confirm_challenge.txt": {
         "global_cache": false,
         "version_id": 1000010,
@@ -754,6 +784,30 @@
         "version_id": 1020070,
         "version_string": "1.2.0",
         "hash": "8bb19069af635826eac5d16b100ce93b"
+    },
+    "sylphian_userpets_leaderboard_duel_wins.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "84809e09c7d7244fb8a92a257ec2bd97"
+    },
+    "sylphian_userpets_leaderboard_duel_wins_desc.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "05f72d6a47551fd5ca6bc87b23706ee6"
+    },
+    "sylphian_userpets_leaderboard_pet_level.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "af37cbe7ae09cdc6a1669f35a390af8c"
+    },
+    "sylphian_userpets_leaderboard_pet_level_desc.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "a754e98f07e44f30acc462b1335a6646"
     },
     "sylphian_userpets_level.txt": {
         "global_cache": false,

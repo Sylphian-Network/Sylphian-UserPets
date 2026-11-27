@@ -21,22 +21,22 @@ class DuelWinsProvider extends AbstractProvider
 
 	public function getTitle(): string
 	{
-		return 'Pet duel wins';
+		return \XF::phrase('sylphian_userpets_leaderboard_duel_wins')->render();
 	}
 
 	public function getDescription(): ?string
 	{
-		return 'Users ranked by total completed pet duel wins.';
+		return \XF::phrase('sylphian_userpets_leaderboard_duel_wins_desc')->render();
 	}
 
 	public function getColumns(): array
 	{
 		return [
-			['key' => 'position', 'label' => 'Position', 'width' => '10%'],
-			['key' => 'username', 'label' => 'User',     'width' => '30%'],
-			['key' => 'wins',     'label' => 'Wins',     'width' => '20%'],
-			['key' => 'losses',   'label' => 'Losses',   'width' => '20%'],
-			['key' => 'wl_rate',  'label' => 'Win/Lose rate',      'width' => '30%'],
+			['key' => 'position', 'label' => \XF::phrase('position')->render(), 'width' => '10%'],
+			['key' => 'username', 'label' => \XF::phrase('user')->render(), 'width' => '30%'],
+			['key' => 'wins', 'label' => \XF::phrase('sylphian_userpets_column_wins')->render(), 'width' => '20%'],
+			['key' => 'losses', 'label' => \XF::phrase('sylphian_userpets_column_losses')->render(), 'width' => '20%'],
+			['key' => 'wl_rate', 'label' => \XF::phrase('sylphian_userpets_column_win_loss_rate')->render(), 'width' => '30%'],
 		];
 	}
 
