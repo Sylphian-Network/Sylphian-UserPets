@@ -1,0 +1,1 @@
+Comma or space separated forum/node IDs. Leave empty to allow post XP in all forums. If filled, only replies posted in threads inside these forums grant XP.

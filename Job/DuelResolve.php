@@ -3,8 +3,10 @@
 namespace Sylphian\UserPets\Job;
 
 use Sylphian\Library\Logger\Logger;
-use Sylphian\UserPets\Duel\AlgorithmRegistry;
+use Sylphian\UserPets\Duel\WinnerPicker;
+use Sylphian\UserPets\Entity\UserPets;
 use Sylphian\UserPets\Entity\UserPetsDuel;
+use Sylphian\UserPets\Helper\DisplayName;
 use Sylphian\UserPets\Helper\UserPetOptOut;
 use Sylphian\UserPets\Repository\UserPetsDuelRepository;
 use Sylphian\UserPets\Repository\UserPetsRepository;
@@ -13,80 +15,113 @@ use XF\Job\AbstractJob;
 use XF\Job\JobResult;
 use XF\Repository\UserAlertRepository;
 
+/**
+ * Fights an accepted duel. The accepted -> completed change is conditional and the rewards are
+ * written in the same transaction after it, so a resumed or duplicated run finds the duel
+ * completed and awards nothing.
+ */
 class DuelResolve extends AbstractJob
 {
-	/**
-	 * Default data structure for this job
-	 */
+	public const int MAX_ATTEMPTS = 5;
+
 	protected $defaultData = [
 		'duel_id' => 0,
 		'attempts' => 0,
 	];
 
-	/**
-	 * Run the job
-	 *
-	 * @param float $maxRunTime Maximum time to run this job
-	 * @return JobResult
-	 */
 	public function run($maxRunTime): JobResult
 	{
-		if (empty($this->data['duel_id']))
+		$duelId = (int) $this->data['duel_id'];
+		if (!$duelId)
 		{
 			return $this->complete();
 		}
 
-		$duelId = $this->data['duel_id'];
+		try
+		{
+			$outcome = $this->resolveDuel($duelId);
+		}
+		catch (\Throwable $e)
+		{
+			$this->data['attempts'] = (int) $this->data['attempts'] + 1;
+
+			if ($this->data['attempts'] >= self::MAX_ATTEMPTS)
+			{
+				Logger::error('Failed to resolve duel after multiple attempts, the duel was cancelled', [
+					'duel_id' => $duelId,
+					'attempts' => $this->data['attempts'],
+					'exception' => $e->getMessage(),
+				]);
+
+				$this->cancelUnresolvableDuel($duelId);
+
+				return $this->complete();
+			}
+
+			Logger::warning('Failed to resolve duel, retrying', [
+				'duel_id' => $duelId,
+				'attempts' => $this->data['attempts'],
+				'exception' => $e->getMessage(),
+			]);
+
+			return $this->resume();
+		}
+
+		if ($outcome)
+		{
+			$this->sendResultAlerts($outcome);
+		}
+
+		return $this->complete();
+	}
+
+	/**
+	 * @return array{duel:UserPetsDuel,winner:UserPets,loser:UserPets,win_exp:int,lose_stats:int}|null
+	 *         null when there was nothing (left) to resolve
+	 */
+	protected function resolveDuel(int $duelId): ?array
+	{
+		$duelRepo = $this->getDuelRepo();
+
+		/** @var UserPetsDuel|null $duel */
+		$duel = $this->app->em()->find('Sylphian\UserPets:UserPetsDuel', $duelId);
+		if (!$duel || $duel->status !== 'accepted')
+		{
+			return null;
+		}
+
+		$challengerPet = $duel->ChallengerPet;
+		$opponentPet = $duel->OpponentPet;
+		if (!$challengerPet || !$opponentPet)
+		{
+			Logger::warning('Duel cancelled because a pet no longer exists', [
+				'duel_id' => $duelId,
+				'challenger_pet_id' => $duel->challenger_pet_id,
+				'opponent_pet_id' => $duel->opponent_pet_id,
+			]);
+
+			$duelRepo->transitionDuelStatus($duel, 'accepted', 'cancelled');
+
+			return null;
+		}
+
+		$winnerPet = WinnerPicker::pick($challengerPet, $opponentPet);
+		$loserPet = $winnerPet->pet_id === $challengerPet->pet_id ? $opponentPet : $challengerPet;
+
+		$options = $this->app->options();
+		$winExp = max(0, (int) $options->sylphian_userpets_duel_win_exp);
+		$loseStats = max(0, (int) $options->sylphian_userpets_duel_lose_stats);
+
+		$db = $this->app->db();
+		$db->beginTransaction();
 
 		try
 		{
-			/** @var UserPetsDuel $duel */
-			$duel = $this->app->em()->find('Sylphian\UserPets:UserPetsDuel', $duelId);
-			if (!$duel || $duel->status !== 'accepted')
+			if (!$duelRepo->completeDuel($duel, $winnerPet->pet_id, $loserPet->pet_id))
 			{
-				Logger::error('Duel job found invalid duel', [
-					'duel_id' => $duelId,
-					'status' => $duel ? $duel->status : 'null',
-				]);
-				return $this->complete();
-			}
+				$db->rollback();
 
-			$challengerPet = $duel->ChallengerPet;
-			$opponentPet = $duel->OpponentPet;
-
-			if (!$challengerPet || !$opponentPet)
-			{
-				Logger::error('Duel job found missing pets', [
-					'duel_id' => $duelId,
-					'challenger_pet_id' => $duel->challenger_pet_id,
-					'opponent_pet_id' => $duel->opponent_pet_id,
-				]);
-				return $this->complete();
-			}
-
-			$algorithm = AlgorithmRegistry::resolve();
-			Logger::debug('Duel registered.', [
-				'algorithm_key' => $algorithm->getKey(),
-				'algorithm_label' => $algorithm->getLabel(),
-				'algorithm_class' => get_class($algorithm),
-			]);
-
-			$result = $algorithm->calculateWinner(
-				$challengerPet->toArray(),
-				$opponentPet->toArray()
-			);
-
-			$winnerPet = ($result['pet_id'] === $challengerPet->pet_id) ? $challengerPet : $opponentPet;
-			$loserPet = ($winnerPet->pet_id === $challengerPet->pet_id) ? $opponentPet : $challengerPet;
-
-			$winExp = \XF::options()->sylphian_userpets_duel_win_exp;
-			$loseStats = \XF::options()->sylphian_userpets_duel_lose_stats;
-
-			if ($winExp > 0)
-			{
-				/** @var UserPetsRepository $petsRepo */
-				$petsRepo = $this->app->repository('Sylphian\UserPets:UserPets');
-				$petsRepo->awardPetExperience($winnerPet->user_id, $winExp, false);
+				return null;
 			}
 
 			if ($loseStats > 0)
@@ -94,114 +129,154 @@ class DuelResolve extends AbstractJob
 				$loserPet->hunger = max(0, $loserPet->hunger - $loseStats);
 				$loserPet->happiness = max(0, $loserPet->happiness - $loseStats);
 				$loserPet->sleepiness = max(0, $loserPet->sleepiness - $loseStats);
-				$loserPet->save();
+				$loserPet->save(true, false);
 			}
 
-			/** @var UserPetsDuelRepository $duelRepo */
-			$duelRepo = $this->app->repository('Sylphian\UserPets:UserPetsDuel');
-			$duelRepo->updateDuelStatus($duelId, 'completed', [
-				'winner_pet_id' => $winnerPet->pet_id,
-				'loser_pet_id' => $loserPet->pet_id,
-			]);
+			$awardedExp = $this->getPetsRepo()->awardExperienceToPet($winnerPet, $winExp) ? $winExp : 0;
 
+			$db->commit();
+		}
+		catch (\Throwable $e)
+		{
+			$db->rollback();
+
+			// the entities still hold the rolled back values; a retry must start from the database
+			$em = $this->app->em();
+			$em->detachEntity($duel);
+			$em->detachEntity($challengerPet);
+			$em->detachEntity($opponentPet);
+
+			throw $e;
+		}
+
+		Logger::notice('Duel completed', [
+			'duel_id' => $duelId,
+			'winner_pet_id' => $winnerPet->pet_id,
+			'winner_user_id' => $winnerPet->user_id,
+			'loser_pet_id' => $loserPet->pet_id,
+			'loser_user_id' => $loserPet->user_id,
+			'win_exp' => $awardedExp,
+		]);
+
+		return [
+			'duel' => $duel,
+			'winner' => $winnerPet,
+			'loser' => $loserPet,
+			'win_exp' => $awardedExp,
+			'lose_stats' => $loseStats,
+		];
+	}
+
+	/**
+	 * Runs after the result is committed; a failure here must not re-run the duel.
+	 *
+	 * @param array{duel:UserPetsDuel,winner:UserPets,loser:UserPets,win_exp:int,lose_stats:int} $outcome
+	 */
+	protected function sendResultAlerts(array $outcome): void
+	{
+		try
+		{
 			/** @var UserAlertRepository $alertRepo */
 			$alertRepo = $this->app->repository('XF:UserAlert');
 
-			/** @var User $winnerUser */
-			$winnerUser = $this->app->em()->find('XF:User', $winnerPet->user_id);
-			/** @var User $loserUser */
-			$loserUser = $this->app->em()->find('XF:User', $loserPet->user_id);
+			/** @var User|null $winnerUser */
+			$winnerUser = $outcome['winner']->User;
+			/** @var User|null $loserUser */
+			$loserUser = $outcome['loser']->User;
 
-			$winnerUsername = $winnerUser ? $winnerUser->username : 'Unknown';
-			$loserUsername = $loserUser ? $loserUser->username : 'Unknown';
+			// The opponent name is stored raw; the alert template shows its own "unknown user" fallback.
+			$winnerName = $winnerUser ? DisplayName::decode($winnerUser->username) : '';
+			$loserName = $loserUser ? DisplayName::decode($loserUser->username) : '';
 
-			$canAlertWinner = !UserPetOptOut::isDisabledByUserId($winnerPet->user_id);
-			$canAlertLoser  = !UserPetOptOut::isDisabledByUserId($loserPet->user_id);
-
-			if ($canAlertWinner)
+			if ($winnerUser && !UserPetOptOut::isDisabledForUser($winnerUser))
 			{
 				$alertRepo->alertFromUser(
 					$winnerUser,
 					$winnerUser,
 					'syl_userpet',
-					$winnerPet->pet_id,
+					$outcome['winner']->pet_id,
 					'duel_win',
 					[
-						'opponent_name' => $loserUsername,
-						'exp_gained' => $winExp,
+						'opponent_name' => $loserName,
+						'exp_gained' => $outcome['win_exp'],
+						'duel_id' => $outcome['duel']->duel_id,
 					]
 				);
 			}
 
-			if ($canAlertLoser)
+			if ($loserUser && !UserPetOptOut::isDisabledForUser($loserUser))
 			{
 				$alertRepo->alertFromUser(
 					$loserUser,
 					$loserUser,
 					'syl_userpet',
-					$loserPet->pet_id,
+					$outcome['loser']->pet_id,
 					'duel_loss',
 					[
-						'opponent_name' => $winnerUsername,
-						'stats_lost' => $loseStats,
+						'opponent_name' => $winnerName,
+						'stats_lost' => $outcome['lose_stats'],
+						'duel_id' => $outcome['duel']->duel_id,
 					]
 				);
 			}
-
-			Logger::notice('Duel completed', [
-				'duel_id' => $duelId,
-				'winner_pet_id' => $winnerPet->pet_id,
-				'winner_user_id' => $winnerPet->user_id,
-				'loser_pet_id' => $loserPet->pet_id,
-				'loser_user_id' => $loserPet->user_id,
-			]);
-
-			return $this->complete();
 		}
-		catch (\Exception $e)
+		catch (\Throwable $e)
 		{
-			if ($this->data['attempts'] >= 5)
-			{
-				Logger::error('Failed to resolve duel after multiple attempts', [
-					'duel_id' => $duelId,
-					'error' => $e->getMessage(),
-				]);
-				return $this->complete();
-			}
-
-			$this->data['attempts']++;
-			return $this->resume();
+			Logger::error('Failed to send duel result alerts', [
+				'duel_id' => $outcome['duel']->duel_id,
+				'exception' => $e->getMessage(),
+			]);
 		}
 	}
 
 	/**
-	 * Get a descriptive status message for this job
-	 *
-	 * @return string
+	 * After the last failed attempt the duel would otherwise stay "accepted" forever and block
+	 * both pets' history; nothing was awarded, so it is cancelled.
 	 */
+	protected function cancelUnresolvableDuel(int $duelId): void
+	{
+		try
+		{
+			/** @var UserPetsDuel|null $duel */
+			$duel = $this->app->em()->find('Sylphian\UserPets:UserPetsDuel', $duelId);
+			if ($duel)
+			{
+				$this->getDuelRepo()->transitionDuelStatus($duel, 'accepted', 'cancelled');
+			}
+		}
+		catch (\Throwable $e)
+		{
+			Logger::error('Could not cancel an unresolvable duel', [
+				'duel_id' => $duelId,
+				'exception' => $e->getMessage(),
+			]);
+		}
+	}
+
+	protected function getDuelRepo(): UserPetsDuelRepository
+	{
+		/** @var UserPetsDuelRepository */
+		return $this->app->repository('Sylphian\UserPets:UserPetsDuel');
+	}
+
+	protected function getPetsRepo(): UserPetsRepository
+	{
+		/** @var UserPetsRepository */
+		return $this->app->repository('Sylphian\UserPets:UserPets');
+	}
+
 	public function getStatusMessage(): string
 	{
-		return sprintf(
-			'Resolving duel (ID: %d)',
-			$this->data['duel_id']
-		);
+		return (string) \XF::phrase('sylphian_userpets_job_duel_resolve_status', [
+			'duel_id' => $this->data['duel_id'],
+		]);
 	}
 
-	/**
-	 * Can this job be cancelled by user action?
-	 *
-	 * @return bool
-	 */
 	public function canCancel(): bool
 	{
 		return true;
 	}
 
-	/**
-	 * Can this job be triggered manually by user choice?
-	 *
-	 * @return bool
-	 */
 	public function canTriggerByChoice(): bool
 	{
 		return false;

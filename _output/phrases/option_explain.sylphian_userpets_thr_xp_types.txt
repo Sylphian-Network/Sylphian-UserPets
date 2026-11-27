@@ -1,0 +1,1 @@
+Select which thread types should grant thread XP. Leave empty to allow all thread types.

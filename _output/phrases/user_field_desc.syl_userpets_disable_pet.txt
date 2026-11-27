@@ -1,0 +1,1 @@
+A disabled pet is hidden, does not gain XP and cannot take part in duels or tournaments.

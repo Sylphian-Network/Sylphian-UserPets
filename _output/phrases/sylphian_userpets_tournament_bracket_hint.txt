@@ -1,0 +1,1 @@
+Drag to move around the bracket. Use the zoom buttons, or hold Ctrl while scrolling, to zoom.

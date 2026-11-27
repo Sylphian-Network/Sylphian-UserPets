@@ -1,0 +1,40 @@
+<xf:title>{{ phrase('sylphian_userpets_tournaments_admin_title') }}</xf:title>
+
+<xf:pageaction>
+	<xf:button href="{{ link('sylphian_userpets-tournaments/add') }}" icon="add" overlay="true">{{ phrase('sylphian_userpets_tournament_create') }}</xf:button>
+</xf:pageaction>
+
+<xf:if is="$tournaments is not empty">
+	<div class="block">
+		<div class="block-container">
+			<div class="block-body">
+				<xf:datalist data-xf-init="responsive-data-list">
+					<xf:foreach loop="$tournaments" value="$tournament">
+						<xf:datarow>
+							<xf:main href="{{ link('sylphian_userpets-tournaments/view', null, {'tournament_id': $tournament.tournament_id}) }}"
+								label="{$tournament.title}"
+								hint="{{ phrase('sylphian_userpets_tournament_created_on_x', {'date': date($tournament.created_at)}) }}" />
+							<xf:cell class="dataList-cell--min">
+								<xf:macro id="public:sylphian_userpets_macros::tournament_status" arg-status="{$tournament.status}" />
+							</xf:cell>
+							<xf:cell class="dataList-cell--min dataList-cell--hint">
+								{{ phrase('sylphian_userpets_tournament_max_participants_x', {'count': $tournament.max_participants|number}) }}
+							</xf:cell>
+							<xf:cell class="dataList-cell--min dataList-cell--hint">
+								{{ phrase('sylphian_userpets_tournament_reward_x_xp', {'xp': $tournament.prize_experience|number}) }}
+							</xf:cell>
+							<xf:action href="{{ link('sylphian_userpets-tournaments/edit', null, {'tournament_id': $tournament.tournament_id}) }}" overlay="true">
+								{{ phrase('edit') }}
+							</xf:action>
+						</xf:datarow>
+					</xf:foreach>
+				</xf:datalist>
+			</div>
+			<div class="block-footer">
+				<span class="block-footer-counter">{{ display_totals($tournaments) }}</span>
+			</div>
+		</div>
+	</div>
+<xf:else />
+	<div class="blockMessage">{{ phrase('sylphian_userpets_tournaments_none') }}</div>
+</xf:if>

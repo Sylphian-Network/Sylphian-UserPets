@@ -17,10 +17,10 @@ use XF\Mvc\Entity\Structure;
  * @property int $completed_at
  *
  * RELATIONS
- * @property UserPets $ChallengerPet
- * @property UserPets $OpponentPet
- * @property UserPets $WinnerPet
- * @property UserPets $LoserPet
+ * @property UserPets|null $ChallengerPet
+ * @property UserPets|null $OpponentPet
+ * @property UserPets|null $WinnerPet
+ * @property UserPets|null $LoserPet
  */
 class UserPetsDuel extends Entity
 {
@@ -36,7 +36,7 @@ class UserPetsDuel extends Entity
 			'opponent_pet_id' => ['type' => self::UINT, 'required' => true],
 			'status' => [
 				'type' => self::STR,
-				'allowedValues' => ['pending', 'accepted', 'declined', 'completed'],
+				'allowedValues' => ['pending', 'accepted', 'declined', 'cancelled', 'completed'],
 				'default' => 'pending',
 			],
 			'winner_pet_id' => ['type' => self::UINT, 'default' => 0],

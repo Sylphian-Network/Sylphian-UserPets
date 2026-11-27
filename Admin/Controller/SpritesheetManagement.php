@@ -2,31 +2,22 @@
 
 namespace Sylphian\UserPets\Admin\Controller;
 
-use Sylphian\Library\Logger\Logger;
 use Sylphian\UserPets\Entity\UserPetsSpritesheet;
 use Sylphian\UserPets\Repository\UserPetsSpritesheetRepository;
 use XF\Admin\Controller\AbstractController;
-use XF\Http\Upload;
 use XF\Mvc\ParameterBag;
 use XF\Mvc\Reply\Error;
-use XF\Mvc\Reply\Exception;
 use XF\Mvc\Reply\Redirect;
 use XF\Mvc\Reply\View;
 
 class SpritesheetManagement extends AbstractController
 {
+	public const ADMIN_PERMISSION = 'syl_userpetsSpritesheets';
+
 	protected function preDispatchController($action, ParameterBag $params): void
 	{
-		try
-		{
-			$this->assertAdminPermission('syl_userpetsSpritesheets');
-		}
-		catch (Exception $e)
-		{
-			Logger::error('Error asserting admin permission.', [
-				'exception' => $e->getMessage(),
-			]);
-		}
+		$this->assertAdminPermission(self::ADMIN_PERMISSION);
+		$this->setSectionContext('sylphian_userpets_spritesheet_management');
 	}
 
 	protected function repo(): UserPetsSpritesheetRepository
@@ -38,15 +29,14 @@ class SpritesheetManagement extends AbstractController
 
 	public function actionIndex(): View
 	{
-		$repo  = $this->repo();
-		$files = $repo->buildIndexList();
+		$repo = $this->repo();
 		$health = $repo->getPathHealth();
 
 		return $this->view(
 			'Sylphian\UserPets:SpritesheetManagement\\Index',
 			'sylphian_userpets_spritesheets_list',
 			[
-				'files' => $files,
+				'files' => $repo->buildIndexList(),
 				'baseUrl' => $repo->getBaseUrl(),
 				'pathHealth' => $health['dirs'],
 				'hasPathIssues' => $health['hasIssues'],
@@ -56,24 +46,15 @@ class SpritesheetManagement extends AbstractController
 
 	public function actionAdd(): View
 	{
-		$repo = $this->repo();
-
 		/** @var UserPetsSpritesheet $entity */
 		$entity = $this->em()->create('Sylphian\UserPets:UserPetsSpritesheet');
-		$entity->filename = '';
-		$entity->title = '';
-		$entity->frame_width = 192;
-		$entity->frame_height = 192;
-		$entity->frames_per_animation = 4;
-		$entity->fps = 4;
-		$entity->last_modified = 0;
 
 		return $this->view(
 			'Sylphian\\UserPets:SpritesheetManagement\\Add',
 			'sylphian_userpets_spritesheets_add',
 			[
 				'entity'  => $entity,
-				'baseUrl' => $repo->getBaseUrl(),
+				'baseUrl' => $this->repo()->getBaseUrl(),
 			]
 		);
 	}
@@ -81,20 +62,23 @@ class SpritesheetManagement extends AbstractController
 	public function actionEdit(): View|Error
 	{
 		$filename = $this->filter('file', 'str');
-		if ($filename === '')
+		if (trim($filename) === '')
 		{
-			return $this->error('No file specified.');
+			return $this->error(\XF::phrase('sylphian_userpets_no_file_specified'));
 		}
 
-		$repo = $this->repo();
-		$data = $repo->prepareEditData($filename);
+		$data = $this->repo()->prepareEditData($filename);
+		if (!$data)
+		{
+			return $this->error(\XF::phrase('sylphian_userpets_error_invalid_file_path'));
+		}
 
 		return $this->view(
 			'Sylphian\\UserPets:SpritesheetManagement\\Edit',
 			'sylphian_userpets_spritesheets_edit',
 			[
 				'entity'   => $data['entity'],
-				'filename' => $filename,
+				'filename' => $data['entity']->filename,
 				'fileUrl'  => $data['fileUrl'],
 				'exists'   => $data['exists'],
 			]
@@ -105,11 +89,7 @@ class SpritesheetManagement extends AbstractController
 	{
 		$this->assertPostOnly();
 
-		$repo = $this->repo();
-
-		$id            = (int) $this->filter('spritesheet_id', 'uint');
-		$origFilename  = (string) $this->filter('file', 'str');
-		$input         = $this->filter([
+		$input = $this->filter([
 			'filename'              => 'str',
 			'title'                 => 'str',
 			'frame_width'           => 'uint',
@@ -118,41 +98,50 @@ class SpritesheetManagement extends AbstractController
 			'fps'                   => 'uint',
 		]);
 
-		/** @var Upload|null $upload */
-		$upload = $this->request()->getFile('image', false);
+		$result = $this->repo()->saveSpritesheet(
+			$this->filter('spritesheet_id', 'uint'),
+			$this->filter('file', 'str'),
+			$input,
+			$this->request()->getFile('image', false)
+		);
 
-		$result = $repo->saveSpritesheet($id, $origFilename, $input, $upload);
-		if (!empty($result['error']))
+		if (!empty($result['errors']))
 		{
-			return $this->error($result['error']);
+			return $this->error($result['errors']);
 		}
 
-		return $this->redirect($this->buildLink('sylphian_userpets/spritesheets'));
+		return $this->redirect($this->buildLink('sylphian_userpets-spritesheets'));
 	}
 
 	public function actionDelete(): View|Redirect|Error
 	{
 		$filename = $this->filter('file', 'str');
+		if (trim($filename) === '')
+		{
+			return $this->error(\XF::phrase('sylphian_userpets_no_file_specified'));
+		}
+
 		if (!$this->isPost())
 		{
-			$repo = $this->repo();
+			$data = $this->repo()->prepareDeleteData($filename);
+			if (!$data)
+			{
+				return $this->error(\XF::phrase('sylphian_userpets_error_invalid_file_path'));
+			}
+
 			return $this->view(
 				'Sylphian\\UserPets:SpritesheetManagement\\Delete',
 				'sylphian_userpets_spritesheets_delete',
-				[
-					'filename' => $filename,
-					'exists'   => is_file($repo->getBasePath() . DIRECTORY_SEPARATOR . $filename),
-					'url'      => $repo->getBaseUrl() . '/' . rawurlencode($filename),
-					'entity'   => $this->repo()->findByFilename($filename),
-				]
+				$data
 			);
 		}
 
-		$result = $this->repo()->deleteByFilename($filename);
-		if ($result !== true)
+		$errors = $this->repo()->deleteByFilename($filename);
+		if ($errors)
 		{
-			return $this->error((string) $result);
+			return $this->error($errors);
 		}
-		return $this->redirect($this->buildLink('sylphian_userpets/spritesheets'));
+
+		return $this->redirect($this->buildLink('sylphian_userpets-spritesheets'));
 	}
 }

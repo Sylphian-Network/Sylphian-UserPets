@@ -2,6 +2,7 @@
 
 namespace Sylphian\UserPets\Listener;
 
+use Sylphian\UserPets\Leaderboard\Provider\DuelLossesProvider;
 use Sylphian\UserPets\Leaderboard\Provider\DuelWinsProvider;
 use Sylphian\UserPets\Leaderboard\Provider\ExperienceProvider;
 
@@ -11,5 +12,6 @@ class LeaderboardProviders
 	{
 		$providers[] = new ExperienceProvider();
 		$providers[] = new DuelWinsProvider();
+		$providers[] = new DuelLossesProvider();
 	}
 }

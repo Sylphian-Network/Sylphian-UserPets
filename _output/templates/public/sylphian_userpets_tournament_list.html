@@ -1,0 +1,71 @@
+<xf:title>{{ phrase('sylphian_userpets_tournaments_public_title') }}</xf:title>
+
+<xf:css src="sylphian_userpets_tournament.less" />
+
+<div class="block">
+	<div class="block-container">
+		<h2 class="block-header">{{ phrase('sylphian_userpets_tournaments_active') }}</h2>
+		<div class="block-body">
+			<xf:if is="$activeTournaments is not empty">
+				<xf:foreach loop="$activeTournaments" value="$tournament">
+					<div class="block-row block-row--separated">
+						<div class="contentRow">
+							<div class="contentRow-figure contentRow-figure--text">
+								<xf:fa icon="fa-trophy" class="petTournament-icon" />
+							</div>
+							<div class="contentRow-main">
+								<h3 class="contentRow-title">
+									<a href="{{ link('userpetstournaments/view', null, {'tournament_id': $tournament.tournament_id}) }}">{$tournament.title}</a>
+								</h3>
+								<xf:if is="$tournament.description">
+									<div class="contentRow-snippet">{{ snippet($tournament.description, 200) }}</div>
+								</xf:if>
+								<ul class="listInline listInline--bullet contentRow-minor">
+									<li><xf:macro id="sylphian_userpets_macros::tournament_status" arg-status="{$tournament.status}" /></li>
+									<li>{{ phrase('sylphian_userpets_tournament_max_participants_x', {'count': $tournament.max_participants|number}) }}</li>
+									<li>{{ phrase('sylphian_userpets_tournament_reward_x_xp', {'xp': $tournament.prize_experience|number}) }}</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</xf:foreach>
+			<xf:else />
+				<div class="block-row">{{ phrase('sylphian_userpets_tournaments_none_active') }}</div>
+			</xf:if>
+		</div>
+	</div>
+</div>
+
+<div class="block">
+	<div class="block-container">
+		<h2 class="block-header">{{ phrase('sylphian_userpets_tournaments_completed') }}</h2>
+		<div class="block-body">
+			<xf:if is="$completedTournaments is not empty">
+				<xf:foreach loop="$completedTournaments" value="$tournament">
+					<div class="block-row block-row--separated">
+						<div class="contentRow">
+							<div class="contentRow-figure contentRow-figure--text">
+								<xf:fa icon="fa-flag-checkered" class="petTournament-icon" />
+							</div>
+							<div class="contentRow-main">
+								<h3 class="contentRow-title">
+									<a href="{{ link('userpetstournaments/view', null, {'tournament_id': $tournament.tournament_id}) }}">{$tournament.title}</a>
+								</h3>
+								<ul class="listInline listInline--bullet contentRow-minor">
+									<xf:if is="$tournament.winner_pet_id">
+										<li>{{ phrase('sylphian_userpets_tournament_winner_x', {
+											'name': username_link($tournament.WinnerPet.User, false, {'defaultname': phrase('sylphian_userpets_unknown_user')})
+										}) }}</li>
+									</xf:if>
+									<li>{{ phrase('sylphian_userpets_tournament_reward_x_xp', {'xp': $tournament.prize_experience|number}) }}</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</xf:foreach>
+			<xf:else />
+				<div class="block-row">{{ phrase('sylphian_userpets_tournaments_none_completed') }}</div>
+			</xf:if>
+		</div>
+	</div>
+</div>

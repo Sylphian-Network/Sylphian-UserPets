@@ -1,0 +1,65 @@
+.spritePreview
+{
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 100%;
+
+	img,
+	.spritePreview-canvas
+	{
+		display: block;
+		width: auto;
+		height: auto;
+		max-width: 108px;
+		max-height: 54px;
+		margin: auto;
+	}
+
+	// The source image stays as a no-JS fallback; the preview script hides it once the canvas is in place.
+	img[hidden]
+	{
+		display: none;
+	}
+
+	&.spritePreview--large
+	{
+		img,
+		.spritePreview-canvas
+		{
+			max-width: 100%;
+			max-height: 192px;
+			border: @xf-borderSize solid @xf-borderColor;
+			border-radius: @xf-borderRadiusSmall;
+		}
+	}
+}
+
+.spritePreview-canvas--pixelated
+{
+	image-rendering: pixelated;
+}
+
+.spritesheetDelete-image
+{
+	display: block;
+	max-width: 100%;
+	max-height: 256px;
+	height: auto;
+	border: @xf-borderSize solid @xf-borderColor;
+	border-radius: @xf-borderRadiusSmall;
+	image-rendering: pixelated;
+}
+
+.petTournamentActions
+{
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	gap: @xf-paddingMedium;
+
+	form
+	{
+		margin: 0;
+	}
+}

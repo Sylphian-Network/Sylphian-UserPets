@@ -1,5 +1,8 @@
 {
     "admin/sylphian_userpets_helper_criteria.json": {
-        "hash": "983e1faa9ccc535d042197d1dbac8db0"
+        "hash": "eea95b2851e22c1d68df4cbc9e3d72bf"
+    },
+    "public/sylphian_userpets_account_duel_menu.json": {
+        "hash": "f7a2c3595b7e3970f8afd1d5387ecea8"
     }
 }

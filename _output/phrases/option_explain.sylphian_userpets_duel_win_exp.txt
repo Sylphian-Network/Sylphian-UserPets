@@ -1,1 +1,1 @@
-How much exp do users recieve after challenging and winning?
+XP awarded to the pet that wins a duel.

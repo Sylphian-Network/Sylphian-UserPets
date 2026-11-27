@@ -1,353 +1,266 @@
-XF.PetRenderer = XF.Element.newHandler({
-    options: {
-        spriteSheetPath: null,
-        states: {
-            'idle': 0,
-            'feed': 1,
-            'play': 2,
-            'sleep': 3,
-        },
-        frameWidth: 192,
-        frameHeight: 192,
-        fps: 4,
-        framesPerAnimation: 4,
-        scaleMin: 0.5,
-        scaleMax: 1.0
-    },
+((window, document) =>
+{
+	'use strict'
 
-    canvas: null,
-    context: null,
-    spriteSheet: null,
-    spriteSheetLoaded: false,
-    currentState: 'idle',
-    currentFrame: 0,
-    animationInterval: null,
+	const STATE_ROWS = {
+		idle: 0,
+		feed: 1,
+		play: 2,
+		sleep: 3,
+	}
 
-    petLevel: 1,
-    targetScale: 0.5,
-    currentScale: 0.5,
-    scaleAnimationActive: false,
+	const CANVAS_SIZE = 192
+	const MAX_LEVEL = 100
+	const ACTION_ANIMATION_MS = 3000
 
-    /**
-     * Initialize the pet renderer
-     */
-    init: function() {
-        this.canvas = this.target;
-        if (!this.canvas || !(this.canvas instanceof HTMLCanvasElement)) {
-            console.error('PetRenderer: Target is not a canvas element');
-            return;
-        }
+	XF.PetRenderer = XF.Element.newHandler({
+		options: {
+			spriteSheetPath: '',
+			petState: 'idle',
+			level: 1,
+			frameWidth: 192,
+			frameHeight: 192,
+			fps: 4,
+			framesPerAnimation: 4,
+			scaleMin: 0.5,
+			scaleMax: 1.0,
+		},
 
-        this.context = this.canvas.getContext('2d');
-        if (!this.context) {
-            console.error('PetRenderer: Could not get 2D context');
-            return;
-        }
+		canvas: null,
+		context: null,
+		container: null,
+		spriteSheet: null,
+		spriteSheetLoaded: false,
+		baseState: 'idle',
+		currentState: 'idle',
+		currentFrame: 0,
+		animationInterval: null,
+		resetTimer: null,
+		targetScale: 0.5,
+		currentScale: 0.5,
 
-        this.canvas.width = 192;
-        this.canvas.height = 192;
+		init ()
+		{
+			if (!(this.target instanceof HTMLCanvasElement))
+			{
+				console.error('PetRenderer: target must be a canvas element')
+				return
+			}
 
-        const ds = this.canvas.dataset || {};
-        const getNum = function (val, def, min, max) {
-            let n = (val == null ? NaN : Number(val));
-            if (!Number.isFinite(n)) n = def;
-            if (min != null && Number.isFinite(min)) n = Math.max(min, n);
-            if (max != null && Number.isFinite(max)) n = Math.min(max, n);
-            return n;
-        };
+			this.canvas = this.target
+			this.context = this.canvas.getContext('2d')
+			if (!this.context)
+			{
+				return
+			}
 
-        // Sprite sheet path
-        if (ds.spriteSheetPath) {
-            this.options.spriteSheetPath = ds.spriteSheetPath;
-        } else {
-            const ssAttr = this.canvas.getAttribute('data-sprite-sheet-path');
-            if (ssAttr) this.options.spriteSheetPath = ssAttr;
-        }
+			this.canvas.width = CANVAS_SIZE
+			this.canvas.height = CANVAS_SIZE
 
-        // Frame dimensions
-        if (ds.frameWidth != null) {
-            this.options.frameWidth = getNum(ds.frameWidth, this.options.frameWidth, 1);
-        } else {
-            const fwAttr = this.canvas.getAttribute('data-frame-width');
-            if (fwAttr != null) this.options.frameWidth = getNum(fwAttr, this.options.frameWidth, 1);
-        }
-        if (ds.frameHeight != null) {
-            this.options.frameHeight = getNum(ds.frameHeight, this.options.frameHeight, 1);
-        } else {
-            const fhAttr = this.canvas.getAttribute('data-frame-height');
-            if (fhAttr != null) this.options.frameHeight = getNum(fhAttr, this.options.frameHeight, 1);
-        }
+			this.normalizeOptions()
 
-        // Animation config
-        if (ds.fps != null) {
-            this.options.fps = getNum(ds.fps, this.options.fps, 1, 120);
-        } else {
-            const fpsAttr = this.canvas.getAttribute('data-fps');
-            if (fpsAttr != null) this.options.fps = getNum(fpsAttr, this.options.fps, 1, 120);
-        }
-        if (ds.framesPerAnimation != null) {
-            this.options.framesPerAnimation = getNum(ds.framesPerAnimation, this.options.framesPerAnimation, 1);
-        } else {
-            const fpaAttr = this.canvas.getAttribute('data-frames-per-animation');
-            if (fpaAttr != null) this.options.framesPerAnimation = getNum(fpaAttr, this.options.framesPerAnimation, 1);
-        }
+			const state = String(this.options.petState || '').toLowerCase()
+			this.baseState = XF.hasOwn(STATE_ROWS, state) ? state : 'idle'
+			this.currentState = this.baseState
 
-        // Scaling bounds
-        if (ds.scaleMin != null) {
-            this.options.scaleMin = getNum(ds.scaleMin, this.options.scaleMin, 0.01);
-        } else {
-            const smin = this.canvas.getAttribute('data-scale-min');
-            if (smin != null) this.options.scaleMin = getNum(smin, this.options.scaleMin, 0.01);
-        }
-        if (ds.scaleMax != null) {
-            this.options.scaleMax = getNum(ds.scaleMax, this.options.scaleMax, 0.01);
-        } else {
-            const smax = this.canvas.getAttribute('data-scale-max');
-            if (smax != null) this.options.scaleMax = getNum(smax, this.options.scaleMax, 0.01);
-        }
+			this.targetScale = this.calculateScale(this.options.level)
+			this.currentScale = this.targetScale
 
-        this.options.scaleMin = parseFloat(this.options.scaleMin);
-        this.options.scaleMax = parseFloat(this.options.scaleMax);
+			this.container = this.canvas.closest('.js-petWidget')
+			if (this.container)
+			{
+				XF.on(this.container, 'userpets:action', this.onAction.bind(this))
+				XF.on(this.container, 'userpets:level-change', this.onLevelChange.bind(this))
+			}
 
-        if (!Number.isFinite(this.options.scaleMin)) this.options.scaleMin = 0.5;
-        if (!Number.isFinite(this.options.scaleMax)) this.options.scaleMax = 1.0;
+			this.loadSpriteSheet()
+			this.startAnimation()
+		},
 
-        if (this.options.scaleMin > this.options.scaleMax) {
-            const t = this.options.scaleMin;
-            this.options.scaleMin = this.options.scaleMax; this.options.scaleMax = t;
-        }
+		normalizeOptions ()
+		{
+			const clamp = (value, fallback, min, max) =>
+			{
+				let n = Number(value)
+				if (!Number.isFinite(n))
+				{
+					n = fallback
+				}
+				if (min !== undefined)
+				{
+					n = Math.max(min, n)
+				}
+				if (max !== undefined)
+				{
+					n = Math.min(max, n)
+				}
+				return n
+			}
 
-        const initialState = ds.initialState || this.canvas.getAttribute('data-initial-state');
-        if (initialState && this.options.states.hasOwnProperty(initialState)) {
-            this.currentState = initialState;
-        }
+			const o = this.options
+			o.frameWidth = clamp(o.frameWidth, 192, 1)
+			o.frameHeight = clamp(o.frameHeight, 192, 1)
+			o.fps = clamp(o.fps, 4, 1, 120)
+			o.framesPerAnimation = Math.round(clamp(o.framesPerAnimation, 4, 1))
+			o.scaleMin = clamp(o.scaleMin, 0.5, 0.01)
+			o.scaleMax = clamp(o.scaleMax, 1.0, 0.01)
+			o.level = Math.round(clamp(o.level, 1, 1))
 
-        const petState = this.target.getAttribute('data-pet-state');
-        if (petState && this.options.states.hasOwnProperty(petState)) {
-            this.currentState = petState;
-        }
+			if (o.scaleMin > o.scaleMax)
+			{
+				[o.scaleMin, o.scaleMax] = [o.scaleMax, o.scaleMin]
+			}
+		},
 
-        this.readPetLevel();
-        this.loadSpriteSheet();
-        this.startAnimation();
-        this.listenForStateChanges();
-        this.listenForLevelChanges();
-    },
+		// Power 1.5 curve so the pet grows quickly early on and slowly at high levels.
+		calculateScale (level)
+		{
+			level = Math.max(1, parseInt(level, 10) || 1)
 
-    /**
-     * Read the pet level from the DOM
-     */
-    readPetLevel: function() {
-        const petStatsContainer = this.canvas.closest('.block-body');
-        if (petStatsContainer) {
-            const levelText = petStatsContainer.querySelector('.petStats .u-alignCenter div:first-child');
-            if (levelText) {
-                const levelMatch = levelText.textContent.match(/\d+/);
-                if (levelMatch) {
-                    this.petLevel = parseInt(levelMatch[0]);
-                    this.targetScale = this.calculateScale(this.petLevel);
-                    this.currentScale = this.targetScale;
-                }
-            }
-        }
-    },
+			const { scaleMin, scaleMax } = this.options
+			const progress = Math.pow(Math.min(level, MAX_LEVEL) / MAX_LEVEL, 1.5)
 
-    /**
-     * Calculates the scale value based on pet level.
-     * Uses a non-linear (power 1.5) curve to slow scale growth at higher levels.
-     *
-     * @param {number} level - The pet's current level (1–100).
-     * @returns {number} - The computed scale factor.
-     */
-    calculateScale: function(level) {
-        level = Math.max(1, parseInt(level));
+			return Math.min(scaleMax, Math.max(scaleMin, scaleMin + progress * (scaleMax - scaleMin)))
+		},
 
-        const minScale = this.options.scaleMin;
-        const maxScale = this.options.scaleMax;
-        const maxLevel = 100;
+		loadSpriteSheet ()
+		{
+			if (!this.options.spriteSheetPath)
+			{
+				return
+			}
 
-        const progress = Math.pow(level / maxLevel, 1.5);
-        let scale = minScale + progress * (maxScale - minScale);
+			this.spriteSheetLoaded = false
+			this.spriteSheet = new Image()
 
-        if (scale < minScale) scale = minScale;
-        if (scale > maxScale) scale = maxScale;
+			XF.on(this.spriteSheet, 'load', () =>
+			{
+				this.spriteSheetLoaded = true
+				this.render()
+			})
+			XF.on(this.spriteSheet, 'error', () =>
+			{
+				console.error('PetRenderer: failed to load the sprite sheet', this.options.spriteSheetPath)
+			})
 
-        return scale;
-    },
+			this.spriteSheet.src = this.options.spriteSheetPath
+		},
 
-    /**
-     * Load the sprite sheet image
-     */
-    loadSpriteSheet: function() {
-        this.spriteSheetLoaded = false;
+		startAnimation ()
+		{
+			if (this.animationInterval)
+			{
+				clearInterval(this.animationInterval)
+			}
 
-        this.spriteSheet = new Image();
+			this.animationInterval = setInterval(() => this.update(), Math.floor(1000 / this.options.fps))
+		},
 
-        this.spriteSheet.onload = XF.proxy(function() {
-            this.spriteSheetLoaded = true;
-            console.log('PetRenderer: Sprite sheet loaded');
-        }, this);
+		update ()
+		{
+			if (!this.canvas.isConnected)
+			{
+				clearInterval(this.animationInterval)
+				this.animationInterval = null
+				return
+			}
 
-        this.spriteSheet.onerror = function() {
-            console.error('PetRenderer: Failed to load sprite sheet');
-        };
+			this.currentFrame = (this.currentFrame + 1) % this.options.framesPerAnimation
 
-        this.spriteSheet.src = this.options.spriteSheetPath;
-    },
+			if (this.currentScale !== this.targetScale)
+			{
+				const diff = this.targetScale - this.currentScale
+				this.currentScale = Math.abs(diff) < 0.01
+					? this.targetScale
+					: this.currentScale + diff * 0.1
+			}
 
-    /**
-     * Start the animation loop
-     */
-    startAnimation: function() {
-        if (this.animationInterval) {
-            clearInterval(this.animationInterval);
-        }
+			this.render()
+		},
 
-        const interval = Math.floor(1000 / this.options.fps);
+		render ()
+		{
+			if (!this.spriteSheetLoaded)
+			{
+				return
+			}
 
-        this.animationInterval = setInterval(XF.proxy(this.update, this), interval);
-    },
+			const ctx = this.context
+			const canvas = this.canvas
+			const fw = this.options.frameWidth
+			const fh = this.options.frameHeight
 
-    /**
-     * Update animation state and render the current frame
-     */
-    update: function() {
-        this.currentFrame = (this.currentFrame + 1) % this.options.framesPerAnimation;
+			ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-        if (this.scaleAnimationActive && this.currentScale !== this.targetScale) {
-            const diff = this.targetScale - this.currentScale;
-            this.currentScale += diff * 0.1;
+			const sx = this.currentFrame * fw
+			const sy = (STATE_ROWS[this.currentState] || 0) * fh
 
-            if (Math.abs(diff) < 0.01) {
-                this.currentScale = this.targetScale;
-                this.scaleAnimationActive = false;
-            }
-        }
+			// The drawn box is 128px at scale 0.5 and 192px at scale 1.0, whatever the frame size.
+			const s = Math.min(1.0, Math.max(0.5, this.currentScale))
+			const box = 128 + ((s - 0.5) / 0.5) * (CANVAS_SIZE - 128)
 
-        this.render();
-    },
+			let drawW, drawH
+			if (fw >= fh)
+			{
+				drawW = box
+				drawH = box * (fh / fw)
+			}
+			else
+			{
+				drawH = box
+				drawW = box * (fw / fh)
+			}
 
-    /**
-     * Render the current animation frame to the canvas
-     */
-    render: function() {
-        if (!this.spriteSheetLoaded) {
-            return;
-        }
+			ctx.drawImage(
+				this.spriteSheet,
+				sx, sy, fw, fh,
+				(canvas.width - drawW) / 2, canvas.height - drawH, drawW, drawH
+			)
+		},
 
-        const ctx = this.context;
-        const canvas = this.canvas;
-        const fw = Math.max(1, this.options.frameWidth);
-        const fh = Math.max(1, this.options.frameHeight);
+		changeState (state)
+		{
+			if (!XF.hasOwn(STATE_ROWS, state))
+			{
+				return
+			}
 
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+			this.currentState = state
+			this.currentFrame = 0
+		},
 
-        const rowIndex = this.options.states[this.currentState] || 0;
-        const sx = this.currentFrame * fw;
-        const sy = rowIndex * fh;
+		onAction (e)
+		{
+			if (!e.action || !XF.hasOwn(STATE_ROWS, e.action))
+			{
+				return
+			}
 
-        // Normalized visual sizing:
-        // - Base box is 128×128 at scale 0.5
-        // - Grows linearly to 192×192 at scale 1.0
-        // - Clamp to [0.5, 1.0] for visual mapping regardless of configured bounds
-        const s = Math.min(1.0, Math.max(0.5, this.currentScale));
-        const t = (s - 0.5) / 0.5;
-        const targetBox = 128 + t * (192 - 128);
+			this.changeState(e.action)
 
-        let drawW, drawH;
-        if (fw >= fh) {
-            drawW = targetBox;
-            drawH = targetBox * (fh / fw);
-        } else {
-            drawH = targetBox;
-            drawW = targetBox * (fw / fh);
-        }
+			if (this.resetTimer)
+			{
+				clearTimeout(this.resetTimer)
+			}
+			this.resetTimer = setTimeout(() =>
+			{
+				this.resetTimer = null
+				this.changeState(this.baseState)
+			}, ACTION_ANIMATION_MS)
+		},
 
-        const dx = (canvas.width - drawW) / 2;
-        const dy = canvas.height - drawH;
+		onLevelChange (e)
+		{
+			const level = parseInt(e.level, 10)
+			if (!level)
+			{
+				return
+			}
 
-        ctx.drawImage(
-            this.spriteSheet,
-            sx, sy,
-            fw, fh,
-            dx, dy,
-            drawW, drawH
-        );
-    },
+			this.canvas.dataset.level = String(level)
+			this.targetScale = this.calculateScale(level)
+		},
+	})
 
-    /**
-     * Change the animation state
-     *
-     * @param {string} state New animation state
-     */
-    changeState: function(state) {
-        if (!this.options.states.hasOwnProperty(state)) {
-            console.warn('PetRenderer: Unknown state: ' + state);
-            return;
-        }
-
-        this.currentState = state;
-        this.currentFrame = 0;
-    },
-
-    /**
-     * Listen for pet state changes
-     */
-    listenForStateChanges: function() {
-        document.addEventListener('petStateChanged', XF.proxy(function(e) {
-            if (e.detail && e.detail.state) {
-                this.changeState(e.detail.state);
-            }
-        }, this));
-
-        const actionButtons = document.querySelectorAll('.pet-action-button');
-        for (let i = 0; i < actionButtons.length; i++) {
-            actionButtons[i].addEventListener('click', XF.proxy(function(e) {
-                const action = e.currentTarget.getAttribute('data-action');
-                if (action) {
-                    this.changeState(action);
-
-                    setTimeout(XF.proxy(function() {
-                        this.changeState('idle');
-                    }, this), 3000);
-                }
-            }, this));
-        }
-    },
-
-    /**
-     * Listen for pet level changes
-     */
-    listenForLevelChanges: function() {
-        document.addEventListener('petLevelChanged', XF.proxy(function(e) {
-            if (e.detail && e.detail.level) {
-                this.petLevel = parseInt(e.detail.level);
-                this.targetScale = this.calculateScale(this.petLevel);
-                this.scaleAnimationActive = true;
-            }
-        }, this));
-
-        const petStatsContainer = this.canvas.closest('.block-body');
-        if (petStatsContainer) {
-            const levelText = petStatsContainer.querySelector('.petStats .u-alignCenter div:first-child');
-            if (levelText) {
-                const observer = new MutationObserver(XF.proxy(function(mutations) {
-                    for (let mutation of mutations) {
-                        if (mutation.type === 'characterData' || mutation.type === 'childList') {
-                            this.readPetLevel();
-                            this.scaleAnimationActive = true;
-                        }
-                    }
-                }, this));
-
-                observer.observe(levelText, {
-                    childList: true,
-                    characterData: true,
-                    subtree: true
-                });
-            }
-        }
-    }
-});
-
-XF.Element.register('userpets-renderer', 'XF.PetRenderer');
+	XF.Element.register('userpets-renderer', 'XF.PetRenderer')
+})(window, document)

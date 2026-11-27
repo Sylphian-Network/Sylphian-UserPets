@@ -2,6 +2,7 @@
 
 namespace Sylphian\UserPets\Entity;
 
+use Sylphian\UserPets\Repository\UserPetsSpritesheetRepository;
 use XF\Mvc\Entity\Entity;
 use XF\Mvc\Entity\Structure;
 
@@ -18,6 +19,22 @@ use XF\Mvc\Entity\Structure;
  */
 class UserPetsSpritesheet extends Entity
 {
+	protected function verifyFilename(&$filename): bool
+	{
+		/** @var UserPetsSpritesheetRepository $repo */
+		$repo = $this->repository('Sylphian\UserPets:UserPetsSpritesheetRepository');
+
+		$normalized = $repo->normalizeFilename((string) $filename);
+		if ($normalized === null)
+		{
+			$this->error(\XF::phrase('sylphian_userpets_error_invalid_filename'), 'filename');
+			return false;
+		}
+
+		$filename = $normalized;
+		return true;
+	}
+
 	public static function getStructure(Structure $structure): Structure
 	{
 		$structure->table = 'xf_user_pets_spritesheet';
@@ -25,11 +42,16 @@ class UserPetsSpritesheet extends Entity
 		$structure->primaryKey = 'spritesheet_id';
 		$structure->columns = [
 			'spritesheet_id' => ['type' => self::UINT, 'autoIncrement' => true],
-			'filename' => ['type' => self::STR, 'required' => true, 'maxLength' => 255],
-			'title' => ['type' => self::STR, 'default' => ''],
-			'frame_width' => ['type' => self::UINT, 'default' => 192],
-			'frame_height' => ['type' => self::UINT, 'default' => 192],
-			'frames_per_animation' => ['type' => self::UINT, 'default' => 4],
+			'filename' => [
+				'type' => self::STR,
+				'required' => true,
+				'maxLength' => 255,
+				'unique' => 'sylphian_userpets_error_spritesheet_filename_exists',
+			],
+			'title' => ['type' => self::STR, 'default' => '', 'maxLength' => 100],
+			'frame_width' => ['type' => self::UINT, 'default' => 192, 'min' => 1, 'max' => 65535],
+			'frame_height' => ['type' => self::UINT, 'default' => 192, 'min' => 1, 'max' => 65535],
+			'frames_per_animation' => ['type' => self::UINT, 'default' => 4, 'min' => 1, 'max' => 65535],
 			'fps' => ['type' => self::UINT, 'default' => 4, 'min' => 1, 'max' => 120],
 			'last_modified' => ['type' => self::UINT, 'default' => 0],
 		];

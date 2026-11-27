@@ -5,23 +5,19 @@ namespace Sylphian\UserPets\Repository\Traits;
 use Random\RandomException;
 use XF\Util\File;
 
+/**
+ * Keeps the add-on's _files copy of the spritesheets in step with the primary
+ * directory in development mode. Every name goes through resolvePathInDirectory()
+ * (FileSystemTrait), so nothing outside the two spritesheet directories is touched.
+ */
 trait MirrorOperationsTrait
 {
-	/**
-	 * Whether mirroring to `_files` should occur.
-	 */
 	protected function isMirroringEnabled(): bool
 	{
 		$cfg = \XF::app()->config();
 		return (bool) ($cfg['development']['enabled'] ?? false);
 	}
 
-	/**
-	 * Copy a spritesheet from the primary directory to the mirror (atomically if possible).
-	 *
-	 * @param string $filename File name (with extension).
-	 * @return void
-	 */
 	protected function mirrorCopyFromPrimary(string $filename): void
 	{
 		if (!$this->isMirroringEnabled())
@@ -29,35 +25,28 @@ trait MirrorOperationsTrait
 			return;
 		}
 
-		$src = $this->primaryPath() . DIRECTORY_SEPARATOR . $filename;
-		$dstDir = $this->mirrorPath();
-		$dst = $dstDir . DIRECTORY_SEPARATOR . $filename;
+		$src = $this->resolvePathInDirectory($this->primaryPath(), $filename);
+		if ($src === null || !is_file($src))
+		{
+			return;
+		}
 
 		try
 		{
-			File::createDirectory($dstDir, false);
+			File::createDirectory($this->mirrorPath(), false);
 
-			try
+			$dst = $this->resolvePathInDirectory($this->mirrorPath(), $filename);
+			if ($dst === null)
 			{
-				$randSuffix = bin2hex(random_bytes(6));
-			}
-			catch (RandomException)
-			{
-				$randSuffix = uniqid('fallback_', true);
+				return;
 			}
 
-			$tmp = $dst . '.tmp-' . $randSuffix;
-
-			if (file_exists($tmp))
+			$tmp = $dst . '.tmp-' . $this->getTemporarySuffix();
+			File::copyFile($src, $tmp, false);
+			if (!@rename($tmp, $dst))
 			{
 				@unlink($tmp);
 			}
-			File::copyFile($src, $tmp);
-			if (file_exists($dst))
-			{
-				@unlink($dst);
-			}
-			@rename($tmp, $dst);
 		}
 		catch (\Throwable $e)
 		{
@@ -65,14 +54,6 @@ trait MirrorOperationsTrait
 		}
 	}
 
-	/**
-	 * Rename a spritesheet file within the mirror directory.
-	 * If the old file doesn’t exist, this is a no-op.
-	 *
-	 * @param string $old Original filename.
-	 * @param string $new New filename.
-	 * @return void
-	 */
 	protected function mirrorRename(string $old, string $new): void
 	{
 		if (!$this->isMirroringEnabled())
@@ -80,21 +61,16 @@ trait MirrorOperationsTrait
 			return;
 		}
 
-		$dir = $this->mirrorPath();
-		$oldFull = $dir . DIRECTORY_SEPARATOR . $old;
-		$newFull = $dir . DIRECTORY_SEPARATOR . $new;
+		$oldFull = $this->resolvePathInDirectory($this->mirrorPath(), $old);
+		$newFull = $this->resolvePathInDirectory($this->mirrorPath(), $new);
+		if ($oldFull === null || $newFull === null || !is_file($oldFull))
+		{
+			return;
+		}
 
 		try
 		{
-			File::createDirectory($dir, false);
-			if (is_file($oldFull))
-			{
-				if (file_exists($newFull))
-				{
-					@unlink($newFull);
-				}
-				@rename($oldFull, $newFull);
-			}
+			@rename($oldFull, $newFull);
 		}
 		catch (\Throwable $e)
 		{
@@ -102,12 +78,6 @@ trait MirrorOperationsTrait
 		}
 	}
 
-	/**
-	 * Delete a spritesheet file from the mirror directory (if it exists).
-	 *
-	 * @param string $filename File name to delete.
-	 * @return void
-	 */
 	protected function mirrorDelete(string $filename): void
 	{
 		if (!$this->isMirroringEnabled())
@@ -115,18 +85,31 @@ trait MirrorOperationsTrait
 			return;
 		}
 
-		$dir = $this->mirrorPath();
-		$full = $dir . DIRECTORY_SEPARATOR . $filename;
+		$full = $this->resolvePathInDirectory($this->mirrorPath(), $filename);
+		if ($full === null || !is_file($full))
+		{
+			return;
+		}
+
 		try
 		{
-			if (is_file($full))
-			{
-				@unlink($full);
-			}
+			@unlink($full);
 		}
 		catch (\Throwable $e)
 		{
 			\XF::logException($e, false, 'UserPets mirror delete failed: ');
+		}
+	}
+
+	protected function getTemporarySuffix(): string
+	{
+		try
+		{
+			return bin2hex(random_bytes(6));
+		}
+		catch (RandomException)
+		{
+			return uniqid('fallback_', true);
 		}
 	}
 }

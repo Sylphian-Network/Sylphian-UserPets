@@ -1,1 +1,1 @@
-Tutorial Goal: React to post
+Tutorial goal: react to a post

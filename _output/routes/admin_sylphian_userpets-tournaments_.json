@@ -1,0 +1,11 @@
+{
+    "route_type": "admin",
+    "route_prefix": "sylphian_userpets-tournaments",
+    "sub_name": "",
+    "format": "",
+    "build_class": "",
+    "build_method": "",
+    "controller": "Sylphian\\UserPets\\Admin\\Controller\\Tournament",
+    "context": "",
+    "action_prefix": ""
+}

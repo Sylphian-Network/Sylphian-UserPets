@@ -2,19 +2,20 @@
 
 namespace Sylphian\UserPets\Duel\Algorithms;
 
-class DefaultAlgorithm implements DuelAlgorithmInterface
+class DefaultAlgorithm extends AbstractDuelAlgorithm
 {
 	public function getKey(): string
 	{
 		return 'default';
 	}
+
 	public function getLabel(): string
 	{
-		return 'Default (50/50)';
+		return (string) \XF::phrase('sylphian_userpets_duel_algorithm_default');
 	}
 
-	public function calculateWinner(array $petA, array $petB): array
+	public function calculateWinChance(array $petA, array $petB): float
 	{
-		return mt_rand(0, 1) ? $petA : $petB;
+		return self::NEUTRAL_CHANCE;
 	}
 }

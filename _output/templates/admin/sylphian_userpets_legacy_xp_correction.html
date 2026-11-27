@@ -1,0 +1,40 @@
+<xf:title>{{ phrase('sylphian_userpets_legacy_xp_correction') }}</xf:title>
+
+<xf:form action="{{ link('sylphian_userpets-rebuild/legacy-xp-run') }}" ajax="true" class="block">
+	<div class="block-container">
+		<div class="block-body">
+			<xf:inforow>{{ phrase('sylphian_userpets_legacy_xp_explain') }}</xf:inforow>
+
+			<xf:if is="$marker">
+				<xf:inforow rowtype="confirm">
+					{{ phrase('sylphian_userpets_legacy_xp_last_run_x', {
+						'date': date_time($marker.date),
+						'pets': $marker.pets|number,
+						'xp': $marker.xp|number,
+						'skipped': $marker.skipped|number
+					}) }}
+				</xf:inforow>
+			</xf:if>
+
+			<xf:if is="$isRunning">
+				<xf:inforow rowtype="confirm">{{ phrase('sylphian_userpets_legacy_xp_already_running') }}</xf:inforow>
+			</xf:if>
+
+			<xf:dateinputrow name="not_before" value="{{ $defaultNotBefore ? date($defaultNotBefore, 'Y-m-d') : '' }}"
+				label="{{ phrase('sylphian_userpets_legacy_xp_not_before') }}"
+				explain="{{ phrase('sylphian_userpets_legacy_xp_not_before_explain') }}" />
+
+			<xf:dateinputrow name="not_after" value="{{ $upgradeDate ? date($upgradeDate, 'Y-m-d') : '' }}"
+				label="{{ phrase('sylphian_userpets_legacy_xp_not_after') }}"
+				explain="{{ phrase('sylphian_userpets_legacy_xp_not_after_explain') }}" />
+
+			<xf:if is="$marker">
+				<xf:checkboxrow>
+					<xf:option name="confirm_rerun" value="1">{{ phrase('sylphian_userpets_legacy_xp_confirm_rerun') }}</xf:option>
+				</xf:checkboxrow>
+			</xf:if>
+		</div>
+
+		<xf:submitrow icon="refresh" submit="{{ phrase('sylphian_userpets_legacy_xp_run') }}" />
+	</div>
+</xf:form>

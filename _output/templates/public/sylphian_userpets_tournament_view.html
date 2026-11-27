@@ -1,0 +1,100 @@
+<xf:title>{$tournament.title}</xf:title>
+<xf:breadcrumb href="{{ link('userpetstournaments') }}">{{ phrase('sylphian_userpets_tournaments_public_title') }}</xf:breadcrumb>
+
+<xf:css src="sylphian_userpets_tournament.less" />
+
+<xf:if is="$canJoin">
+	<xf:pageaction>
+		<xf:form action="{{ link('userpetstournaments/join', null, {'tournament_id': $tournament.tournament_id}) }}" ajax="true">
+			<xf:button type="submit" class="button--cta" fa="fa-sign-in">{{ phrase('sylphian_userpets_tournament_join') }}</xf:button>
+		</xf:form>
+	</xf:pageaction>
+</xf:if>
+
+<div class="block">
+	<div class="block-container">
+		<div class="block-body">
+			<div class="block-row">
+				<div class="petTournament-description">
+					<xf:if is="$tournament.description">
+						{$tournament.description|nl2br}
+					<xf:else />
+						<span class="u-muted">{{ phrase('sylphian_userpets_tournament_no_description') }}</span>
+					</xf:if>
+				</div>
+			</div>
+			<div class="block-row block-row--minor">
+				<ul class="listInline listInline--bullet">
+					<li><xf:macro id="sylphian_userpets_macros::tournament_status" arg-status="{$tournament.status}" /></li>
+					<li><xf:fa icon="fa-users" /> {{ phrase('sylphian_userpets_tournament_entries_x_of_y', {'count': $entryCount|number, 'max': $tournament.max_participants|number}) }}</li>
+					<li><xf:fa icon="fa-gem" /> {{ phrase('sylphian_userpets_tournament_reward_x_xp', {'xp': $tournament.prize_experience|number}) }}</li>
+					<li><xf:fa icon="fa-cogs" /> <xf:macro id="sylphian_userpets_macros::resolution_mode" arg-mode="{$tournament.resolution_mode}" /></li>
+				</ul>
+			</div>
+			<xf:if is="$isJoined && $tournament.isRegistrationPhase()">
+				<div class="block-row">
+					<div class="block-rowMessage block-rowMessage--success block-rowMessage--iconic">{{ phrase('sylphian_userpets_tournament_already_joined') }}</div>
+				</div>
+			</xf:if>
+		</div>
+	</div>
+</div>
+
+<xf:if is="$tournament.status == 'completed' && $tournament.winner_pet_id">
+	<div class="block petTournament-champion">
+		<div class="block-container">
+			<div class="block-body block-row">
+				<div class="contentRow">
+					<div class="contentRow-figure">
+						<xf:avatar user="{$tournament.WinnerPet.User}" size="s" defaultname="{{ phrase('sylphian_userpets_unknown_user') }}" />
+					</div>
+					<div class="contentRow-main">
+						<h3 class="contentRow-header"><xf:fa icon="fa-trophy" class="petTournament-icon" /> {{ phrase('sylphian_userpets_tournament_champion_title') }}</h3>
+						<div class="contentRow-lesser">{{ username_link($tournament.WinnerPet.User, true, {'defaultname': phrase('sylphian_userpets_unknown_user')}) }}</div>
+						<div class="contentRow-minor">{{ phrase('sylphian_userpets_tournament_champion_reward_xp', {'xp': $tournament.prize_experience|number}) }}</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</xf:if>
+
+<div class="block">
+	<div class="block-container">
+		<h2 class="block-header">{{ phrase('sylphian_userpets_tournament_participants') }}</h2>
+		<div class="block-body block-row">
+			<xf:if is="$entries is not empty">
+				<ul class="listPlain petTournament-entrants">
+					<xf:foreach loop="$entries" value="$entry">
+						<li class="petTournament-entrant">
+							<div class="contentRow">
+								<div class="contentRow-figure">
+									<xf:avatar user="{$entry.User}" size="xs" defaultname="{{ phrase('sylphian_userpets_unknown_user') }}" />
+								</div>
+								<div class="contentRow-main contentRow-main--close">
+									{{ username_link($entry.User, true, {'defaultname': phrase('sylphian_userpets_unknown_user')}) }}
+									<div class="contentRow-minor">{{ phrase('sylphian_userpets_tournament_seed_x', {'seed': $entry.seed}) }}</div>
+								</div>
+							</div>
+						</li>
+					</xf:foreach>
+				</ul>
+			<xf:else />
+				{{ phrase('sylphian_userpets_tournament_no_participants') }}
+			</xf:if>
+		</div>
+	</div>
+</div>
+
+<div class="block">
+	<div class="block-container">
+		<h2 class="block-header">{{ phrase('sylphian_userpets_tournament_bracket') }}</h2>
+		<div class="block-body block-row">
+			<xf:if is="$bracketRounds">
+				<xf:macro id="sylphian_userpets_macros::tournament_bracket" arg-rounds="{$bracketRounds}" />
+			<xf:else />
+				{{ phrase('sylphian_userpets_tournament_bracket_empty') }}
+			</xf:if>
+		</div>
+	</div>
+</div>

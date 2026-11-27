@@ -1,1 +1,1 @@
-Cooldown time
+Action cooldown

@@ -2,7 +2,11 @@
 
 namespace Sylphian\UserPets\Duel\Algorithms;
 
-class WeightedAlgorithm implements DuelAlgorithmInterface
+/**
+ * Score = level x (1 + care): a fully cared pet fights at twice its level, a neglected one at
+ * its bare level. The chance is the share of both scores.
+ */
+class WeightedAlgorithm extends AbstractDuelAlgorithm
 {
 	public function getKey(): string
 	{
@@ -11,14 +15,16 @@ class WeightedAlgorithm implements DuelAlgorithmInterface
 
 	public function getLabel(): string
 	{
-		return 'Weighted';
+		return (string) \XF::phrase('sylphian_userpets_duel_algorithm_weighted');
 	}
 
-	public function calculateWinner(array $petA, array $petB): array
+	public function calculateWinChance(array $petA, array $petB): float
 	{
-		$scoreA = $petA['level'] * (1 + ($petA['happiness'] - $petA['hunger'] - $petA['sleepiness']) / 100);
-		$scoreB = $petB['level'] * (1 + ($petB['happiness'] - $petB['hunger'] - $petB['sleepiness']) / 100);
-		$probA = $scoreA / ($scoreA + $scoreB);
-		return (mt_rand() / mt_getrandmax()) < $probA ? $petA : $petB;
+		return static::chanceFromScores($this->getScore($petA), $this->getScore($petB));
+	}
+
+	public function getScore(array $pet): float
+	{
+		return static::getNumber($pet, 'level') * (1 + static::getCareScore($pet));
 	}
 }

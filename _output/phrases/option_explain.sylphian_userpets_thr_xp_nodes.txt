@@ -1,0 +1,1 @@
+Comma or space separated forum/node IDs. Leave empty to allow thread XP in all forums. If filled, only threads opened in these forums grant XP.

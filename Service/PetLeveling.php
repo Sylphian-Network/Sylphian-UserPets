@@ -7,6 +7,12 @@ use Sylphian\UserPets\Entity\UserPets;
 class PetLeveling
 {
 	/**
+	 * The level column is a 32-bit unsigned integer; extreme option values
+	 * (tiny coefficient, low power) would otherwise produce levels that do not fit.
+	 */
+	public const MAX_LEVEL = 1000000;
+
+	/**
 	 * The base experience coefficient for the polynomial growth formula.
 	 * This affects how quickly experience requirements increase per level.
 	 *
@@ -23,56 +29,31 @@ class PetLeveling
 	protected float $polynomialPower = 1.5;
 
 	/**
-	 * The experience gained for feed actions.
-	 *
-	 * @var int
-	 */
-	protected int $experiencePerFeed = 10;
-
-	/**
-	 * The experience gained for sleep actions.
-	 *
-	 * @var int
-	 */
-	protected int $experiencePerSleep = 10;
-
-	/**
-	 * The experience gained for play actions.
-	 *
-	 * @var int
-	 */
-	protected int $experiencePerPlay = 10;
-
-	/**
 	 * Map of action types to their corresponding experience values
 	 *
-	 * @var array
+	 * @var array<string,int>
 	 */
 	protected array $actionExpMap;
 
 	/**
-	 * Constructor.
-	 *
 	 * @param float|null $baseCoefficient Optional custom base coefficient
 	 * @param float|null $polynomialPower Optional custom polynomial power
-	 * @param int|null $experiencePerAction Optional custom experience per action
 	 */
-	public function __construct(?float $baseCoefficient = null, ?float $polynomialPower = null, ?int $experiencePerAction = null)
+	public function __construct(?float $baseCoefficient = null, ?float $polynomialPower = null)
 	{
 		$options = \XF::options();
 
-		$this->baseCoefficient = $baseCoefficient ?? (float) ($options->sylphian_userpets_base_coefficient);
-		$this->polynomialPower = $polynomialPower ?? (float) ($options->sylphian_userpets_polynomial_power);
-
-		$this->experiencePerFeed = (int) ($options->sylphian_userpets_experience_per_feed);
-		$this->experiencePerSleep = (int) ($options->sylphian_userpets_experience_per_sleep);
-		$this->experiencePerPlay = (int) ($options->sylphian_userpets_experience_per_play);
+		$this->baseCoefficient = $this->sanitizeCoefficient(
+			$baseCoefficient ?? (float) $options->sylphian_userpets_base_coefficient
+		);
+		$this->polynomialPower = $this->sanitizePower(
+			$polynomialPower ?? (float) $options->sylphian_userpets_polynomial_power
+		);
 
 		$this->actionExpMap = [
-			'feed' => $this->experiencePerFeed,
-			'sleep' => $this->experiencePerSleep,
-			'play' => $this->experiencePerPlay,
-			'default' => 10,
+			'feed' => max(0, (int) $options->sylphian_userpets_experience_per_feed),
+			'sleep' => max(0, (int) $options->sylphian_userpets_experience_per_sleep),
+			'play' => max(0, (int) $options->sylphian_userpets_experience_per_play),
 		];
 	}
 
@@ -86,7 +67,6 @@ class PetLeveling
 	 */
 	public function getExperienceRequiredForLevel(int $level): int
 	{
-		// Level 1 requires 0 experience
 		if ($level <= 1)
 		{
 			return 0;
@@ -103,55 +83,66 @@ class PetLeveling
 	 */
 	public function getExperienceNeededToLevelUp(UserPets $pet): int
 	{
-		$currentLevel = $pet->level;
-		$currentExp = $pet->experience;
-		$nextLevelExp = $this->getExperienceRequiredForLevel($currentLevel + 1);
+		$nextLevelExp = $this->getExperienceRequiredForLevel($pet->level + 1);
 
-		return max(0, $nextLevelExp - $currentExp);
+		return max(0, $nextLevelExp - $pet->experience);
 	}
 
 	/**
-	 * Calculate the appropriate level for a given amount of experience.
+	 * The highest level whose requirement is covered by the given experience.
+	 *
+	 * ceil(c * n^p) <= e holds exactly when n <= (e / c)^(1 / p) for integer e, so the
+	 * closed form is exact in real arithmetic; the two loops only absorb float rounding
+	 * and keep the result identical to getExperienceRequiredForLevel().
 	 *
 	 * @param int $experience The total experience
 	 * @return int The appropriate level
 	 */
 	public function calculateLevelFromExperience(int $experience): int
 	{
-		$level = 1;
+		if ($experience <= 0)
+		{
+			return 1;
+		}
 
-		while ($this->getExperienceRequiredForLevel($level + 1) <= $experience)
+		$estimate = floor(pow($experience / $this->baseCoefficient, 1 / $this->polynomialPower));
+		$level = (int) max(1, min(self::MAX_LEVEL, $estimate));
+
+		while ($level < self::MAX_LEVEL && $this->getExperienceRequiredForLevel($level + 1) <= $experience)
 		{
 			$level++;
+		}
+
+		while ($level > 1 && $this->getExperienceRequiredForLevel($level) > $experience)
+		{
+			$level--;
 		}
 
 		return $level;
 	}
 
 	/**
-	 * Add a specific amount of experience to the pet and handle level ups.
+	 * Add a specific amount of experience to the pet and recalculate its level.
+	 * The pet is not saved.
 	 *
 	 * @param UserPets $pet The pet entity
-	 * @param int $amount The amount of experience to add
+	 * @param int $amount The amount of experience to add (negative removes experience)
 	 * @return bool True if the pet leveled up, false otherwise
 	 */
 	public function addExperience(UserPets $pet, int $amount): bool
 	{
-		$oldLevel = $pet->level;
-		$pet->experience += $amount;
+		$oldLevel = (int) $pet->level;
+		$pet->experience = max(0, (int) $pet->experience + $amount);
 
-		$newLevel = $this->calculateLevelFromExperience($pet->experience);
-		if ($newLevel > $oldLevel)
-		{
-			$pet->level = $newLevel;
-			return true;
-		}
+		$newLevel = $this->calculateLevelFromExperience((int) $pet->experience);
+		$pet->level = $newLevel;
 
-		return false;
+		return $newLevel > $oldLevel;
 	}
 
 	/**
-	 * Add the configured experience for an action type to the pet and handle level ups.
+	 * Add the configured experience for an action type to the pet and recalculate its level.
+	 * The pet is not saved.
 	 *
 	 * @param UserPets $pet The pet entity
 	 * @param string|null $actionType The type of action performed (feed, sleep, play)
@@ -163,16 +154,16 @@ class PetLeveling
 	}
 
 	/**
-	 * Get the experience amount for a specific action type
+	 * Get the experience amount for a specific action type. Unknown actions earn nothing.
 	 *
 	 * @param string|null $actionType The type of action (feed, sleep, play)
 	 * @return int The experience amount for this action
 	 */
 	public function getExperienceForAction(?string $actionType = null): int
 	{
-		if (!$actionType || !isset($this->actionExpMap[$actionType]))
+		if ($actionType === null || !isset($this->actionExpMap[$actionType]))
 		{
-			return $this->actionExpMap['default'];
+			return 0;
 		}
 
 		return $this->actionExpMap[$actionType];
@@ -186,10 +177,8 @@ class PetLeveling
 	 */
 	public function getLevelProgressPercentage(UserPets $pet): float
 	{
-		$currentLevel = $pet->level;
-		$currentExp = $pet->experience;
-		$currentLevelExp = $this->getExperienceRequiredForLevel($currentLevel);
-		$nextLevelExp = $this->getExperienceRequiredForLevel($currentLevel + 1);
+		$currentLevelExp = $this->getExperienceRequiredForLevel($pet->level);
+		$nextLevelExp = $this->getExperienceRequiredForLevel($pet->level + 1);
 
 		$levelExpDiff = $nextLevelExp - $currentLevelExp;
 		if ($levelExpDiff <= 0)
@@ -197,7 +186,22 @@ class PetLeveling
 			return 100.0;
 		}
 
-		$progress = ($currentExp - $currentLevelExp) / $levelExpDiff * 100;
+		$progress = ($pet->experience - $currentLevelExp) / $levelExpDiff * 100;
 		return min(100.0, max(0.0, $progress));
+	}
+
+	protected function sanitizeCoefficient(float $value): float
+	{
+		return (is_finite($value) && $value >= 1) ? $value : 1.0;
+	}
+
+	protected function sanitizePower(float $value): float
+	{
+		if (!is_finite($value) || $value < 0.1)
+		{
+			return 0.1;
+		}
+
+		return min($value, 10.0);
 	}
 }

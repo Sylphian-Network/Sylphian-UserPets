@@ -1,0 +1,232 @@
+@_petBracket-roundWidth: 240px;
+@_petBracket-roundGap: 40px;
+
+.petTournament-icon
+{
+	color: @xf-textColorFeature;
+}
+
+.petTournament-champion .contentRow-figure .petTournament-icon
+{
+	color: @xf-textColorAttention;
+}
+
+.petTournament-description
+{
+	overflow-wrap: anywhere;
+}
+
+.petTournament-entrants
+{
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(~"min(220px, 100%)", 1fr));
+	gap: @xf-paddingMedium @xf-paddingLarge;
+}
+
+.petTournament-entrant
+{
+	min-width: 0;
+
+	.contentRow-main
+	{
+		min-width: 0;
+		overflow-wrap: anywhere;
+	}
+}
+
+.petBracket-toolbar
+{
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: @xf-paddingMedium;
+	margin-bottom: @xf-paddingLarge;
+}
+
+.petBracket-hint
+{
+	flex: 1 1 220px;
+	min-width: 0;
+	font-size: @xf-fontSizeSmaller;
+	color: @xf-textColorMuted;
+}
+
+.petBracket-zoom
+{
+	display: flex;
+	flex: none;
+	align-items: center;
+	gap: @xf-paddingSmall;
+}
+
+.petBracket-zoomValue
+{
+	min-width: 4em;
+	font-size: @xf-fontSizeSmaller;
+	font-variant-numeric: tabular-nums;
+	text-align: center;
+}
+
+.petBracket-viewport
+{
+	max-height: 75vh;
+	overflow: auto;
+	overscroll-behavior: contain;
+	border: @xf-borderSize solid @xf-borderColorLight;
+	border-radius: @xf-borderRadiusMedium;
+	background: @xf-contentAltBg;
+	cursor: grab;
+	-webkit-user-select: none;
+	user-select: none;
+
+	&.is-dragging
+	{
+		cursor: grabbing;
+	}
+}
+
+.petBracket-rounds
+{
+	display: flex;
+	align-items: stretch;
+	gap: @_petBracket-roundGap;
+	width: max-content;
+	margin: 0;
+	padding: @xf-paddingLarge;
+	list-style: none;
+	transform-origin: 0 0;
+}
+
+// Every round stretches to the height of the first one and spreads its matches
+// evenly, so each match sits level with the pair that feeds it.
+.petBracket-round
+{
+	display: flex;
+	flex-direction: column;
+	width: @_petBracket-roundWidth;
+}
+
+.petBracket-roundTitle
+{
+	margin: 0 0 @xf-paddingMedium;
+	padding-bottom: @xf-paddingSmall;
+	border-bottom: @xf-borderSize solid @xf-borderColor;
+	font-size: @xf-fontSizeSmall;
+	font-weight: @xf-fontWeightHeavy;
+	color: @xf-textColorFeature;
+	text-align: center;
+}
+
+.petBracket-matches
+{
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-around;
+	gap: @xf-paddingLarge;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.petBracket-match
+{
+	position: relative;
+	padding: @xf-paddingMedium;
+	border: @xf-borderSize solid @xf-borderColor;
+	border-radius: @xf-borderRadiusMedium;
+	background: @xf-contentBg;
+}
+
+.petBracket-round:not(:last-child) .petBracket-match::after,
+.petBracket-round:not(:first-child) .petBracket-match::before
+{
+	content: "";
+	position: absolute;
+	top: 50%;
+	width: (@_petBracket-roundGap / 2);
+	border-top: 2px solid @xf-borderColorHeavy;
+}
+
+.petBracket-round:not(:last-child) .petBracket-match::after
+{
+	left: 100%;
+}
+
+.petBracket-round:not(:first-child) .petBracket-match::before
+{
+	right: 100%;
+}
+
+.petBracket-matchHead
+{
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: @xf-paddingSmall;
+	margin-bottom: @xf-paddingSmall;
+	font-size: @xf-fontSizeSmallest;
+	color: @xf-textColorMuted;
+}
+
+.petBracket-entrant
+{
+	display: flex;
+	align-items: center;
+	gap: @xf-paddingSmall;
+	min-width: 0;
+	min-height: 32px;
+	padding: @xf-paddingSmall @xf-paddingMedium;
+	border-radius: @xf-borderRadiusSmall;
+	background: @xf-contentAltBg;
+
+	&.is-winner
+	{
+		background: @xf-successBg;
+		color: @xf-successColor;
+		font-weight: @xf-fontWeightHeavy;
+		box-shadow: inset 3px 0 0 @xf-successColor;
+	}
+
+	&.is-empty
+	{
+		color: @xf-textColorMuted;
+		font-style: italic;
+	}
+
+	.avatar
+	{
+		flex: none;
+	}
+}
+
+.petBracket-entrantName
+{
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+
+	.is-winner & a
+	{
+		color: inherit;
+	}
+}
+
+.petBracket-versus
+{
+	margin: 2px 0;
+	font-size: @xf-fontSizeSmallest;
+	color: @xf-textColorMuted;
+	text-align: center;
+	text-transform: uppercase;
+}
+
+.petBracket-winner
+{
+	margin-top: @xf-paddingSmall;
+	font-size: @xf-fontSizeSmaller;
+	color: @xf-textColorDimmed;
+	overflow-wrap: anywhere;
+}

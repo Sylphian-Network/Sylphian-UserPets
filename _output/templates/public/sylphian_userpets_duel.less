@@ -1,0 +1,145 @@
+// Eight tiles: one row on wide screens, then 4 × 2, then 2 × 4, never a lone orphan tile.
+.petDuelStats
+{
+	display: grid;
+	grid-template-columns: repeat(8, minmax(0, 1fr));
+	gap: @xf-paddingMedium;
+
+	@media (max-width: @xf-responsiveWide)
+	{
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+	}
+
+	@media (max-width: @xf-responsiveNarrow)
+	{
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+.petDuelStats-item
+{
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 2px;
+	min-width: 0;
+	padding: @xf-paddingLarge @xf-paddingMedium;
+	border: @xf-borderSize solid @xf-borderColorLight;
+	border-radius: @xf-borderRadiusMedium;
+	background: @xf-contentAltBg;
+	text-align: center;
+}
+
+.petDuelStats-icon
+{
+	font-size: @xf-fontSizeLarger;
+	color: @xf-textColorMuted;
+
+	.petDuelStats-item--wins &
+	{
+		color: @xf-successColor;
+	}
+
+	.petDuelStats-item--losses &
+	{
+		color: @xf-errorColor;
+	}
+
+	.petDuelStats-item--incoming &
+	{
+		color: @xf-textColorFeature;
+	}
+
+	.petDuelStats-item--outgoing &
+	{
+		color: @xf-textColorAttention;
+	}
+
+	.petDuelStats-item--active &
+	{
+		color: @xf-linkColor;
+	}
+
+	.petDuelStats-item--total &
+	{
+		color: @xf-textColorEmphasized;
+	}
+}
+
+.petDuelStats-value
+{
+	font-size: @xf-fontSizeLargest;
+	font-weight: @xf-fontWeightHeavy;
+	line-height: 1.2;
+}
+
+.petDuelStats-label
+{
+	font-size: @xf-fontSizeSmaller;
+	color: @xf-textColorMuted;
+	overflow-wrap: anywhere;
+}
+
+.petDuel-main
+{
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: @xf-paddingMedium @xf-paddingLarge;
+}
+
+.petDuel-info
+{
+	flex: 1 1 200px;
+	min-width: 0;
+	overflow-wrap: anywhere;
+}
+
+.petDuel-side
+{
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: @xf-paddingMedium;
+
+	form
+	{
+		margin: 0;
+	}
+}
+
+.petDuelPreview
+{
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: @xf-paddingLarge;
+}
+
+.petDuelPreview-pet
+{
+	flex: 1 1 200px;
+	min-width: 0;
+	padding: @xf-paddingLarge;
+	border: @xf-borderSize solid @xf-borderColorLight;
+	border-radius: @xf-borderRadiusMedium;
+	background: @xf-contentAltBg;
+}
+
+.petDuelPreview-title
+{
+	margin: 0 0 @xf-paddingMedium;
+	font-size: @xf-fontSizeLarge;
+	font-weight: @xf-fontWeightHeavy;
+	text-align: center;
+	overflow-wrap: anywhere;
+}
+
+.petDuelPreview-versus
+{
+	flex: none;
+	font-size: @xf-fontSizeLargest;
+	font-weight: @xf-fontWeightHeavy;
+	color: @xf-textColorMuted;
+}

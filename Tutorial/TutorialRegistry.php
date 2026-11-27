@@ -24,25 +24,25 @@ class TutorialRegistry
 
 		self::register(
 			TutorialId::COMPLETE_ACTION,
-			'Complete your first pet action',
+			'sylphian_userpets_tutorial_complete_first_pet_action',
 			'sylphian_userpets_tutorial_exp_complete_action'
 		);
 
 		self::register(
 			TutorialId::UPLOAD_PFP,
-			'Upload a profile picture',
+			'sylphian_userpets_tutorial_upload_profile_picture',
 			'sylphian_userpets_tutorial_exp_upload_pfp'
 		);
 
 		self::register(
 			TutorialId::POST_FIRST_MESSAGE,
-			'Post your first message',
+			'sylphian_userpets_tutorial_post_first_message',
 			'sylphian_userpets_tutorial_exp_post_first_message'
 		);
 
 		self::register(
 			TutorialId::REACT_TO_POST,
-			'React to a post',
+			'sylphian_userpets_tutorial_react_to_post',
 			'sylphian_userpets_tutorial_exp_react_to_post'
 		);
 	}
@@ -67,16 +67,27 @@ class TutorialRegistry
 	}
 
 	/**
+	 * @return array<string, Tutorial> Keyed by tutorial ID, in registration order
+	 */
+	public static function getAll(): array
+	{
+		self::init();
+
+		return self::$tutorials;
+	}
+
+	/**
 	 * Get all tutorials in array format for template rendering
 	 */
 	public static function getAllAsArray(): array
 	{
 		self::init();
 
-		return array_map(function ($tutorial)
+		return array_map(function (Tutorial $tutorial)
 		{
 			return [
 				'title' => $tutorial->getTitle(),
+				'title_phrase' => $tutorial->getTitlePhraseName(),
 				'reward_exp_option' => $tutorial->getRewardExpOption(),
 			];
 		}, self::$tutorials);

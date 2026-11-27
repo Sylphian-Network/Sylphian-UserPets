@@ -1,0 +1,1 @@
+Comma or space separated thread prefix IDs. Leave empty to allow all prefixes. If filled, only replies inside threads with these prefixes grant XP.

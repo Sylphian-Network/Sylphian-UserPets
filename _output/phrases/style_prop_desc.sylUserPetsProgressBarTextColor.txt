@@ -1,0 +1,1 @@
+Not used since 1.5.0: the values are shown above the bars. Kept so that styles referring to it still compile.

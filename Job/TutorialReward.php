@@ -13,60 +13,66 @@ use XF\Repository\UserAlertRepository;
 
 class TutorialReward extends AbstractJob
 {
+	public const MAX_ATTEMPTS = 5;
+
 	/**
-	 * Default data structure for this job
+	 * Default data structure for this job. "awarded" survives a retry so a failure after
+	 * the XP was saved (alert) does not pay the reward again.
 	 */
 	protected $defaultData = [
 		'user_id' => 0,
 		'exp_amount' => 0,
 		'tutorial_key' => '',
 		'attempts' => 0,
+		'awarded' => false,
 	];
 
 	/**
-	 * Run the job
-	 *
 	 * @param float $maxRunTime Maximum time to run this job
 	 * @return JobResult
 	 */
 	public function run($maxRunTime): JobResult
 	{
-		if (empty($this->data['user_id']) || empty($this->data['exp_amount']))
+		$userId = (int) $this->data['user_id'];
+		$expAmount = (int) $this->data['exp_amount'];
+		$tutorialKey = (string) $this->data['tutorial_key'];
+
+		if ($userId <= 0 || $expAmount <= 0)
 		{
 			return $this->complete();
 		}
 
-		$userId = $this->data['user_id'];
-		$expAmount = $this->data['exp_amount'];
-		$tutorialKey = $this->data['tutorial_key'];
-
 		try
 		{
-			if (UserPetOptOut::isDisabledByUserId($userId))
+			/** @var User|null $user */
+			$user = $this->app->em()->find('XF:User', $userId);
+			if (!$user || UserPetOptOut::isDisabledForUser($user))
 			{
 				return $this->complete();
 			}
 
 			/** @var UserPetsRepository $petsRepo */
 			$petsRepo = $this->app->repository('Sylphian\UserPets:UserPets');
-
 			$pet = $petsRepo->getOrCreatePet($userId);
 			if (!$pet->pet_id)
 			{
 				throw new \RuntimeException("Could not resolve a pet for user_id {$userId}");
 			}
 
-			$petsRepo->awardPetExperience($userId, $expAmount, false);
+			if (!$this->data['awarded'])
+			{
+				if (!$petsRepo->awardExperienceToPet($pet, $expAmount))
+				{
+					throw new \RuntimeException("Could not save the tutorial reward for user_id {$userId}");
+				}
+
+				$this->data['awarded'] = true;
+			}
+
+			$tutorial = TutorialRegistry::get($tutorialKey);
 
 			/** @var UserAlertRepository $alertRepo */
 			$alertRepo = $this->app->repository('XF:UserAlert');
-
-			/** @var User $user */
-			$user = $this->app->em()->find('XF:User', $userId);
-
-			$tutorial = TutorialRegistry::get($tutorialKey);
-			$tutorialTitle = $tutorial ? $tutorial->getTitle() : 'Unknown Tutorial';
-
 			$alertRepo->alertFromUser(
 				$user,
 				$user,
@@ -76,34 +82,31 @@ class TutorialReward extends AbstractJob
 				[
 					'exp_amount' => $expAmount,
 					'tutorial_key' => $tutorialKey,
-					'tutorial_title' => $tutorialTitle,
+					'tutorial_title_phrase' => $tutorial ? $tutorial->getTitlePhraseName() : 'sylphian_userpets_unknown_tutorial',
+					'tutorial_title' => $tutorial ? $tutorial->getTitle() : (string) \XF::phrase('sylphian_userpets_unknown_tutorial'),
 				],
 				['autoRead' => true]
 			);
-
-			Logger::notice('Awarded tutorial reward', [
-				'user_id' => $userId,
-				'exp_amount' => $expAmount,
-				'tutorial_key' => $tutorialKey,
-				'tutorial_title' => $tutorialTitle,
-			]);
 
 			return $this->complete();
 		}
 		catch (\Throwable $e)
 		{
-			if ($this->data['attempts'] >= 5)
+			if ($this->data['attempts'] >= self::MAX_ATTEMPTS)
 			{
 				Logger::error('Failed to award tutorial reward after multiple attempts', [
 					'user_id' => $userId,
 					'exp_amount' => $expAmount,
-					'tutorial_key' => $this->data['tutorial_key'],
+					'tutorial_key' => $tutorialKey,
+					'awarded' => (bool) $this->data['awarded'],
 					'error' => $e->getMessage(),
 				]);
+
 				return $this->complete();
 			}
 
 			$this->data['attempts']++;
+
 			return $this->resume();
 		}
 	}
@@ -115,28 +118,17 @@ class TutorialReward extends AbstractJob
 	 */
 	public function getStatusMessage(): string
 	{
-		return sprintf(
-			'Awarding tutorial reward (%d XP) to user ID %d',
-			$this->data['exp_amount'],
-			$this->data['user_id']
-		);
+		return (string) \XF::phrase('sylphian_userpets_job_tutorial_reward_status', [
+			'exp' => $this->data['exp_amount'],
+			'user_id' => $this->data['user_id'],
+		]);
 	}
 
-	/**
-	 * Can this job be cancelled by user action?
-	 *
-	 * @return bool
-	 */
 	public function canCancel(): bool
 	{
 		return true;
 	}
 
-	/**
-	 * Can this job be triggered manually by user choice?
-	 *
-	 * @return bool
-	 */
 	public function canTriggerByChoice(): bool
 	{
 		return false;

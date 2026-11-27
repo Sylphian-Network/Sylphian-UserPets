@@ -1,127 +1,91 @@
 <xf:title>{{ phrase('sylphian_userpets_spritesheet_management') }}</xf:title>
 
-<xf:if is="$hasPathIssues">
-    <div class="blockMessage blockMessage--error blockMessage--iconic">
-        <ul class="listPlain">
-            <xf:foreach loop="$pathHealth" value="$ph">
-                <xf:if is="!$ph.exists">
-                    <li>{{ phrase_dynamic('sylphian_userpets_path_does_not_exist', {'path': $ph.path}) }}</li>
-                    <xf:else />
-                    <li>{$ph.path} [readable: {{ $ph.readable ? 'yes' : 'no' }}, writable: {{ $ph.writable ? 'yes' : 'no' }}]</li>
-                </xf:if>
-            </xf:foreach>
-        </ul>
-        <br>
-        <div class="u-muted">{{ phrase('sylphian_userpets_spritesheet_path_error') }}</div>
-    </div>
-</xf:if>
-
 <xf:pageaction>
-    <xf:button href="{{ link('sylphian_userpets/spritesheets/add') }}" overlay="true" icon="add">
-        {{ phrase('sylphian_userpets_add_spritesheet') }}
-    </xf:button>
+	<xf:button href="{{ link('sylphian_userpets-spritesheets/add') }}" icon="add" overlay="true">{{ phrase('sylphian_userpets_add_spritesheet') }}</xf:button>
 </xf:pageaction>
 
-<div class="block">
-    <div class="block-container">
-        <h3 class="block-header">{{ phrase('sylphian_userpets_existing_spritesheets') }}</h3>
-        <div class="block-body">
-            <xf:datalist>
-                <xf:datarow rowtype="header">
-                    <xf:cell>{{ phrase('preview') }}</xf:cell>
-                    <xf:cell>{{ phrase('filename') }}</xf:cell>
-                    <xf:cell>{{ phrase('details') }}</xf:cell>
-                    <xf:cell>{{ phrase('size') }}</xf:cell>
-                    <xf:cell>{{ phrase('last_modified') }}</xf:cell>
-                    <xf:cell></xf:cell>
-                    <xf:cell></xf:cell>
-                    <xf:cell></xf:cell>
-                </xf:datarow>
-
-                <xf:if is="$files">
-                    <xf:foreach loop="$files" value="$f">
-                        <xf:datarow>
-                            <xf:cell>
-								<div class="sprite-preview">
-									<img src="{$f.url}"
-										 alt="{$f.name}"
-										 data-xf-init="syl-sprite-preview"
-										 data-src="{$f.url}"
-										 data-fps="{{ $f.entity ? $f.entity.fps : 4 }}"
-										 data-frame-w="{{ $f.entity ? $f.entity.frame_width : 32 }}"
-										 data-frame-h="{{ $f.entity ? $f.entity.frame_height : 32 }}"
-										 data-cols="{{ $f.entity ? $f.entity.frames_per_animation : 4 }}"
-										 data-rows="4"
-										 data-scale="1"
-										 data-pixelated="true" />
-								</div>
-							</xf:cell>
-
-                            <xf:main label="{$f.name}" />
-
-                            <xf:cell>
-							  <span class="u-muted">{{ $f.entity
-								? ("Frame size: {$f.entity.frame_width}×{$f.entity.frame_height}<br>
-								  Frames per animation: {$f.entity.frames_per_animation}<br>
-								  Frames per second: {$f.entity.fps}")
-								: '—'
-							  }}</span>
-                            </xf:cell>
-
-                            <xf:cell>{{ file_size($f.size) }}</xf:cell>
-                            <xf:cell>{{ date_time($f.mtime) }}</xf:cell>
-
-                            <xf:cell class="dataList-cell--action">
-                                <a href="{$f.url}" target="_blank" class="menuTrigger" data-xf-init="tooltip"
-                                   title="{{ phrase('view') }}">
-                                    <xf:fa icon="fa-search" />
-                                </a>
-                            </xf:cell>
-
-                            <xf:cell class="dataList-cell--action">
-                                <a href="{{ link('sylphian_userpets/spritesheets/edit', null, {'file': $f.name}) }}"
-                                   data-xf-click="overlay" class="menuTrigger" title="{{ phrase('edit') }}">
-                                    <xf:fa icon="fa-cog" />
-                                </a>
-                            </xf:cell>
-
-                            <xf:action href="{{ link('sylphian_userpets/spritesheets/delete', null, {'file': $f.name}) }}"
-                                       overlay="true"
-                                       title="{{ phrase('delete') }}">
-                                <xf:fa icon="fa-trash" />
-                            </xf:action>
-                        </xf:datarow>
-                    </xf:foreach>
-                    <xf:else />
-                    <xf:datarow rowtype="subsection">
-                        <xf:cell colspan="8">
-                            <div class="block-rowMessage">{{ phrase('sylphian_userpets_no_spritesheet') }}</div>
-                        </xf:cell>
-                    </xf:datarow>
-                </xf:if>
-            </xf:datalist>
-        </div>
-    </div>
-</div>
-
-<xf:css>
-.sprite-preview {
-  width: 200px;
-  height: 200px;
-  display: inline-flex;
-  overflow: hidden;
-}
-
-.sprite-preview canvas,
-.sprite-preview img {
-  max-width: 100%;
-  max-height: 100%;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  image-rendering: pixelated;
-  border-radius: 2px;
-}
-</xf:css>
-
+<xf:css src="sylphian_userpets_admin.less" />
 <xf:js src="sylphian/userpets/sprite-preview.js" min="1" addon="Sylphian/UserPets" />
+
+<xf:if is="$hasPathIssues">
+	<div class="blockMessage blockMessage--error blockMessage--iconic">
+		<ul class="listPlain">
+			<xf:foreach loop="$pathHealth" value="$ph">
+				<xf:if is="!$ph.exists">
+					<li>{{ phrase('sylphian_userpets_path_does_not_exist', {'path': $ph.path}) }}</li>
+				<xf:elseif is="!$ph.readable || !$ph.writable" />
+					<li>{{ phrase('sylphian_userpets_path_health_status', {
+						'label': $ph.label,
+						'path': $ph.path,
+						'readable': $ph.readable ? phrase('yes') : phrase('no'),
+						'writable': $ph.writable ? phrase('yes') : phrase('no')
+					}) }}</li>
+				</xf:if>
+			</xf:foreach>
+		</ul>
+		<div class="u-muted">{{ phrase('sylphian_userpets_spritesheet_path_error') }}</div>
+	</div>
+</xf:if>
+
+<xf:if is="$files is not empty">
+	<div class="block">
+		<div class="block-container">
+			<div class="block-body">
+				<xf:datalist data-xf-init="responsive-data-list">
+					<xf:foreach loop="$files" value="$f">
+						<xf:set var="$editLink" value="{{ link('sylphian_userpets-spritesheets/edit', null, {'file': $f.name}) }}" />
+						<xf:datarow>
+							<xf:cell class="dataList-cell--min dataList-cell--alt dataList-cell--image" href="{$editLink}" overlay="true">
+								<xf:if is="$f.exists">
+									<span class="spritePreview">
+										<img src="{$f.url}" alt="{$f.name}" loading="lazy"
+											data-xf-init="syl-sprite-preview"
+											data-frame-w="{{ $f.entity ? $f.entity.frame_width : 0 }}"
+											data-frame-h="{{ $f.entity ? $f.entity.frame_height : 0 }}"
+											data-cols="{{ $f.entity ? $f.entity.frames_per_animation : 4 }}"
+											data-rows="4"
+											data-fps="{{ $f.entity ? $f.entity.fps : 4 }}" />
+									</span>
+								<xf:else />
+									<span class="dataList-imagePlaceholder"></span>
+								</xf:if>
+							</xf:cell>
+							<xf:main href="{$editLink}" overlay="true"
+								label="{{ ($f.entity && $f.entity.title) ? $f.entity.title : $f.name }}"
+								hint="{{ !$f.exists ? phrase('sylphian_userpets_spritesheet_file_missing') : (($f.entity && $f.entity.title) ? $f.name : '') }}" />
+							<xf:cell class="dataList-cell--hint">
+								<xf:if is="$f.entity">
+									{{ phrase('sylphian_userpets_spritesheet_details_inline', {
+										'frame_width': $f.entity.frame_width,
+										'frame_height': $f.entity.frame_height,
+										'frames_per_animation': $f.entity.frames_per_animation,
+										'fps': $f.entity.fps
+									}) }}
+								<xf:else />
+									{{ phrase('sylphian_userpets_no_details_available') }}
+								</xf:if>
+							</xf:cell>
+							<xf:cell class="dataList-cell--min dataList-cell--hint">
+								<xf:if is="$f.exists">{{ file_size($f.size) }}</xf:if>
+							</xf:cell>
+							<xf:cell class="dataList-cell--min dataList-cell--hint">
+								<xf:if is="$f.mtime"><xf:date time="{$f.mtime}" /></xf:if>
+							</xf:cell>
+							<xf:if is="$f.exists">
+								<xf:action href="{$f.url}" target="_blank">{{ phrase('view') }}</xf:action>
+							<xf:else />
+								<xf:cell class="dataList-cell--action">&nbsp;</xf:cell>
+							</xf:if>
+							<xf:delete href="{{ link('sylphian_userpets-spritesheets/delete', null, {'file': $f.name}) }}" />
+						</xf:datarow>
+					</xf:foreach>
+				</xf:datalist>
+			</div>
+			<div class="block-footer">
+				<span class="block-footer-counter">{{ display_totals($files) }}</span>
+			</div>
+		</div>
+	</div>
+<xf:else />
+	<div class="blockMessage">{{ phrase('sylphian_userpets_no_spritesheet') }}</div>
+</xf:if>

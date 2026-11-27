@@ -1,0 +1,9 @@
+{
+    "event_id": "user_merge_combine",
+    "execute_order": 10,
+    "callback_class": "Sylphian\\UserPets\\Listener\\EntityEvents",
+    "callback_method": "userMergeCombine",
+    "active": true,
+    "hint": "",
+    "description": "Hand the pet data over when users are merged"
+}

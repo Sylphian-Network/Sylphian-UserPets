@@ -1,0 +1,11 @@
+{
+    "parent_navigation_id": "sylphian_userpets",
+    "display_order": 5002,
+    "link": "sylphian_userpets-tournaments",
+    "icon": "",
+    "admin_permission_id": "syl_userpetsTournaments",
+    "debug_only": false,
+    "development_only": false,
+    "super_admin_only": false,
+    "hide_no_children": false
+}

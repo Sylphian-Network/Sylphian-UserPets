@@ -7,36 +7,49 @@ use XF\Template\Templater;
 
 class MacroRender
 {
+	public const CHART_MAX_LEVEL = 30;
+
+	/**
+	 * Swaps the add-on's option group for a template with the level curve chart.
+	 * Registered for admin:option_macros:option_form_block only.
+	 */
 	public static function preRender(Templater $templater, &$type, &$template, &$name, array &$arguments, array &$globalVars): void
 	{
-		if ($template == 'option_macros' && $name == 'option_form_block' && !empty($arguments['group']) && $arguments['group']->group_id == 'sylphian_userpets')
+		if ($template !== 'option_macros'
+			|| $name !== 'option_form_block'
+			|| empty($arguments['group'])
+			|| $arguments['group']->group_id !== 'sylphian_userpets'
+		)
 		{
-			$template = 'sylphian_userpets_option_macros';
+			return;
+		}
 
-			$options = \XF::options();
-			$baseCoefficient = (float) $options->sylphian_userpets_base_coefficient;
-			$polynomialPower = (float) $options->sylphian_userpets_polynomial_power;
+		$template = 'sylphian_userpets_option_macros';
 
-			$expData = [];
-			$maxLevel = 30;
+		$arguments['preCalculatedExpData'] = self::getLevelChartData(new PetLeveling());
+		$arguments['experienceLabels'] = [
+			'experience' => \XF::phrase('sylphian_userpets_required_experience'),
+		];
+	}
 
-			$petLevelingService = new PetLeveling($baseCoefficient, $polynomialPower);
+	/**
+	 * @return array<int,array{label:string,values:array{experience:int},averages:array{experience:int}}>
+	 */
+	public static function getLevelChartData(PetLeveling $petLeveling, int $maxLevel = self::CHART_MAX_LEVEL): array
+	{
+		$expData = [];
 
-			for ($level = 1; $level <= $maxLevel; $level++)
-			{
-				$exp = $petLevelingService->getExperienceRequiredForLevel($level);
+		for ($level = 1; $level <= $maxLevel; $level++)
+		{
+			$exp = $petLeveling->getExperienceRequiredForLevel($level);
 
-				$expData[] = [
-					'label' => 'Level ' . $level,
-					'values' => ['experience' => $exp],
-					'averages' => ['experience' => $exp],
-				];
-			}
-
-			$arguments['preCalculatedExpData'] = $expData;
-			$arguments['experienceLabels'] = [
-				'experience' => \XF::phrase('sylphian_userpets_required_experience'),
+			$expData[] = [
+				'label' => (string) \XF::phrase('sylphian_userpets_level_chart_label', ['level' => $level]),
+				'values' => ['experience' => $exp],
+				'averages' => ['experience' => $exp],
 			];
 		}
+
+		return $expData;
 	}
 }

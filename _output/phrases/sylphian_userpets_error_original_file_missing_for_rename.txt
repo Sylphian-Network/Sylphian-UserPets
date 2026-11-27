@@ -1,0 +1,1 @@
+Cannot rename the spritesheet because the original file was not found on disk.

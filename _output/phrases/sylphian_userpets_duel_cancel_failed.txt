@@ -1,0 +1,1 @@
+Could not cancel the duel request: {error}

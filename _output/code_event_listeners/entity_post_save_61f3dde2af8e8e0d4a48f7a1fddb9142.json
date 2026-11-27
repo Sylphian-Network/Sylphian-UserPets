@@ -1,0 +1,9 @@
+{
+    "event_id": "entity_post_save",
+    "execute_order": 10,
+    "callback_class": "Sylphian\\UserPets\\Listener\\EntityEvents",
+    "callback_method": "questionSave",
+    "active": true,
+    "hint": "XF\\Entity\\ThreadQuestion",
+    "description": "Award pet experience when a post becomes the accepted solution"
+}

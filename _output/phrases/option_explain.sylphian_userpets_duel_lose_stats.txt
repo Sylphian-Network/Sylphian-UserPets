@@ -1,1 +1,1 @@
-How many stats do users lose after challenging and losing?
+Points removed from hunger, happiness and sleepiness of the pet that loses a duel.

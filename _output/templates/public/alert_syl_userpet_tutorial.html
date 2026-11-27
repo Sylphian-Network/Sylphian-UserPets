@@ -1,1 +1,13 @@
-You completed the tutorial "{{ $extra.tutorial_title }}" and received {{ $extra.exp_amount }} XP for your pet!
+<xf:set var="$tutorialTitle"><xf:trim>
+	<xf:if is="$extra.tutorial_title_phrase">
+		{{ phrase_dynamic($extra.tutorial_title_phrase) }}
+	<xf:elseif is="$extra.tutorial_title" />
+		{$extra.tutorial_title}
+	<xf:else />
+		{{ phrase('sylphian_userpets_unknown_tutorial') }}
+	</xf:if>
+</xf:trim></xf:set>
+{{ phrase('sylphian_userpets_alert_tutorial', {
+	'tutorial_title': $tutorialTitle,
+	'exp': $extra.exp_amount|number
+}) }}

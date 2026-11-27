@@ -1,0 +1,1 @@
+How much XP a pet earns when the user's post is marked as the accepted solution in a question thread. This reward uses the post XP content filters.

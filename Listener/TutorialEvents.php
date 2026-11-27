@@ -48,7 +48,7 @@ class TutorialEvents
 			return;
 		}
 
-		$userId = $getUserIdCallback ? $getUserIdCallback($entity) : $entity->user_id;
+		$userId = (int) ($getUserIdCallback ? $getUserIdCallback($entity) : $entity->user_id);
 		if (!$userId)
 		{
 			return;
@@ -69,7 +69,7 @@ class TutorialEvents
 				$repo->completeTutorial($userId, $tutorialId);
 			}
 		}
-		catch (\Exception $e)
+		catch (\Throwable $e)
 		{
 			$logData = array_merge([
 				'userId' => $userId,

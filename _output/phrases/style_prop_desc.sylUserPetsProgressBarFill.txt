@@ -1,0 +1,1 @@
+Colour of the filled part of the hunger, happiness and sleepiness bars.

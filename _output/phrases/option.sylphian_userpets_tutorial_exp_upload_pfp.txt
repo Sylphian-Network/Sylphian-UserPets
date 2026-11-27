@@ -1,1 +1,1 @@
-Tutorial Goal: Upload PFP
+Tutorial goal: upload an avatar

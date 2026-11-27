@@ -1,0 +1,1 @@
+Include the extension, for example my_sprite.png.

@@ -1,0 +1,1 @@
+Resolving duel (ID: {duel_id})

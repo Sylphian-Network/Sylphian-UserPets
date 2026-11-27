@@ -1,5 +1,11 @@
 {
+    "syl_userpetsRebuild.json": {
+        "hash": "4896c06dc337aa4d9a0d15b6da2a52a7"
+    },
     "syl_userpetsSpritesheets.json": {
         "hash": "14cd88a59231497800bb2d300b1200df"
+    },
+    "syl_userpetsTournaments.json": {
+        "hash": "36abd0daa3e7886dbca423fb3f3a2b7e"
     }
 }

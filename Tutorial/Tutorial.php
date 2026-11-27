@@ -32,6 +32,15 @@ class Tutorial
 
 	public function getTitle(): string
 	{
+		return (string) \XF::phrase($this->title);
+	}
+
+	/**
+	 * Phrase name of the title; store this (not the rendered title) wherever the title
+	 * is shown later, so it renders in the reader's language.
+	 */
+	public function getTitlePhraseName(): string
+	{
 		return $this->title;
 	}
 
@@ -65,7 +74,7 @@ class Tutorial
 
 	public function getRewardAmount(): int
 	{
-		return \XF::options()->{$this->rewardExpOption} ?? 0;
+		return max(0, (int) (\XF::options()->{$this->rewardExpOption} ?? 0));
 	}
 
 	public function getMetadata(): array

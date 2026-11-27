@@ -1,0 +1,1 @@
+When enabled, the spritesheet field is shown on the registration form and users must choose one before creating their account. When disabled, registration does not require or display a spritesheet choice.

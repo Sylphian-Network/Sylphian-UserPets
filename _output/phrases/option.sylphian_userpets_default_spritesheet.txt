@@ -1,1 +1,1 @@
-Default Spritesheet
+Default spritesheet

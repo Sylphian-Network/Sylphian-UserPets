@@ -19,6 +19,12 @@ use XF\Mvc\Entity\Structure;
  * @property int    $last_update
  * @property int    $last_action_time
  * @property int    $last_duel_time
+ * @property int    $thread_reward_count
+ * @property int    $thread_reward_experience
+ * @property int    $post_reward_count
+ * @property int    $post_reward_experience
+ * @property int    $solution_reward_count
+ * @property int    $solution_reward_experience
  * @property int    $created_at
  *
  * RELATIONS
@@ -43,6 +49,12 @@ class UserPets extends Entity
 			'last_update' => ['type' => self::UINT, 'default' => 0],
 			'last_action_time' => ['type' => self::UINT, 'default' => 0],
 			'last_duel_time' => ['type' => self::UINT, 'default' => 0],
+			'thread_reward_count' => ['type' => self::UINT, 'default' => 0],
+			'thread_reward_experience' => ['type' => self::UINT, 'default' => 0],
+			'post_reward_count' => ['type' => self::UINT, 'default' => 0],
+			'post_reward_experience' => ['type' => self::UINT, 'default' => 0],
+			'solution_reward_count' => ['type' => self::UINT, 'default' => 0],
+			'solution_reward_experience' => ['type' => self::UINT, 'default' => 0],
 			'created_at' => ['type' => self::UINT, 'default' => \XF::$time],
 		];
 

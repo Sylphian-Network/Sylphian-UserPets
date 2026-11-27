@@ -11,7 +11,7 @@ class Hunger extends Stat
 	public const int FEED_AMOUNT = 20;
 
 	/** Name of the critical state when hunger is too low */
-	protected string $criticalState = 'Hungry';
+	protected string $criticalState = 'hungry';
 
 	/**
 	 * Feed the pet, increasing the hunger stat.

@@ -1,0 +1,1 @@
+Choose how the winner of a duel is decided.

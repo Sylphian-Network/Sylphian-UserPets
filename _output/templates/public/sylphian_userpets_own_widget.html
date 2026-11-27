@@ -1,276 +1,79 @@
+<xf:css src="sylphian_userpets_widget.less" />
+<xf:js src="sylphian/userpets/userpets-actions.js" min="1" addon="Sylphian/UserPets" />
+
 <xf:if is="$tutorial">
-    <div class="block block-container tutorialBlock">
-        <h3 class="block-header u-alignCenter">{{ phrase('sylphian_userpets_tutorial_title') }}</h3>
-        <div class="block-body block-row">
-            <xf:foreach loop="$tutorial" value="$tut">
-                <div class="block-row">
-                    <label class="tutorialItem">
-                        <xf:if is="$tut.completed">
-                            <input type="checkbox" checked="checked" disabled="disabled" />
-                            <xf:else />
-                            <input type="checkbox" disabled="disabled" />
-                        </xf:if>
-                        <span>{{ $tut.title }}</span>
-                    </label>
-                </div>
-            </xf:foreach>
-        </div>
-    </div>
+	<div class="block petTutorial">
+		<div class="block-container">
+			<h3 class="block-minorHeader">{{ phrase('sylphian_userpets_tutorial_title') }}</h3>
+			<div class="block-body block-row">
+				<ul class="listPlain petTutorial-list">
+					<xf:foreach loop="$tutorial" value="$tut">
+						<li class="petTutorial-item{{ $tut.completed ? ' is-completed' : '' }}">
+							<xf:if is="$tut.completed">
+								<xf:fa icon="fas fa-check-circle" class="petTutorial-icon" />
+								<span class="u-srOnly">{{ phrase('sylphian_userpets_tutorial_step_completed') }}</span>
+							<xf:else />
+								<xf:fa icon="far fa-circle" class="petTutorial-icon" />
+								<span class="u-srOnly">{{ phrase('sylphian_userpets_tutorial_step_pending') }}</span>
+							</xf:if>
+							<span class="petTutorial-title">{$tut.title}</span>
+						</li>
+					</xf:foreach>
+				</ul>
+			</div>
+		</div>
+	</div>
 </xf:if>
 
 <xf:if is="$petRender.usingDefault">
-    <div class="blockMessage blockMessage--warning blockMessage--iconic">
-        {{ phrase('sylphian_userpets_default_spritesheet_warning') }}
-    </div>
+	<div class="blockMessage blockMessage--warning blockMessage--iconic">
+		{{ phrase('sylphian_userpets_default_spritesheet_warning', {'link': link('account/preferences')}) }}
+	</div>
 </xf:if>
 
-<div class="block">
-    <div class="block-container"
-         data-xf-init="pet-actions"
-         data-action-url="{{ link('userpets/action/') }}"
-         data-cooldown="{{ $xf.options.sylphian_userpets_cooldown_time }}"
-         data-last-action-time="{{ $pet.last_action_time }}"
-         data-current-time="{{ $xf.time }}">
+<div class="block petWidget" data-widget-id="{$widget.id}" data-widget-key="{$widget.key}" data-widget-definition="{$widget.definition}">
+	<div class="block-container js-petWidget"
+		data-xf-init="pet-actions"
+		data-action-url="{{ link('userpets/action') }}"
+		data-cooldown="{$xf.options.sylphian_userpets_cooldown_time}"
+		data-last-action-time="{$pet.last_action_time}"
+		data-current-time="{$xf.time}">
 
-        <xf:if is="$customPetName != null">
-            <h3 class="block-header u-alignCenter">{{ $customPetName }}<br>
-                <span class="petSubTitle">{{ phrase_dynamic('sylphian_userpets_widget_title', {'username': $pet.User.username}) }}</span>
-            </h3>
-            <xf:else />
-            <h3 class="block-header u-alignCenter">{{ phrase_dynamic('sylphian_userpets_widget_title', {'username': $pet.User.username}) }}</h3>
-        </xf:if>
+		<script class="js-extraPhrases" type="application/json">
+		{
+			"sylphian_userpets_action_error": "{{ phrase('sylphian_userpets_action_error')|escape('json') }}",
+			"sylphian_userpets_cooldown_remaining_x": "{{ phrase('sylphian_userpets_cooldown_remaining_x')|escape('json') }}",
+			"sylphian_userpets_stat_x_of_max": "{{ phrase('sylphian_userpets_stat_x_of_max')|escape('json') }}"
+		}
+		</script>
 
-        <div class="block-body">
-            <div class="block-row">
-                <div class="petWidgetContainer">
-                    <div class="petCanvasContainer">
-                        <div id="petCanvasBorder">
-                            <canvas id="petCanvas" width="192" height="192"
-									data-xf-init="userpets-renderer"
-									data-pet-state="{{ $pet.state }}"
-									data-sprite-sheet-path="{{ $petRender.url }}"
-									data-frame-width="{{ $petRender.frame_width }}"
-									data-frame-height="{{ $petRender.frame_height }}"
-									data-frames-per-animation="{{ $petRender.frames_per_animation }}"
-									data-fps="{{ $petRender.fps }}"
-									data-scale-min="{{ $scaleMin }}"
-									data-scale-max="{{ $scaleMax }}"></canvas>
-                        </div>
-                        <div class="petState u-alignCenter">
-                            <div class="petStateName">{{ phrase_dynamic('sylphian_userpets_pet_state', {'pet_state': $pet.state}) }}</div>
-                        </div>
-                    </div>
+		<h3 class="block-minorHeader petWidget-header">
+			<xf:if is="$customPetName">
+				<span class="petWidget-name">{$customPetName}</span>
+				<span class="petWidget-owner">{$ownerPetTitle}</span>
+			<xf:else />
+				<span class="petWidget-name">{$ownerPetTitle}</span>
+			</xf:if>
+		</h3>
 
-                    <div class="petStats">
-                        <div class="u-alignCenter">
-                            <div>{{ phrase_dynamic('sylphian_userpets_level', {'level': $pet.level }) }}</div>
-                            <div class="petLevelInfo">{{ phrase_dynamic('sylphian_userpets_exp_to_level', {'exp': $expNeeded}) }}</div>
-                        </div>
+		<div class="block-body block-row">
+			<xf:macro id="sylphian_userpets_macros::pet_display"
+				arg-pet="{$pet}"
+				arg-petRender="{$petRender}"
+				arg-label="{{ $customPetName ?: $ownerPetTitle }}"
+				arg-stateDisplay="{$stateDisplay}"
+				arg-scaleMin="{$scaleMin}"
+				arg-scaleMax="{$scaleMax}"
+				arg-expNeeded="{$expNeeded}" />
+		</div>
 
-                        <div class="petStatBars">
-                            <!-- Hunger stat -->
-                            <div class="petStatBar">
-                                <div class="petStatLabel">{{ phrase('sylphian_userpets_hunger') }}:</div>
-                                <div class="petProgressBar" title="{{ $pet.hunger }}/100">
-                                    <div class="petProgressBar-progress" style="width: {{ $pet.hunger }}%"></div>
-                                    <div class="petProgressBar-label">{{ $pet.hunger }}/100</div>
-                                </div>
-                            </div>
-
-                            <!-- Happiness stat -->
-                            <div class="petStatBar">
-                                <div class="petStatLabel">{{ phrase('sylphian_userpets_happiness') }}:</div>
-                                <div class="petProgressBar" title="{{ $pet.happiness }}/100">
-                                    <div class="petProgressBar-progress" style="width: {{ $pet.happiness }}%"></div>
-                                    <div class="petProgressBar-label">{{ $pet.happiness }}/100</div>
-                                </div>
-                            </div>
-
-                            <!-- Sleepiness stat -->
-                            <div class="petStatBar">
-                                <div class="petStatLabel">{{ phrase('sylphian_userpets_sleepiness') }}:</div>
-                                <div class="petProgressBar" title="{{ $pet.sleepiness }}/100">
-                                    <div class="petProgressBar-progress" style="width: {{ $pet.sleepiness }}%"></div>
-                                    <div class="petProgressBar-label">{{ $pet.sleepiness }}/100</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="block-footer u-alignCenter petStatActions">
-            <div class="petActionButtons">
-                <button type="button" class="button pet-action-button" data-action="feed">
-                    <xf:fa icon="fad fa-utensils" />
-                    {{ phrase('sylphian_userpets_feed') }}
-                </button>
-                <button type="button" class="button pet-action-button" data-action="play">
-                    <xf:fa icon="fad fa-joystick" />
-                    {{ phrase('sylphian_userpets_play') }}
-                </button>
-                <button type="button" class="button pet-action-button" data-action="sleep">
-                    <xf:fa icon="fad fa-bed" />
-                    {{ phrase('sylphian_userpets_sleep') }}
-                </button>
-            </div>
-
-            <div class="cooldown-timer" style="display: none;">
-                {{ phrase('sylphian_userpets_cooldown_timer') }}: <span class="js-pet-cooldown-timer">0</span>
-            </div>
-        </div>
-    </div>
+		<div class="block-footer petWidget-footer">
+			<div class="petWidget-actions">
+				<xf:button class="button--small js-petAction" fa="fad fa-utensils" data-action="feed">{{ phrase('sylphian_userpets_feed') }}</xf:button>
+				<xf:button class="button--small js-petAction" fa="fad fa-joystick" data-action="play">{{ phrase('sylphian_userpets_play') }}</xf:button>
+				<xf:button class="button--small js-petAction" fa="fad fa-bed" data-action="sleep">{{ phrase('sylphian_userpets_sleep') }}</xf:button>
+			</div>
+			<div class="petWidget-cooldown js-petCooldown" hidden="hidden"></div>
+		</div>
+	</div>
 </div>
-
-<xf:js src="sylphian/userpets/userpets-actions.js" min="1" addon="Sylphian/UserPets" />
-<xf:js src="sylphian/userpets/userpets-renderer.js" min="1" addon="Sylphian/UserPets" />
-
-<xf:css>
-    .petWidgetContainer {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 16px;
-    align-items: flex-start;
-    justify-content: center;
-    width: 95%;
-    margin: 0 auto;
-    }
-
-    .petCanvasContainer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-width: 150px;
-    margin: 0 auto 4px auto;
-    }
-
-    #petCanvasBorder {
-    width: 100%;
-    max-width: 200px;
-    aspect-ratio: 1 / 1;
-    display: flex;
-    justify-content: center;
-    align-items: flex-end;
-    margin-bottom: 5px;
-
-    outline: {{ property('sylUserPetsCanvasBorderWidth') }} solid {{ property('sylUserPetsCanvasBorder') }};
-    border-radius: {{ property('sylUserPetsCanvasBorderRadius') }};
-    }
-
-    .petStats {
-    flex: 1;
-    min-width: 280px;
-    padding: 12px 16px;
-    box-sizing: border-box;
-    }
-
-    .petStatBar {
-    display: flex;
-    align-items: center;
-    margin-bottom: 8px;
-    gap: 8px;
-    }
-
-    .petStatLabel {
-    font-weight: bold;
-    white-space: nowrap;
-    width: 90px;
-    text-align: right;
-    }
-
-    .petProgressBar {
-    position: relative;
-    flex: 1;
-    background: {{ property('sylUserPetsProgressBarBackground') }};
-    border: @xf-borderSize solid @xf-borderColorFaint;
-    border-radius: @xf-borderRadiusSmall;
-    overflow: hidden;
-    height: 20px;
-    width: 95%;
-    margin: 0 auto;
-    }
-
-    .petProgressBar-progress {
-    background: {{ property('sylUserPetsProgressBarFill') }};
-    height: 100%;
-    transition: width 0.3s ease;
-    }
-
-    .petProgressBar-label {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    height: 20px;
-    line-height: 20px;
-    color: {{ property('sylUserPetsProgressBarTextColor') }};
-    text-align: center;
-    font-weight: bold;
-    text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
-    opacity: 0;
-    transition: opacity 0.2s ease;
-    }
-
-    .petProgressBar:hover .petProgressBar-label {
-    opacity: 1;
-    }
-
-    .petLevelBar {
-    margin: 6px auto;
-    max-width: 95%;
-    }
-
-    .petState {
-    margin: 2px 0 6px 0;
-    }
-
-    .p-body-sidebar .petWidgetContainer {
-    gap: 0px;
-    }
-
-    .p-body-sidebar .petStats {
-    padding: 2px 10px;
-    }
-
-    .petSubTitle {
-    font-size: 12px;
-    opacity: 0.6;
-    }
-
-    .tutorialItem {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    }
-
-    .tutorialItem input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    }
-
-    .tutorialItem span {
-    flex: 1;
-    font-size: 14px;
-    color: var(--xf-textColor);
-    line-height: 1.4;
-    }
-
-    .tutorialBlock .block-body.block-row {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    }
-
-    .tutorialBlock .block-body.block-row .block-row {
-    flex: 1 1 45%;
-    min-width: 200px;
-    box-sizing: border-box;
-    }
-
-    .tutorialItem input[checked] + span {
-    text-decoration: line-through;
-    opacity: 0.7;
-    }
-</xf:css>

@@ -1,0 +1,1 @@
+Before 1.5.0 every XP award added 10 XP instead of the configured amount. This one-time tool adds the missing XP for threads, replies, tutorials, duel wins and tournament prizes earned before the upgrade, using the current XP options. Pets whose owners disabled their pet are skipped; no XP is removed and no alerts are sent.

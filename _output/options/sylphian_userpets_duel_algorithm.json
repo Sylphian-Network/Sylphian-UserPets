@@ -3,10 +3,10 @@
     "edit_format_params": "Sylphian\\UserPets\\Option\\DuelAlgorithm::renderOption",
     "data_type": "string",
     "sub_options": [],
-    "validation_class": "",
-    "validation_method": "",
+    "validation_class": "Sylphian\\UserPets\\Option\\DuelAlgorithm",
+    "validation_method": "verifyOption",
     "advanced": false,
-    "default_value": "Sylphian\\UserPets\\Service\\DuelAlgorithms\\DefaultDuel",
+    "default_value": "default",
     "relations": {
         "sylphian_userpets": 5003
     }

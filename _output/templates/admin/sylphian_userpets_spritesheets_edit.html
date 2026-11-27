@@ -1,26 +1,51 @@
-<xf:title>Edit spritesheet: {$entity.filename}</xf:title>
+<xf:title>{{ phrase('sylphian_userpets_edit_spritesheet_title', {'filename': $entity.filename}) }}</xf:title>
 
-<xf:form action="{{ link('sylphian_userpets/spritesheets/save') }}" ajax="true" class="block" enctype="multipart/form-data">
-    <div class="block-container">
-        <div class="block-body">
-            <xf:hiddenval name="spritesheet_id" value="{{ $entity.spritesheet_id ?: 0 }}" />
-            <xf:hiddenval name="file" value="{$entity.filename}" />
+<xf:css src="sylphian_userpets_admin.less" />
+<xf:js src="sylphian/userpets/sprite-preview.js" min="1" addon="Sylphian/UserPets" />
 
-            <xf:uploadrow name="image"
-                          label="Replace image (optional)"
-                          accept=".png,.gif,.jpg,.jpeg,.webp"
-                          explain="If provided, this will replace the current file on disk using the filename below." />
+<xf:form action="{{ link('sylphian_userpets-spritesheets/save') }}" ajax="true" class="block" enctype="multipart/form-data">
+	<div class="block-container">
+		<div class="block-body">
+			<xf:if is="$exists">
+				<xf:formrow label="{{ phrase('preview') }}">
+					<span class="spritePreview spritePreview--large">
+						<img src="{$fileUrl}" alt="{$entity.filename}"
+							data-xf-init="syl-sprite-preview"
+							data-frame-w="{$entity.frame_width}"
+							data-frame-h="{$entity.frame_height}"
+							data-cols="{$entity.frames_per_animation}"
+							data-rows="4"
+							data-fps="{$entity.fps}" />
+					</span>
+				</xf:formrow>
+			</xf:if>
 
-            <xf:textboxrow name="filename" value="{$entity.filename}" label="Filename" explain="Include the extension (e.g. my_sprite.png)." />
+			<xf:uploadrow name="image"
+				label="{{ phrase('sylphian_userpets_replace_image_optional') }}"
+				accept=".png,.gif,.jpg,.jpeg,.webp"
+				explain="{{ phrase('sylphian_userpets_replace_image_explain') }}" />
 
-            <xf:textboxrow name="title" value="{$entity.title}" label="Title" />
+			<xf:textboxrow name="filename" value="{$entity.filename}"
+				label="{{ phrase('sylphian_userpets_filename') }}"
+				explain="{{ phrase('sylphian_userpets_filename_explain') }}" />
 
-            <xf:numberboxrow name="frame_width" value="{$entity.frame_width}" min="1" step="1" label="Frame width (px)" />
-            <xf:numberboxrow name="frame_height" value="{$entity.frame_height}" min="1" step="1" label="Frame height (px)" />
-            <xf:numberboxrow name="frames_per_animation" value="{$entity.frames_per_animation}" min="1" step="1" label="Frames per animation (columns)" />
-			<xf:numberboxrow name="fps" value="{$entity.fps}" min="1" max="120" step="1" label="Frames per second used by the widgets for this spritesheet" />
-        </div>
+			<xf:textboxrow name="title" value="{$entity.title}" label="{{ phrase('title') }}" />
 
-        <xf:submitrow submit="{{ phrase('save') }}" icon="save" sticky="true" />
-    </div>
+			<hr class="formRowSep" />
+
+			<xf:numberboxrow name="frame_width" value="{$entity.frame_width}" min="1" step="1"
+				label="{{ phrase('sylphian_userpets_frame_width_px') }}" />
+			<xf:numberboxrow name="frame_height" value="{$entity.frame_height}" min="1" step="1"
+				label="{{ phrase('sylphian_userpets_frame_height_px') }}" />
+			<xf:numberboxrow name="frames_per_animation" value="{$entity.frames_per_animation}" min="1" step="1"
+				label="{{ phrase('sylphian_userpets_frames_per_animation_columns') }}" />
+			<xf:numberboxrow name="fps" value="{$entity.fps}" min="1" max="120" step="1"
+				label="{{ phrase('sylphian_userpets_fps_widget_label') }}" />
+		</div>
+
+		<xf:hiddenval name="spritesheet_id" value="{{ $entity.spritesheet_id ?: 0 }}" />
+		<xf:hiddenval name="file" value="{$entity.filename}" />
+
+		<xf:submitrow icon="save" sticky="true" />
+	</div>
 </xf:form>

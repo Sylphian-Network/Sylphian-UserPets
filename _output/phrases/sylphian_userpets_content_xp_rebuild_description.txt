@@ -1,0 +1,1 @@
+Recalculate filtered thread XP, filtered post XP and accepted solution XP from the current forum, prefix and thread type settings. Running this rebuild syncs each pet to the latest matching content totals instead of stacking duplicate XP.

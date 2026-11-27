@@ -4,14 +4,15 @@ namespace Sylphian\UserPets\Duel\Algorithms;
 
 interface DuelAlgorithmInterface
 {
-	/** Short, stable key like "default", "care", "exp", "weighted" */
+	/** Short, stable key like "default", "care", "exp", "weight"; stored in the duel algorithm option. */
 	public function getKey(): string;
 
-	/** Human-friendly label for ACP */
+	/** Label shown in the admin option. */
 	public function getLabel(): string;
 
 	/**
-	 * Must return the winning pet as an array compatible with your job usage.
+	 * Receives two pet rows (UserPets::toArray()) and must return one of them unchanged: callers
+	 * identify the winner by its pet_id. Hunger, sleepiness and happiness are "high = good".
 	 *
 	 * @param array $petA
 	 * @param array $petB

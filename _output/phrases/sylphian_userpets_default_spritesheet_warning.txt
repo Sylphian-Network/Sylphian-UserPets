@@ -1,2 +1,1 @@
-No sprite has been selected for your pet. The fallback sprite is being used until you choose one.<br>
-To select your own sprite go into <b>Account details -> Preferences</b>.
+Your pet uses the default appearance because you have not chosen one yet. You can choose one in <a href="{link}">your preferences</a>.

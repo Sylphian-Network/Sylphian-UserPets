@@ -11,7 +11,7 @@ class Sleepiness extends Stat
 	public const int SLEEP_AMOUNT = 20;
 
 	/** Name of the critical state when sleepiness is too low */
-	protected string $criticalState = 'Tired';
+	protected string $criticalState = 'tired';
 
 	/**
 	 * Perform the sleep action, increasing the sleepiness stat.

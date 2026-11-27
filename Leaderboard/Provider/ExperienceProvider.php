@@ -2,36 +2,36 @@
 
 namespace Sylphian\UserPets\Leaderboard\Provider;
 
-use Sylphian\Leaderboard\Provider\AbstractProvider;
 use Sylphian\UserPets\Entity\UserPets;
 use XF\App;
 use XF\Entity\User;
 use XF\Mvc\Entity\Entity;
 use XF\Mvc\Entity\Finder as EntityFinder;
 
-class ExperienceProvider extends AbstractProvider
+class ExperienceProvider extends AbstractPetProvider
 {
 	public function getKey(): string
 	{
 		return 'pet_level';
 	}
+
 	public function getTitle(): string
 	{
-		return 'Pet Level';
+		return (string) \XF::phrase('sylphian_userpets_leaderboard_pet_level_title');
 	}
 
 	public function getDescription(): ?string
 	{
-		return 'Users ranked by total pet experience.';
+		return (string) \XF::phrase('sylphian_userpets_leaderboard_pet_level_description');
 	}
 
 	public function getColumns(): array
 	{
 		return [
-			['key' => 'position', 'label' => 'Position',  'width' => '10%'],
-			['key' => 'username', 'label' => 'User',      'width' => '40%'],
-			['key' => 'level',    'label' => 'Level',     'width' => '15%'],
-			['key' => 'exp',      'label' => 'Experience','width' => '35%'],
+			['key' => 'position', 'label' => (string) \XF::phrase('position'), 'width' => '10%'],
+			['key' => 'username', 'label' => (string) \XF::phrase('user'), 'width' => '40%'],
+			['key' => 'level',    'label' => (string) \XF::phrase('sylphian_userpets_level_label'), 'width' => '15%'],
+			['key' => 'exp',      'label' => (string) \XF::phrase('sylphian_userpets_experience'), 'width' => '35%'],
 		];
 	}
 
@@ -39,8 +39,34 @@ class ExperienceProvider extends AbstractProvider
 	{
 		return $app->finder('Sylphian\\UserPets:UserPets')
 			->with('User', true)
+			->with('User.Profile')
 			->order('experience', 'DESC')
 			->order('level', 'DESC');
+	}
+
+	protected function fetchRankedRows(App $app, int $limit): array
+	{
+		$rows = $app->finder('Sylphian\\UserPets:UserPets')
+			->with('User', true)
+			->order('experience', 'DESC')
+			->order('level', 'DESC')
+			->order('pet_id')
+			->limit($limit)
+			->fetchColumns('user_id', 'level', 'experience');
+
+		return array_map(fn (array $row) => [
+			'user_id' => (int) $row['user_id'],
+			'level' => (int) $row['level'],
+			'experience' => (int) $row['experience'],
+		], $rows);
+	}
+
+	protected function buildMetrics(array $rankedRow): array
+	{
+		return [
+			'level' => (int) $rankedRow['level'],
+			'exp' => (int) $rankedRow['experience'],
+		];
 	}
 
 	/** @param UserPets $entity */
@@ -54,10 +80,5 @@ class ExperienceProvider extends AbstractProvider
 			'level' => (int) ($entity->get('level') ?? 0),
 			'exp' => (int) ($entity->get('experience') ?? 0),
 		];
-	}
-
-	public function canView(App $app): bool
-	{
-		return true;
 	}
 }

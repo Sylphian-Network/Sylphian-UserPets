@@ -3,6 +3,10 @@
 namespace Sylphian\UserPets\Widget;
 
 use Sylphian\Library\Logger\Logger;
+use Sylphian\UserPets\Entity\UserPets;
+use Sylphian\UserPets\Helper\DisplayName;
+use Sylphian\UserPets\Helper\DuelPermission;
+use Sylphian\UserPets\Helper\PetState;
 use Sylphian\UserPets\Helper\UserPetOptOut;
 use Sylphian\UserPets\Repository\UserPetsRepository;
 use Sylphian\UserPets\Repository\UserPetsSpritesheetRepository;
@@ -15,204 +19,220 @@ use XF\PrintableException;
 use XF\Widget\AbstractWidget;
 use XF\Widget\WidgetRenderer;
 
+/**
+ * Rendering never recounts content XP: the content save listeners and the rebuild job
+ * keep it in step. The only write here is the stat decay, at most once per update interval.
+ */
 class UserPetWidget extends AbstractWidget
 {
+	public const DEFAULT_SPRITESHEET = 'sylphian_spritesheet.png';
+
 	public function render(?Widget $widget = null): ?WidgetRenderer
 	{
 		$visitor = \XF::visitor();
 		if (!$visitor->user_id)
 		{
-			return null; // Guests can't have pets
+			return null;
 		}
 
-		$profileViewing = $this->contextParams['user']['user_id'] ?? null;
+		$profileUser = $this->getProfileUser();
 
-		if ($profileViewing === null || $profileViewing === $visitor->user_id)
+		if (!$profileUser || $profileUser->user_id === $visitor->user_id)
 		{
-			// Viewing own pet
-			if (UserPetOptOut::isDisabledForUser($visitor))
-			{
-				return null;
-			}
-
-			$repo = $this->repository(UserPetsRepository::class);
-			$pet = $repo->getOrCreatePet($visitor->user_id);
-
-			$renderConfig = $this->getSpritesheetRenderConfigForUser($visitor);
-
-			$actionUrl = $this->app()->router()->buildLink('userPets/actions');
-			$petManager = new PetManager($pet);
-			try
-			{
-				$petManager->updateStats();
-			}
-			catch (PrintableException $e)
-			{
-				Logger::error(
-					'Failed to update pet stats for user_id ' . $visitor->user_id,
-					['error' => $e->getMessage(), 'trace' => $e->getTrace()]
-				);
-			}
-
-			$petLeveling = new PetLeveling();
-			$levelProgress = $petLeveling->getLevelProgressPercentage($pet);
-			$expNeeded = $petLeveling->getExperienceNeededToLevelUp($pet);
-
-			$tutorials = [];
-			$allCompleted = true;
-			if (\XF::options()->sylphian_userpets_enable_tutorial)
-			{
-				/** @var UserPetsTutorialRepository $tutorialRepo */
-				$tutorialRepo = $this->repository('Sylphian\\UserPets:UserPetsTutorial');
-				$tutorials = $tutorialRepo->getUserTutorials($visitor->user_id);
-				foreach ($tutorials AS $t)
-				{
-					if (!$t['completed'])
-					{
-						$allCompleted = false;
-						break;
-					}
-				}
-				if ($allCompleted && !empty($tutorials))
-				{
-					$tutorials = [];
-				}
-			}
-
-			return $this->renderer('sylphian_userpets_own_widget', [
-				'widget'        => $widget,
-				'pet'           => $pet,
-				'customPetName' => $this->getCustomName($visitor),
-				'actionUrl'     => $actionUrl,
-				'levelProgress' => $levelProgress,
-				'expNeeded'     => $expNeeded,
-				'petRender'     => $renderConfig,
-				'tutorial'      => $tutorials,
-				'scaleMin'      => \XF::options()->sylphian_userpets_scale_min ?? 0.5,
-				'scaleMax'      => \XF::options()->sylphian_userpets_scale_max ?? 1.0,
-			]);
+			return $this->renderOwnPet($widget, $visitor);
 		}
-		else
+
+		return $this->renderOtherPet($widget, $profileUser);
+	}
+
+	protected function renderOwnPet(?Widget $widget, User $visitor): ?WidgetRenderer
+	{
+		if (UserPetOptOut::isDisabledForUser($visitor))
 		{
-			// Viewing someone else's profile
-			/** @var UserPetsRepository $repo */
-			$repo = $this->repository('Sylphian\\UserPets:UserPets');
-			$pet = $repo->getUserPet($profileViewing);
-			if (!$pet)
-			{
-				return null;
-			}
+			return null;
+		}
 
-			/** @var User $profileUser */
-			$profileUser = $this->em()->find('XF:User', $profileViewing);
+		/** @var UserPetsRepository $repo */
+		$repo = $this->repository('Sylphian\UserPets:UserPets');
+		$pet = $repo->getOrCreatePet($visitor->user_id);
+		if (!$pet->pet_id)
+		{
+			return null;
+		}
 
-			if (UserPetOptOut::isDisabledForUser($profileUser))
-			{
-				return null;
-			}
+		$this->updatePetStats($pet);
 
-			$renderConfig = $this->getSpritesheetRenderConfigForUser($profileUser);
+		$petLeveling = new PetLeveling();
 
-			$petManager = new PetManager($pet);
-			try
-			{
-				$petManager->updateStats();
-			}
-			catch (PrintableException $e)
-			{
-				Logger::error(
-					'Failed to update pet stats for user_id ' . $profileViewing,
-					['error' => $e->getMessage(), 'trace' => $e->getTrace()]
-				);
-			}
+		$cooldownTime = max(0, (int) \XF::options()->sylphian_userpets_cooldown_time);
+		$cooldownRemaining = max(0, $cooldownTime - (\XF::$time - (int) $pet->last_action_time));
 
-			$petLeveling = new PetLeveling();
-			$levelProgress = $petLeveling->getLevelProgressPercentage($pet);
-			$expNeeded = $petLeveling->getExperienceNeededToLevelUp($pet);
+		return $this->renderer('sylphian_userpets_own_widget', [
+			'pet' => $pet,
+			'customPetName' => $this->getCustomName($visitor),
+			'actionUrl' => $this->app()->router()->buildLink('userPets/actions'),
+			'levelProgress' => $petLeveling->getLevelProgressPercentage($pet),
+			'expNeeded' => $petLeveling->getExperienceNeededToLevelUp($pet),
+			'petRender' => $this->getSpritesheetRenderConfigForUser($visitor),
+			'ownerDisplayName' => DisplayName::decode($visitor->username),
+			'ownerPetTitle' => DisplayName::renderUsernamePhrase(
+				'sylphian_userpets_widget_title',
+				$visitor->username
+			),
+			'stateDisplay' => PetState::getDisplay($pet->state),
+			'animationState' => PetState::getPrimaryState($pet->state),
+			'stateIds' => PetState::getStateIds($pet->state),
+			'cooldownRemaining' => $cooldownRemaining,
+			'tutorial' => $this->getOpenTutorials($visitor->user_id),
+			'scaleMin' => \XF::options()->sylphian_userpets_scale_min ?? 0.5,
+			'scaleMax' => \XF::options()->sylphian_userpets_scale_max ?? 1.0,
+		]);
+	}
 
-			return $this->renderer('sylphian_userpets_other_widget', [
-				'widget'        => $widget,
-				'pet'           => $pet,
-				'custom_pet_name' => $this->getCustomName($profileUser),
-				'levelProgress' => $levelProgress,
-				'expNeeded'     => $expNeeded,
-				'petRender'     => $renderConfig,
-				'scaleMin'      => \XF::options()->sylphian_userpets_scale_min ?? 0.5,
-				'scaleMax'      => \XF::options()->sylphian_userpets_scale_max ?? 1.0,
-			]);
+	protected function renderOtherPet(?Widget $widget, User $profileUser): ?WidgetRenderer
+	{
+		if (UserPetOptOut::isDisabledForUser($profileUser))
+		{
+			return null;
+		}
+
+		/** @var UserPetsRepository $repo */
+		$repo = $this->repository('Sylphian\UserPets:UserPets');
+		$pet = $repo->getUserPet($profileUser->user_id);
+		if (!$pet)
+		{
+			return null;
+		}
+
+		$this->updatePetStats($pet);
+
+		$petLeveling = new PetLeveling();
+
+		return $this->renderer('sylphian_userpets_other_widget', [
+			'pet' => $pet,
+			'custom_pet_name' => $this->getCustomName($profileUser),
+			'levelProgress' => $petLeveling->getLevelProgressPercentage($pet),
+			'expNeeded' => $petLeveling->getExperienceNeededToLevelUp($pet),
+			'petRender' => $this->getSpritesheetRenderConfigForUser($profileUser),
+			'ownerDisplayName' => DisplayName::decode($profileUser->username),
+			'ownerPetTitle' => DisplayName::renderUsernamePhrase(
+				'sylphian_userpets_widget_title',
+				$profileUser->username
+			),
+			'canChallengePets' => \XF::options()->sylphian_userpets_duel_enable
+				&& DuelPermission::getCooldownPolicy(\XF::visitor())['allowed'],
+			'stateDisplay' => PetState::getDisplay($pet->state),
+			'animationState' => PetState::getPrimaryState($pet->state),
+			'stateIds' => PetState::getStateIds($pet->state),
+			'scaleMin' => \XF::options()->sylphian_userpets_scale_min ?? 0.5,
+			'scaleMax' => \XF::options()->sylphian_userpets_scale_max ?? 1.0,
+		]);
+	}
+
+	protected function getProfileUser(): ?User
+	{
+		$user = $this->contextParams['user'] ?? null;
+		if ($user instanceof User)
+		{
+			return $user->user_id ? $user : null;
+		}
+
+		$userId = (int) ($user['user_id'] ?? 0);
+		if (!$userId)
+		{
+			return null;
+		}
+
+		/** @var User|null $found */
+		$found = $this->em()->find('XF:User', $userId, ['Profile']);
+
+		return $found;
+	}
+
+	protected function updatePetStats(UserPets $pet): void
+	{
+		try
+		{
+			(new PetManager($pet))->updateStats();
+		}
+		catch (PrintableException $e)
+		{
+			Logger::error(
+				'Failed to update pet stats for user_id ' . $pet->user_id,
+				['error' => $e->getMessage()]
+			);
 		}
 	}
 
 	/**
-	 * Resolve the spritesheet URL and DB-backed render config for a user.
+	 * @return array<int,array{tutorial_id:string,title:string,completed:bool}> Empty when the
+	 *     tutorial is disabled or every step is done
+	 */
+	protected function getOpenTutorials(int $userId): array
+	{
+		if (!\XF::options()->sylphian_userpets_enable_tutorial)
+		{
+			return [];
+		}
+
+		/** @var UserPetsTutorialRepository $tutorialRepo */
+		$tutorialRepo = $this->repository('Sylphian\UserPets:UserPetsTutorial');
+		$tutorials = $tutorialRepo->getUserTutorials($userId);
+
+		foreach ($tutorials AS $tutorial)
+		{
+			if (!$tutorial['completed'])
+			{
+				return $tutorials;
+			}
+		}
+
+		return [];
+	}
+
+	/**
+	 * Resolve the spritesheet URL and render config for a user from the cached spritesheet index.
 	 *
 	 * @param User|null $user
 	 * @return array{url:string, frame_width:int, frame_height:int, frames_per_animation:int, fps:int, usingDefault:bool}
 	 */
 	protected function getSpritesheetRenderConfigForUser(?User $user): array
 	{
-		$defaultIdRaw = (string) \XF::options()->sylphian_userpets_default_spritesheet;
-		$defaultId = strtolower(pathinfo($defaultIdRaw, PATHINFO_FILENAME));
+		/** @var UserPetsRepository $repo */
+		$repo = $this->repository('Sylphian\UserPets:UserPets');
+		$index = $repo->getSpritesheetRenderIndex();
+		$choices = $index['choices'];
 
-		if ($defaultId === '')
-		{
-			$defaultId = 'sylphian_spritesheet';
-		}
+		$defaultFilename = $repo->resolveSpritesheetFilenameFromMap(
+			(string) \XF::options()->sylphian_userpets_default_spritesheet,
+			$choices
+		) ?? self::DEFAULT_SPRITESHEET;
 
-		$selectedId = $defaultId;
-		$hadCustomSelection = false;
+		$selectedFilename = $defaultFilename;
+		$usingDefault = true;
 
 		if ($user?->user_id)
 		{
 			$custom = trim((string) ($user->Profile->custom_fields['syl_userpets_spritesheet'] ?? ''));
-			if ($custom !== '')
+			$resolvedCustom = $custom !== '' ? $repo->resolveSpritesheetFilenameFromMap($custom, $choices) : null;
+			if ($resolvedCustom !== null)
 			{
-				$hadCustomSelection = true;
-				$selectedId = strtolower(pathinfo($custom, PATHINFO_FILENAME));
+				$selectedFilename = $resolvedCustom;
+				$usingDefault = false;
 			}
 		}
 
-		$defaultFilename  = $defaultId . '.png';
-		$selectedFilename = $selectedId . '.png';
+		$sheet = $index['sheets'][$selectedFilename] ?? [];
 
 		/** @var UserPetsSpritesheetRepository $ssRepo */
-		$ssRepo = $this->repository('Sylphian\\UserPets:UserPetsSpritesheetRepository');
-
-		$selectedEntity = method_exists($ssRepo, 'findByFilename')
-			? $ssRepo->findByFilename($selectedFilename)
-			: null;
-
-		$basePath = rtrim($ssRepo->getBasePath(), DIRECTORY_SEPARATOR);
-		$selectedFileExists = is_file($basePath . DIRECTORY_SEPARATOR . $selectedFilename);
-
-		$fellBackToDefault = false;
-
-		if (!$selectedEntity && !$selectedFileExists)
-		{
-			$selectedFilename = $defaultFilename;
-			$fellBackToDefault = true;
-		}
-
-		$usingDefault = (!$hadCustomSelection) || $fellBackToDefault;
-
-		if (!$selectedEntity && method_exists($ssRepo, 'findByFilename'))
-		{
-			$selectedEntity = $ssRepo->findByFilename($selectedFilename);
-		}
-
-		$frameW = $selectedEntity?->frame_width ?: 192;
-		$frameH = $selectedEntity?->frame_height ?: 192;
-		$fpa    = $selectedEntity?->frames_per_animation ?: 4;
-		$fps    = $selectedEntity?->fps ?: 4;
-
-		$url = rtrim($ssRepo->getBaseUrl(), '/') . '/' . rawurlencode($selectedFilename);
+		$ssRepo = $this->repository('Sylphian\UserPets:UserPetsSpritesheetRepository');
 
 		return [
-			'url' => $url,
-			'frame_width' => $frameW,
-			'frame_height' => $frameH,
-			'frames_per_animation' => $fpa,
-			'fps' => $fps,
+			'url' => rtrim($ssRepo->getBaseUrl(), '/') . '/' . rawurlencode($selectedFilename),
+			'frame_width' => (int) ($sheet['frame_width'] ?? 192),
+			'frame_height' => (int) ($sheet['frame_height'] ?? 192),
+			'frames_per_animation' => (int) ($sheet['frames_per_animation'] ?? 4),
+			'fps' => (int) ($sheet['fps'] ?? 4),
 			'usingDefault' => $usingDefault,
 		];
 	}
@@ -220,21 +240,18 @@ class UserPetWidget extends AbstractWidget
 	/**
 	 * Gets the custom pet name for that user.
 	 *
-	 * Uses the user's custom field value if set, otherwise falls back to null.
-	 *
 	 * @param User|null $user User entity or null
 	 * @return string|null The custom name or null
 	 */
-	protected function getCustomName(?User $user): string|null
+	protected function getCustomName(?User $user): ?string
 	{
-		$customName = null;
-
-		if ($user?->user_id)
+		if (!$user?->user_id)
 		{
-			$customFields = $user->Profile->custom_fields ?? [];
-			$customName = $customFields['syl_userpets_custom_name'] ?? null;
+			return null;
 		}
 
-		return $customName;
+		$customName = trim((string) ($user->Profile->custom_fields['syl_userpets_custom_name'] ?? ''));
+
+		return $customName !== '' ? $customName : null;
 	}
 }

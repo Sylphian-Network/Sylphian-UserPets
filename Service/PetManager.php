@@ -14,6 +14,8 @@ use XF\PrintableException;
  */
 class PetManager
 {
+	public const ACTIONS = ['feed', 'sleep', 'play'];
+
 	/**
 	 * The pet entity being managed.
 	 *
@@ -28,7 +30,6 @@ class PetManager
 	 */
 	protected array $stats = [];
 
-
 	/**
 	 * Map of action names to callable functions that perform them.
 	 *
@@ -37,31 +38,29 @@ class PetManager
 	protected array $actionMap = [];
 
 	/**
-	 * Constructor.
-	 *
-	 * Initializes stats and sets up the action map for the pet.
-	 *
 	 * @param UserPets $pet The pet entity to manage
 	 */
 	public function __construct(UserPets $pet)
 	{
 		$this->pet = $pet;
 
+		$options = \XF::options();
+
 		$this->stats = [
 			'hunger' => new Hunger(
-				$pet->hunger,
-				\XF::options()->sylphian_userpets_hunger_decay,
-				\XF::options()->sylphian_userpets_hunger_critical_threshold
+				(int) $pet->hunger,
+				(int) $options->sylphian_userpets_hunger_decay,
+				(int) $options->sylphian_userpets_hunger_critical_threshold
 			),
 			'sleepiness' => new Sleepiness(
-				$pet->sleepiness,
-				\XF::options()->sylphian_userpets_sleepiness_decay,
-				\XF::options()->sylphian_userpets_sleepiness_critical_threshold
+				(int) $pet->sleepiness,
+				(int) $options->sylphian_userpets_sleepiness_decay,
+				(int) $options->sylphian_userpets_sleepiness_critical_threshold
 			),
 			'happiness' => new Happiness(
-				$pet->happiness,
-				\XF::options()->sylphian_userpets_happiness_decay,
-				\XF::options()->sylphian_userpets_happiness_critical_threshold
+				(int) $pet->happiness,
+				(int) $options->sylphian_userpets_happiness_decay,
+				(int) $options->sylphian_userpets_happiness_critical_threshold
 			),
 		];
 
@@ -73,24 +72,38 @@ class PetManager
 	}
 
 	/**
-	 * Updates all pet stats based on the elapsed time.
-	 *
-	 * Stats are only updated if the elapsed time exceeds the configured update interval.
-	 * After updating, the pet's state is determined and the entity is saved.
+	 * Brings a pet's stats up to date (decay since the last update) and saves it when
+	 * anything changed. Duels and tournaments call this before comparing pets.
 	 *
 	 * @throws PrintableException If saving the pet fails
 	 */
-	public function updateStats(): void
+	public static function refresh(UserPets $pet): bool
 	{
-		$elapsed = floor((\XF::$time - $this->pet->last_update) / 60);
-		$interval = max(1, \XF::options()->sylphian_userpets_stat_update_interval);
+		return (new self($pet))->updateStats();
+	}
 
-		if ($elapsed < $interval)
+	/**
+	 * Applies the decay for every full update interval that elapsed since the last update.
+	 *
+	 * The remainder of a started interval is kept: last_update only advances by the
+	 * intervals that were applied, so frequent views do not slow the decay down.
+	 *
+	 * @param bool $save Save the pet when stats changed
+	 * @return bool True if at least one interval was applied
+	 * @throws PrintableException If saving the pet fails
+	 */
+	public function updateStats(bool $save = true): bool
+	{
+		$intervalSeconds = $this->getUpdateIntervalSeconds();
+		$lastUpdate = (int) $this->pet->last_update;
+		$elapsed = \XF::$time - $lastUpdate;
+
+		if ($elapsed < $intervalSeconds)
 		{
-			return;
+			return false;
 		}
 
-		$intervals = floor($elapsed / $interval);
+		$intervals = intdiv($elapsed, $intervalSeconds);
 
 		foreach ($this->stats AS $key => $stat)
 		{
@@ -99,15 +112,30 @@ class PetManager
 		}
 
 		$this->determineState();
-		$this->pet->last_update = \XF::$time;
-		$this->pet->save();
+		$this->pet->last_update = $lastUpdate + $intervals * $intervalSeconds;
+
+		if ($save)
+		{
+			$this->pet->save();
+		}
+
+		return true;
+	}
+
+	public function getUpdateIntervalSeconds(): int
+	{
+		return max(1, (int) \XF::options()->sylphian_userpets_stat_update_interval) * 60;
+	}
+
+	public static function isValidAction(string $action): bool
+	{
+		return in_array($action, self::ACTIONS, true);
 	}
 
 	/**
 	 * Determines the pet's current state based on critical stats.
 	 *
 	 * If multiple stats are critical, their states are combined into a comma-separated string.
-	 * Defaults to 'Idle' if no stat is critical.
 	 */
 	protected function determineState(): void
 	{
@@ -121,13 +149,11 @@ class PetManager
 			}
 		}
 
-		$this->pet->state = $activeStates ? implode(', ', $activeStates) : 'Idle';
+		$this->pet->state = $activeStates ? implode(',', $activeStates) : 'idle';
 	}
 
 	/**
 	 * Syncs all stat objects back to the pet entity.
-	 *
-	 * This ensures that the pet entity always reflects the current values of all stats.
 	 */
 	protected function syncStats(): void
 	{
@@ -138,29 +164,32 @@ class PetManager
 	}
 
 	/**
-	 * Performs a pet action.
+	 * Performs a pet action: applies pending decay, the action itself and the action XP,
+	 * then saves the pet once.
 	 *
-	 * Updates the stats first, executes the action if it exists, syncs stats, determines state, and saves the pet.
+	 * The caller is responsible for the opt-out and cooldown checks.
 	 *
-	 * @param string $action The action to perform (e.g., 'feed', 'sleep', 'play')
-	 * @throws PrintableException If saving the pet fails
+	 * @param string $action The action to perform (feed, sleep, play)
+	 * @return bool False for an unknown action (nothing is changed) or when saving failed
 	 */
-	public function performAction(string $action): void
+	public function performAction(string $action): bool
 	{
-		$this->updateStats();
-
-		if (isset($this->actionMap[$action]))
+		if (!isset($this->actionMap[$action]))
 		{
-			($this->actionMap[$action])();
-			$this->syncStats();
-			$this->determineState();
-
-			$petLeveling = new PetLeveling();
-			$expAmount = $petLeveling->getExperienceForAction($action);
-
-			/** @var UserPetsRepository $petsRepo */
-			$petsRepo = \XF::repository('Sylphian\UserPets:UserPets');
-			$petsRepo->awardPetExperience($this->pet->user_id, $expAmount);
+			return false;
 		}
+
+		$this->updateStats(false);
+
+		($this->actionMap[$action])();
+		$this->syncStats();
+		$this->determineState();
+
+		$this->pet->last_action_time = \XF::$time;
+
+		/** @var UserPetsRepository $petsRepo */
+		$petsRepo = \XF::repository('Sylphian\UserPets:UserPets');
+
+		return $petsRepo->savePetWithExperience($this->pet, (new PetLeveling())->getExperienceForAction($action));
 	}
 }

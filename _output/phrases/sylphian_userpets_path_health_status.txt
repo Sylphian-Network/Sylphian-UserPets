@@ -1,0 +1,1 @@
+{label}: {path} [readable: {readable}, writable: {writable}]

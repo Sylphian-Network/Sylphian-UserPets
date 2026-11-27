@@ -1,0 +1,218 @@
+.petWidget-header
+{
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 0;
+	overflow-wrap: anywhere;
+}
+
+.petWidget-owner
+{
+	font-size: @xf-fontSizeSmaller;
+	font-weight: @xf-fontWeightNormal;
+	color: @xf-textColorMuted;
+}
+
+// Wrapping flex items with a flex-basis instead of a fixed min-width: in a narrow
+// sidebar the stats drop below the sprite instead of overflowing the block.
+.petDisplay
+{
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: @xf-paddingLarge;
+	min-width: 0;
+}
+
+.petDisplay-figure
+{
+	flex: 0 1 200px;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: @xf-paddingSmall;
+}
+
+.petDisplay-frame
+{
+	width: 100%;
+	max-width: 200px;
+	aspect-ratio: 1 / 1;
+	display: flex;
+	align-items: flex-end;
+	justify-content: center;
+	border: @xf-sylUserPetsCanvasBorderWidth solid @xf-sylUserPetsCanvasBorder;
+	border-radius: @xf-sylUserPetsCanvasBorderRadius;
+	overflow: hidden;
+}
+
+.petDisplay-canvas
+{
+	display: block;
+	width: 100%;
+	max-width: 192px;
+	height: auto;
+}
+
+.petDisplay-state
+{
+	font-size: @xf-fontSizeSmaller;
+	color: @xf-textColorMuted;
+	text-align: center;
+	overflow-wrap: anywhere;
+}
+
+.petDisplay-stats
+{
+	flex: 1 1 220px;
+	min-width: 0;
+}
+
+.petDisplay-level
+{
+	margin-bottom: @xf-paddingMedium;
+	text-align: center;
+}
+
+.petDisplay-levelValue
+{
+	font-weight: @xf-fontWeightHeavy;
+}
+
+.petDisplay-levelHint
+{
+	font-size: @xf-fontSizeSmaller;
+	color: @xf-textColorMuted;
+}
+
+.petStats
+{
+	display: flex;
+	flex-direction: column;
+	gap: @xf-paddingMedium;
+}
+
+.petStat-head
+{
+	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
+	gap: @xf-paddingMedium;
+	font-size: @xf-fontSizeSmaller;
+}
+
+.petStat-label
+{
+	min-width: 0;
+	font-weight: @xf-fontWeightHeavy;
+	overflow-wrap: anywhere;
+}
+
+.petStat-value
+{
+	flex: none;
+	color: @xf-textColorMuted;
+	white-space: nowrap;
+}
+
+.petStat-bar
+{
+	display: block;
+	width: 100%;
+	height: 10px;
+	margin-top: 4px;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	border: @xf-borderSize solid @xf-borderColorFaint;
+	border-radius: @xf-borderRadiusSmall;
+	background: @xf-sylUserPetsProgressBarBackground;
+	color: @xf-sylUserPetsProgressBarFill;
+	overflow: hidden;
+
+	&::-webkit-progress-bar
+	{
+		background: @xf-sylUserPetsProgressBarBackground;
+	}
+
+	&::-webkit-progress-value
+	{
+		background: @xf-sylUserPetsProgressBarFill;
+		transition: width .3s ease;
+	}
+
+	&::-moz-progress-bar
+	{
+		background: @xf-sylUserPetsProgressBarFill;
+	}
+}
+
+.petWidget-footer
+{
+	text-align: center;
+}
+
+.petWidget-actions
+{
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: @xf-paddingMedium;
+}
+
+.petWidget-cooldown
+{
+	margin-top: @xf-paddingMedium;
+	font-size: @xf-fontSizeSmaller;
+	color: @xf-textColorMuted;
+
+	&[hidden]
+	{
+		display: none;
+	}
+}
+
+.petTutorial-list
+{
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(~"min(180px, 100%)", 1fr));
+	gap: @xf-paddingMedium @xf-paddingLarge;
+}
+
+.petTutorial-item
+{
+	display: flex;
+	align-items: flex-start;
+	gap: @xf-paddingMedium;
+	min-width: 0;
+}
+
+.petTutorial-icon
+{
+	flex: none;
+	margin-top: .2em;
+	color: @xf-textColorMuted;
+}
+
+.petTutorial-title
+{
+	min-width: 0;
+	overflow-wrap: anywhere;
+}
+
+.petTutorial-item.is-completed
+{
+	.petTutorial-icon
+	{
+		color: @xf-successColor;
+	}
+
+	.petTutorial-title
+	{
+		color: @xf-textColorMuted;
+		text-decoration: line-through;
+	}
+}

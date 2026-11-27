@@ -1,1 +1,1 @@
-Tutorial Goal: Post first message
+Tutorial goal: post the first message

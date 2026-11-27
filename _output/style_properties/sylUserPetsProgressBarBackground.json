@@ -8,7 +8,7 @@
     "value_parameters": "",
     "has_variations": true,
     "depends_on": "",
-    "value_group": "Progress_bar",
+    "value_group": "progressBar",
     "property_value": {
         "default": "@xf-paletteColor2"
     },

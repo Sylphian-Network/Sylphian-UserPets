@@ -1,184 +1,283 @@
-XF.PetActions = XF.Element.newHandler({
-    options: {
-        actionUrl: null,
-        cooldown: 0
-    },
+((window, document) =>
+{
+	'use strict'
 
-    container: null,
-    buttons: null,
-    cooldownTimer: null,
-    cooldownDisplay: null,
-    cooldownInterval: null,
+	XF.PetActions = XF.Element.newHandler({
+		options: {
+			actionUrl: '',
+			cooldown: 0,
+			lastActionTime: 0,
+			currentTime: 0,
+			levelUpSound: 'data/assets/sylphian/userpets/audio/sparkle-355937.mp3',
+		},
 
-    init: function() {
-        this.container = this.target;
+		buttons: [],
+		cooldownEl: null,
+		levelEl: null,
+		expEl: null,
+		cooldownTimer: null,
+		cooldownEnd: 0,
+		currentLevel: 1,
+		busy: false,
 
-        this.buttons = this.container.querySelectorAll('.pet-action-button');
-        this.cooldownDisplay = this.container.querySelector('.cooldown-timer');
-        this.cooldownTimer = this.container.querySelector('.js-pet-cooldown-timer');
+		init ()
+		{
+			this.buttons = Array.from(this.target.querySelectorAll('.js-petAction'))
+			this.cooldownEl = this.target.querySelector('.js-petCooldown')
+			this.levelEl = this.target.querySelector('.js-petLevel')
+			this.expEl = this.target.querySelector('.js-petExpNeeded')
 
-        this.currentLevel = parseInt(this.container.querySelector('.petStats .u-alignCenter div:first-child').textContent.match(/\d+/)[0]);
+			if (this.levelEl)
+			{
+				this.currentLevel = parseInt(this.levelEl.dataset.level, 10) || 1
+			}
 
-        for (let i = 0; i < this.buttons.length; i++) {
-            this.buttons[i].addEventListener('click', this.performAction.bind(this));
-        }
+			this.buttons.forEach(button =>
+			{
+				XF.on(button, 'click', this.performAction.bind(this))
+			})
 
-        this.checkExistingCooldown();
-    },
+			const { cooldown, lastActionTime, currentTime } = this.options
+			if (lastActionTime && currentTime)
+			{
+				const elapsed = currentTime - lastActionTime
+				if (elapsed < cooldown)
+				{
+					this.startCooldown(cooldown - elapsed)
+				}
+			}
+		},
 
-    performAction: function(e) {
-        e.preventDefault();
+		performAction (e)
+		{
+			e.preventDefault()
 
-        if (e.currentTarget.classList.contains('button--disabled')) {
-            return;
-        }
+			const button = e.currentTarget
+			const action = button.dataset.action
+			if (this.busy || !action || button.disabled)
+			{
+				return
+			}
 
-        const action = e.currentTarget.getAttribute('data-action');
+			this.busy = true
+			this.setButtonsEnabled(false)
 
-        XF.ajax('post', this.options.actionUrl, {
-            action: action
-        }, XF.proxy(this, 'actionComplete'), {
-            skipDefaultSuccess: true
-        });
+			XF.ajax('post', this.options.actionUrl, { action }, null, { skipDefault: true })
+				.then(result => this.handleResponse(result, action))
+				.catch(error =>
+				{
+					console.error(error)
+					this.showError()
+					this.setButtonsEnabled(true)
+				})
+				.finally(() =>
+				{
+					this.busy = false
+				})
+		},
 
-        this.disableButtons();
-    },
+		handleResponse ({ data, error }, action)
+		{
+			if (error || !data || typeof data !== 'object')
+			{
+				// XF.ajax has already shown its own error overlay for transport failures.
+				this.setButtonsEnabled(true)
+				return
+			}
 
-    actionComplete: function(data) {
-        if (data.success) {
-            this.updatePetStats(data);
+			if (data.status === 'error' || data.errors || data.errorHtml)
+			{
+				// Same overlay XF shows for any failed AJAX action.
+				if (!XF.defaultAjaxSuccessError(data))
+				{
+					this.showError()
+				}
 
-            const cooldownTime = data.cooldownTime || this.options.cooldown;
-            this.startCooldownTimer(cooldownTime);
+				const remaining = parseInt(data.cooldownRemaining, 10)
+				if (remaining > 0)
+				{
+					this.startCooldown(remaining)
+				}
+				else
+				{
+					this.setButtonsEnabled(true)
+				}
+				return
+			}
 
-            //XF.flashMessage(data.message || XF.phrase('sylphian_userpets_action_success'), 3000);
-        } else {
-            XF.alert(data.message || XF.phrase('sylphian_userpets_action_error'));
+			if (!data.success)
+			{
+				this.showError()
+				this.setButtonsEnabled(true)
+				return
+			}
 
-            if (data.cooldownRemaining) {
-                this.startCooldownTimer(data.cooldownRemaining);
-            } else {
-                this.enableButtons();
-            }
-        }
-    },
+			this.updateStats(data)
 
-    updatePetStats: function(data) {
-        const hungerBar = this.container.querySelector('.petStatBars .petStatBar:nth-child(1) .petProgressBar');
-        if (hungerBar && data.hunger !== undefined) {
-            hungerBar.setAttribute('title', data.hunger + '/100');
-            hungerBar.querySelector('.petProgressBar-progress').style.width = data.hunger + '%';
-            hungerBar.querySelector('.petProgressBar-label').textContent = data.hunger + '/100';
-        }
+			XF.trigger(this.target, XF.customEvent('userpets:action', { action }))
 
-        const happinessBar = this.container.querySelector('.petStatBars .petStatBar:nth-child(2) .petProgressBar');
-        if (happinessBar && data.happiness !== undefined) {
-            happinessBar.setAttribute('title', data.happiness + '/100');
-            happinessBar.querySelector('.petProgressBar-progress').style.width = data.happiness + '%';
-            happinessBar.querySelector('.petProgressBar-label').textContent = data.happiness + '/100';
-        }
+			if (data.message)
+			{
+				XF.flashMessage(data.message, 3000)
+			}
 
-        const sleepinessBar = this.container.querySelector('.petStatBars .petStatBar:nth-child(3) .petProgressBar');
-        if (sleepinessBar && data.sleepiness !== undefined) {
-            sleepinessBar.setAttribute('title', data.sleepiness + '/100');
-            sleepinessBar.querySelector('.petProgressBar-progress').style.width = data.sleepiness + '%';
-            sleepinessBar.querySelector('.petProgressBar-label').textContent = data.sleepiness + '/100';
-        }
+			this.startCooldown(parseInt(data.cooldownTime, 10) || this.options.cooldown)
+		},
 
-        if (data.level !== undefined && data.levelText) {
-            const levelText = this.container.querySelector('.petStats .u-alignCenter div:first-child');
-            if (levelText) {
-                levelText.textContent = data.levelText;
+		showError ()
+		{
+			XF.alert(XF.phrase('sylphian_userpets_action_error'))
+		},
 
-                const newLevel = parseInt(data.level);
-                if (newLevel > this.currentLevel) {
-                    this.currentLevel = newLevel;
-                    this.triggerLevelUp();
-                } else {
-                    this.currentLevel = newLevel;
-                }
-            }
-        }
+		updateStats (data)
+		{
+			this.target.querySelectorAll('.js-petStat').forEach(statEl =>
+			{
+				const stat = statEl.dataset.stat
+				if (!stat || data[stat] === undefined)
+				{
+					return
+				}
 
-        if (data.expNeededText) {
-            const levelInfo = this.container.querySelector('.petLevelInfo');
-            if (levelInfo) {
-                levelInfo.textContent = data.expNeededText;
-            }
-        }
-    },
+				const value = Math.max(0, Math.min(100, parseInt(data[stat], 10) || 0))
 
-    triggerLevelUp: function() {
-        if (window.Audio) {
-            try {
-                const sound = new Audio(XF.canonicalizeUrl('data/assets/sylphian/userpets/audio/sparkle-355937.mp3'));
-                sound.play();
-            } catch (e) {
-                console.error('Could not play level up sound', e);
-            }
-        }
+				const bar = statEl.querySelector('.js-petStatBar')
+				if (bar)
+				{
+					bar.value = value
+					bar.textContent = String(value)
+				}
 
-        document.dispatchEvent(new CustomEvent('petLevelChanged', {
-            detail: {
-                level: this.currentLevel
-            }
-        }));
-    },
+				const valueEl = statEl.querySelector('.js-petStatValue')
+				if (valueEl)
+				{
+					valueEl.textContent = XF.phrase('sylphian_userpets_stat_x_of_max', {
+						'{value}': value,
+						'{max}': 100,
+					})
+				}
+			})
 
-    disableButtons: function() {
-        this.buttons.forEach(button => {
-            button.classList.add('button--disabled');
-            button.disabled = true;
-            button.setAttribute('aria-disabled', 'true');
-        });
-    },
+			if (this.levelEl && data.level !== undefined)
+			{
+				const newLevel = parseInt(data.level, 10) || this.currentLevel
 
-    enableButtons: function() {
-        this.buttons.forEach(button => {
-           button.classList.remove('button--disabled');
-           button.disabled = false;
-           button.removeAttribute('aria-disabled');
-        });
-    },
+				this.levelEl.dataset.level = String(newLevel)
+				if (data.levelText)
+				{
+					this.levelEl.textContent = data.levelText
+				}
 
-    checkExistingCooldown: function() {
-        const lastActionTime = parseInt(this.container.getAttribute('data-last-action-time') || 0);
-        const serverTime = parseInt(this.container.getAttribute('data-current-time') || 0);
-        const cooldownTime = this.options.cooldown;
+				if (newLevel > this.currentLevel)
+				{
+					this.currentLevel = newLevel
+					this.onLevelUp()
+				}
+				else
+				{
+					this.currentLevel = newLevel
+				}
+			}
 
-        if (lastActionTime && serverTime) {
-            const elapsed = Math.floor((serverTime - lastActionTime));
+			if (this.expEl && data.expNeededText)
+			{
+				this.expEl.textContent = data.expNeededText
+			}
+		},
 
-            if (elapsed < cooldownTime) {
-                const remaining = cooldownTime - elapsed;
-                this.startCooldownTimer(remaining);
-            }
-        }
-    },
+		onLevelUp ()
+		{
+			if (this.options.levelUpSound && window.Audio)
+			{
+				const sound = new Audio(XF.canonicalizeUrl(this.options.levelUpSound))
+				const playing = sound.play()
+				if (playing && typeof playing.catch === 'function')
+				{
+					// Autoplay policies may still refuse; the level-up is shown regardless.
+					playing.catch(() => {})
+				}
+			}
 
-    startCooldownTimer: function(seconds) {
-        const self = this;
-        let remaining = seconds || this.options.cooldown;
+			XF.trigger(this.target, XF.customEvent('userpets:level-change', {
+				level: this.currentLevel,
+			}))
+		},
 
-        if (this.cooldownInterval) {
-            clearInterval(this.cooldownInterval);
-        }
+		setButtonsEnabled (enabled)
+		{
+			this.buttons.forEach(button =>
+			{
+				button.disabled = !enabled
+				button.classList.toggle('is-disabled', !enabled)
+				if (enabled)
+				{
+					button.removeAttribute('aria-disabled')
+				}
+				else
+				{
+					button.setAttribute('aria-disabled', 'true')
+				}
+			})
+		},
 
-        this.disableButtons();
-        this.cooldownDisplay.style.display = '';
-        this.cooldownTimer.textContent = remaining;
+		startCooldown (seconds)
+		{
+			seconds = parseInt(seconds, 10) || 0
+			if (seconds <= 0)
+			{
+				this.endCooldown()
+				return
+			}
 
-        this.cooldownInterval = setInterval(function() {
-            remaining--;
-            self.cooldownTimer.textContent = remaining;
+			if (this.cooldownTimer)
+			{
+				clearInterval(this.cooldownTimer)
+			}
 
-            if (remaining <= 0) {
-                clearInterval(self.cooldownInterval);
-                self.enableButtons();
-                self.cooldownDisplay.style.display = 'none';
-            }
-        }, 1000);
-    }
-});
+			// Counting against a fixed end time keeps the display right when the
+			// browser throttles timers in background tabs.
+			this.cooldownEnd = Date.now() + (seconds * 1000)
+			this.setButtonsEnabled(false)
+			this.renderCooldown()
 
-XF.Element.register('pet-actions', 'XF.PetActions');
+			this.cooldownTimer = setInterval(() => this.renderCooldown(), 1000)
+		},
+
+		renderCooldown ()
+		{
+			const remaining = Math.ceil((this.cooldownEnd - Date.now()) / 1000)
+			if (remaining <= 0)
+			{
+				this.endCooldown()
+				return
+			}
+
+			if (this.cooldownEl)
+			{
+				this.cooldownEl.textContent = XF.phrase('sylphian_userpets_cooldown_remaining_x', {
+					'{seconds}': remaining,
+				})
+				this.cooldownEl.hidden = false
+			}
+		},
+
+		endCooldown ()
+		{
+			if (this.cooldownTimer)
+			{
+				clearInterval(this.cooldownTimer)
+				this.cooldownTimer = null
+			}
+
+			if (this.cooldownEl)
+			{
+				this.cooldownEl.hidden = true
+				this.cooldownEl.textContent = ''
+			}
+
+			this.setButtonsEnabled(true)
+		},
+	})
+
+	XF.Element.register('pet-actions', 'XF.PetActions')
+})(window, document)

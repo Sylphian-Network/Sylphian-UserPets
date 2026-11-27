@@ -1,0 +1,32 @@
+<xf:title>{{ phrase('sylphian_userpets_content_xp_rebuild_title') }}</xf:title>
+
+<xf:pageaction>
+	<xf:button href="{{ link('sylphian_userpets-rebuild/legacy-xp') }}" fa="fa-history">{{ phrase('sylphian_userpets_legacy_xp_correction') }}</xf:button>
+</xf:pageaction>
+
+<xf:form action="{{ link('sylphian_userpets-rebuild/run') }}" ajax="true" class="block">
+	<div class="block-container">
+		<div class="block-body">
+			<xf:inforow>{{ phrase('sylphian_userpets_content_xp_rebuild_description') }}</xf:inforow>
+
+			<xf:formrow label="{{ phrase('sylphian_userpets_content_xp_rebuild_pet_count') }}">{$petCount|number}</xf:formrow>
+
+			<hr class="formRowSep" />
+
+			<xf:formrow label="{{ phrase('sylphian_userpets_content_xp_rebuild_thread_xp') }}">{$threadXp|number}</xf:formrow>
+			<xf:formrow label="{{ phrase('sylphian_userpets_content_xp_rebuild_post_xp') }}">{$postXp|number}</xf:formrow>
+			<xf:formrow label="{{ phrase('sylphian_userpets_content_xp_rebuild_solution_xp') }}">{$xpPerSolution|number}</xf:formrow>
+
+			<hr class="formRowSep" />
+
+			<xf:formrow label="{{ phrase('sylphian_userpets_content_xp_rebuild_rewarded_threads') }}">{$summary.rewarded_threads|number}</xf:formrow>
+			<xf:formrow label="{{ phrase('sylphian_userpets_content_xp_rebuild_rewarded_thread_experience') }}">{$summary.rewarded_thread_experience|number}</xf:formrow>
+			<xf:formrow label="{{ phrase('sylphian_userpets_content_xp_rebuild_rewarded_posts') }}">{$summary.rewarded_posts|number}</xf:formrow>
+			<xf:formrow label="{{ phrase('sylphian_userpets_content_xp_rebuild_rewarded_post_experience') }}">{$summary.rewarded_post_experience|number}</xf:formrow>
+			<xf:formrow label="{{ phrase('sylphian_userpets_content_xp_rebuild_rewarded_solutions') }}">{$summary.rewarded_solutions|number}</xf:formrow>
+			<xf:formrow label="{{ phrase('sylphian_userpets_content_xp_rebuild_rewarded_solution_experience') }}">{$summary.rewarded_solution_experience|number}</xf:formrow>
+		</div>
+
+		<xf:submitrow icon="refresh" submit="{{ phrase('sylphian_userpets_content_xp_rebuild_run') }}" />
+	</div>
+</xf:form>

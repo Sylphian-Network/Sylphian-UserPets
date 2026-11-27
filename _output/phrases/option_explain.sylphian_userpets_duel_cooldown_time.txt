@@ -1,3 +1,3 @@
-Determines how frequently users can send pet duel requests, measured in hours. After sending a duel request or participating in a duel, users must wait this amount of time before sending another challenge.
+How many hours a member must wait after sending a duel request before sending another one. Set this to 0 to disable the cooldown (not recommended).
 
-Setting this to 0 would disable the cooldown completely (not recommended).
+The "Pet duel cooldown in minutes" group permission overrides this value: -1 removes the cooldown, and a member in several groups gets the highest value.

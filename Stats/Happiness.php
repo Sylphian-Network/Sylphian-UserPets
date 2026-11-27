@@ -14,7 +14,7 @@ class Happiness extends Stat
 	public const int HUNGER_COST = 5;
 
 	/** Name of the critical state when happiness is too low */
-	protected string $criticalState = 'Unhappy';
+	protected string $criticalState = 'unhappy';
 
 	/**
 	 * Play with the pet, increasing happiness and slightly decreasing hunger.

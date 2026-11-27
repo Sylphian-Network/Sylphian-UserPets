@@ -10,24 +10,49 @@ class DuelAlgorithm extends AbstractOption
 {
 	public static function renderOption(Option $option, array $htmlParams): string
 	{
-		$data = static::getSelectData($option, $htmlParams);
+		$choices = self::getChoices();
+		$selected = self::getSelectedKey((string) $option->option_value, $choices);
 
 		return static::getTemplater()->formSelectRow(
-			$data['controlOptions'],
-			$data['choices'],
-			$data['rowOptions']
+			static::getControlOptions($option, $htmlParams, $selected),
+			$choices,
+			static::getRowOptions($option, $htmlParams)
 		);
 	}
 
-	protected static function getSelectData(Option $option, array $htmlParams): array
+	/**
+	 * Validation callback (validation_method "verifyOption"): only registered algorithm keys.
+	 */
+	public static function verifyOption(&$value, Option $option, $optionId = null): bool
 	{
-		$choices = self::getChoices();
+		$value = is_string($value) ? trim($value) : '';
 
-		return [
-			'choices' => $choices,
-			'controlOptions' => static::getControlOptions($option, $htmlParams),
-			'rowOptions' => static::getRowOptions($option, $htmlParams),
-		];
+		if (!in_array($value, AlgorithmRegistry::getValidKeys(), true))
+		{
+			$option->error(\XF::phrase('please_enter_valid_value'), $optionId ?? $option->option_id);
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * A stored value that is no longer a registered key (an old class name, a removed add-on's
+	 * algorithm) is shown as the algorithm that actually runs: the default one.
+	 */
+	public static function getSelectedKey(string $storedValue, array $choices): string
+	{
+		if (isset($choices[$storedValue]))
+		{
+			return $storedValue;
+		}
+
+		if (isset($choices[AlgorithmRegistry::DEFAULT_KEY]))
+		{
+			return AlgorithmRegistry::DEFAULT_KEY;
+		}
+
+		return (string) (array_key_first($choices) ?? '');
 	}
 
 	/** Returns [key => ['value' => key, 'label' => label]] for all registered algorithms. */

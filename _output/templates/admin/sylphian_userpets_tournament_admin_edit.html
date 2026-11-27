@@ -1,0 +1,52 @@
+<xf:title>{{ $tournament.tournament_id ? phrase('sylphian_userpets_tournament_edit') : phrase('sylphian_userpets_tournament_create') }}</xf:title>
+
+<xf:form action="{{ link('sylphian_userpets-tournaments/save', null, {'tournament_id': $tournament.tournament_id}) }}" ajax="true" class="block">
+	<div class="block-container">
+		<div class="block-body">
+			<xf:textboxrow name="title" value="{$tournament.title}" maxlength="100"
+				label="{{ phrase('title') }}"
+				required="required" />
+
+			<xf:textarearow name="description" value="{$tournament.description}" autosize="true"
+				label="{{ phrase('description') }}" />
+
+			<xf:if is="$tournament.canEditParticipantLimit()">
+				<xf:numberboxrow name="max_participants" value="{$tournament.max_participants}" min="2" max="512" step="1"
+					label="{{ phrase('sylphian_userpets_tournament_max_participants') }}" />
+			<xf:else />
+				<xf:formrow label="{{ phrase('sylphian_userpets_tournament_max_participants') }}">{$tournament.max_participants|number}</xf:formrow>
+			</xf:if>
+
+			<xf:if is="$tournament.canEditPrize()">
+				<xf:numberboxrow name="prize_experience" value="{$tournament.prize_experience}" min="0" step="1"
+					label="{{ phrase('sylphian_userpets_tournament_reward_xp') }}" />
+			<xf:else />
+				<xf:formrow label="{{ phrase('sylphian_userpets_tournament_reward_xp') }}">{$tournament.prize_experience|number}</xf:formrow>
+			</xf:if>
+
+			<xf:if is="$tournament.canEditResolutionMode()">
+				<xf:radiorow name="resolution_mode" value="{{ $tournament.resolution_mode ?: 'manual' }}"
+					label="{{ phrase('sylphian_userpets_tournament_resolution_mode') }}"
+					explain="{{ phrase('sylphian_userpets_tournament_resolution_mode_explain') }}">
+					<xf:option value="manual">{{ phrase('sylphian_userpets_tournament_resolution_mode_manual') }}</xf:option>
+					<xf:option value="automatic">{{ phrase('sylphian_userpets_tournament_resolution_mode_automatic') }}</xf:option>
+				</xf:radiorow>
+			<xf:else />
+				<xf:formrow label="{{ phrase('sylphian_userpets_tournament_resolution_mode') }}">
+					<xf:macro id="public:sylphian_userpets_macros::resolution_mode" arg-mode="{$tournament.resolution_mode}" />
+				</xf:formrow>
+			</xf:if>
+
+			<xf:if is="$tournament.tournament_id">
+				<xf:formrow label="{{ phrase('status') }}">
+					<xf:macro id="public:sylphian_userpets_macros::tournament_status" arg-status="{$tournament.status}" />
+				</xf:formrow>
+				<xf:formrow label="{{ phrase('participants') }}">
+					{{ phrase('sylphian_userpets_tournament_entries_x_of_y', {'count': $entryCount|number, 'max': $tournament.max_participants|number}) }}
+				</xf:formrow>
+			</xf:if>
+		</div>
+
+		<xf:submitrow icon="save" sticky="true" />
+	</div>
+</xf:form>

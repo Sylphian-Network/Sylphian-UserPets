@@ -38,6 +38,9 @@
     "sylphian_userpets_experience_per_sleep.json": {
         "hash": "3b48c5168c9ef2bbf862f5bccc892125"
     },
+    "sylphian_userpets_experience_per_solution.json": {
+        "hash": "387a7fc7d6be94b27afa8eccc9451317"
+    },
     "sylphian_userpets_experience_per_thread.json": {
         "hash": "dcd59256d70feed4c57da46efacb9485"
     },
@@ -56,6 +59,18 @@
     "sylphian_userpets_polynomial_power.json": {
         "hash": "b7bd1ea04c8fcc35dd32d1520630f282"
     },
+    "sylphian_userpets_pst_xp_nodes.json": {
+        "hash": "f1fb5fe93cd011c568a7b4af85efbb69"
+    },
+    "sylphian_userpets_pst_xp_pfx.json": {
+        "hash": "78be8780174dd975efd2fe0be0b7be95"
+    },
+    "sylphian_userpets_pst_xp_types.json": {
+        "hash": "1757a3c211b7241c221e9112da2db32e"
+    },
+    "sylphian_userpets_reg_sprite_req.json": {
+        "hash": "09f8b87f3e33eaeeaefd37a4638e1592"
+    },
     "sylphian_userpets_scale_max.json": {
         "hash": "bdc7ae131f83607c40f9d6b4a9723ddc"
     },
@@ -70,6 +85,15 @@
     },
     "sylphian_userpets_stat_update_interval.json": {
         "hash": "c4f511b80f5b3d19fc178f28da3457a5"
+    },
+    "sylphian_userpets_thr_xp_nodes.json": {
+        "hash": "b9112a5bd330656c0461d7f0132c67dd"
+    },
+    "sylphian_userpets_thr_xp_pfx.json": {
+        "hash": "d109392935ef18af4941948ff8cacd44"
+    },
+    "sylphian_userpets_thr_xp_types.json": {
+        "hash": "6c037605f60146f28913323922e26b5c"
     },
     "sylphian_userpets_tutorial_exp_complete_action.json": {
         "hash": "220eff43f38b71a3ab40e4d49f5bcadb"

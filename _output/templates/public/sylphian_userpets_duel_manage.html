@@ -1,0 +1,205 @@
+<xf:title>{{ phrase('sylphian_userpets_duel_manage_title') }}</xf:title>
+
+<xf:css src="sylphian_userpets_duel.less" />
+
+<div class="block">
+	<div class="block-container">
+		<h2 class="block-header">{{ phrase('sylphian_userpets_duel_manage_overview') }}</h2>
+		<div class="block-body block-row">
+			<ul class="listPlain petDuelStats">
+				<li class="petDuelStats-item petDuelStats-item--wins">
+					<xf:fa icon="fa-trophy" class="petDuelStats-icon" />
+					<span class="petDuelStats-value">{$overview.wins|number}</span>
+					<span class="petDuelStats-label">{{ phrase('sylphian_userpets_wins') }}</span>
+				</li>
+				<li class="petDuelStats-item petDuelStats-item--losses">
+					<xf:fa icon="fa-skull" class="petDuelStats-icon" />
+					<span class="petDuelStats-value">{$overview.losses|number}</span>
+					<span class="petDuelStats-label">{{ phrase('sylphian_userpets_losses') }}</span>
+				</li>
+				<li class="petDuelStats-item petDuelStats-item--incoming">
+					<xf:fa icon="fa-inbox" class="petDuelStats-icon" />
+					<span class="petDuelStats-value">{$overview.pending_incoming|number}</span>
+					<span class="petDuelStats-label">{{ phrase('sylphian_userpets_duel_manage_pending_incoming') }}</span>
+				</li>
+				<li class="petDuelStats-item petDuelStats-item--outgoing">
+					<xf:fa icon="fa-paper-plane" class="petDuelStats-icon" />
+					<span class="petDuelStats-value">{$overview.pending_outgoing|number}</span>
+					<span class="petDuelStats-label">{{ phrase('sylphian_userpets_duel_manage_pending_outgoing') }}</span>
+				</li>
+				<li class="petDuelStats-item petDuelStats-item--active">
+					<xf:fa icon="fa-bolt" class="petDuelStats-icon" />
+					<span class="petDuelStats-value">{$overview.active|number}</span>
+					<span class="petDuelStats-label">{{ phrase('sylphian_userpets_duel_manage_active') }}</span>
+				</li>
+				<li class="petDuelStats-item petDuelStats-item--declined">
+					<xf:fa icon="fa-ban" class="petDuelStats-icon" />
+					<span class="petDuelStats-value">{$overview.declined|number}</span>
+					<span class="petDuelStats-label">{{ phrase('sylphian_userpets_duel_manage_declined') }}</span>
+				</li>
+				<li class="petDuelStats-item petDuelStats-item--cancelled">
+					<xf:fa icon="fa-times" class="petDuelStats-icon" />
+					<span class="petDuelStats-value">{$overview.cancelled|number}</span>
+					<span class="petDuelStats-label">{{ phrase('sylphian_userpets_duel_manage_cancelled') }}</span>
+				</li>
+				<li class="petDuelStats-item petDuelStats-item--total">
+					<xf:fa icon="fa-chart-bar" class="petDuelStats-icon" />
+					<span class="petDuelStats-value">{$overview.total|number}</span>
+					<span class="petDuelStats-label">{{ phrase('sylphian_userpets_duel_manage_total') }}</span>
+				</li>
+			</ul>
+		</div>
+	</div>
+</div>
+
+<div class="block">
+	<div class="block-container">
+		<h2 class="block-header">{{ phrase('sylphian_userpets_duel_manage_incoming_title') }}</h2>
+		<div class="block-body">
+			<xf:if is="$incomingDuels">
+				<xf:foreach loop="$incomingDuels" value="$duelItem">
+					<xf:macro id="duel_row" arg-duelItem="{$duelItem}" arg-mode="incoming" />
+				</xf:foreach>
+			<xf:else />
+				<div class="block-row">{{ phrase('sylphian_userpets_duel_manage_incoming_empty') }}</div>
+			</xf:if>
+		</div>
+	</div>
+</div>
+
+<div class="block">
+	<div class="block-container">
+		<h2 class="block-header">{{ phrase('sylphian_userpets_duel_manage_outgoing_title') }}</h2>
+		<div class="block-body">
+			<xf:if is="$outgoingDuels">
+				<xf:foreach loop="$outgoingDuels" value="$duelItem">
+					<xf:macro id="duel_row" arg-duelItem="{$duelItem}" arg-mode="outgoing" />
+				</xf:foreach>
+			<xf:else />
+				<div class="block-row">{{ phrase('sylphian_userpets_duel_manage_outgoing_empty') }}</div>
+			</xf:if>
+		</div>
+	</div>
+</div>
+
+<div class="block">
+	<div class="block-container">
+		<h2 class="block-header">{{ phrase('sylphian_userpets_duel_manage_active_title') }}</h2>
+		<div class="block-body">
+			<xf:if is="$activeDuels">
+				<xf:foreach loop="$activeDuels" value="$duelItem">
+					<xf:macro id="duel_row" arg-duelItem="{$duelItem}" arg-mode="active" />
+				</xf:foreach>
+			<xf:else />
+				<div class="block-row">{{ phrase('sylphian_userpets_duel_manage_active_empty') }}</div>
+			</xf:if>
+		</div>
+	</div>
+</div>
+
+<div class="block">
+	<div class="block-container">
+		<h2 class="block-header">{{ phrase('sylphian_userpets_duel_manage_history_title') }}</h2>
+		<h3 class="block-tabHeader tabs hScroller" data-xf-init="h-scroller">
+			<span class="hScroller-scroll">
+				<xf:macro id="history_tab" arg-filter="all" arg-current="{$historyFilter}" arg-label="{{ phrase('sylphian_userpets_duel_filter_all') }}" />
+				<xf:macro id="history_tab" arg-filter="wins" arg-current="{$historyFilter}" arg-label="{{ phrase('sylphian_userpets_wins') }}" />
+				<xf:macro id="history_tab" arg-filter="losses" arg-current="{$historyFilter}" arg-label="{{ phrase('sylphian_userpets_losses') }}" />
+				<xf:macro id="history_tab" arg-filter="declined" arg-current="{$historyFilter}" arg-label="{{ phrase('sylphian_userpets_duel_manage_declined') }}" />
+				<xf:macro id="history_tab" arg-filter="cancelled" arg-current="{$historyFilter}" arg-label="{{ phrase('sylphian_userpets_duel_manage_cancelled') }}" />
+			</span>
+		</h3>
+		<div class="block-body">
+			<xf:if is="$historyDuels">
+				<xf:foreach loop="$historyDuels" value="$duelItem">
+					<xf:macro id="duel_row" arg-duelItem="{$duelItem}" arg-mode="history" />
+				</xf:foreach>
+			<xf:else />
+				<div class="block-row">{{ phrase('sylphian_userpets_duel_manage_history_empty') }}</div>
+			</xf:if>
+		</div>
+	</div>
+	<xf:pagenav page="{$page}" perpage="{$perPage}" total="{$historyTotal}"
+		link="userpetsduel" params="{{ {'history_filter': $historyFilter} }}"
+		wrapperclass="block-outer block-outer--after" />
+</div>
+
+<xf:macro id="history_tab" arg-filter="!" arg-current="!" arg-label="!">
+	<a href="{{ link('userpetsduel', null, {'history_filter': $filter}) }}"
+		class="tabs-tab{{ $filter == $current ? ' is-active' : '' }}">{$label}</a>
+</xf:macro>
+
+<xf:macro id="duel_row" arg-duelItem="!" arg-mode="!">
+	<xf:set var="$duel" value="{$duelItem.duel}" />
+	<xf:set var="$opponent" value="{$duelItem.opponentPet.User}" />
+
+	<div class="block-row block-row--separated">
+		<div class="contentRow">
+			<div class="contentRow-figure">
+				<xf:avatar user="{$opponent}" size="xs" defaultname="{{ phrase('sylphian_userpets_unknown_user') }}" />
+			</div>
+			<div class="contentRow-main contentRow-main--close petDuel-main">
+				<div class="petDuel-info">
+					<h3 class="contentRow-title">{{ username_link($opponent, true, {'defaultname': phrase('sylphian_userpets_unknown_user')}) }}</h3>
+					<ul class="listInline listInline--bullet contentRow-minor">
+						<xf:if is="$mode == 'incoming'">
+							<li>{{ phrase('sylphian_userpets_duel_manage_requested_x', {'date': date_dynamic($duel.created_at)}) }}</li>
+						<xf:elseif is="$mode == 'outgoing'" />
+							<li>{{ phrase('sylphian_userpets_duel_manage_sent_x', {'date': date_dynamic($duel.created_at)}) }}</li>
+						<xf:else />
+							<xf:if is="$mode == 'history'">
+								<li>
+									<xf:if is="$duelItem.isChallenger">
+										{{ phrase('sylphian_userpets_duel_manage_you_challenged') }}
+									<xf:else />
+										{{ phrase('sylphian_userpets_duel_manage_challenged_you') }}
+									</xf:if>
+								</li>
+							</xf:if>
+							<li>{{ phrase('sylphian_userpets_duel_manage_opened_x', {'date': date_dynamic($duel.created_at)}) }}</li>
+							<xf:if is="$duel.completed_at">
+								<li>{{ phrase('sylphian_userpets_duel_manage_completed_x', {'date': date_dynamic($duel.completed_at)}) }}</li>
+							</xf:if>
+						</xf:if>
+					</ul>
+				</div>
+
+				<div class="petDuel-side">
+					<xf:if is="$mode == 'incoming'">
+						<xf:form action="{{ link('userpetsduel/acceptchallenge') }}" ajax="true">
+							<xf:hiddenval name="duel_id">{$duel.duel_id}</xf:hiddenval>
+							<xf:button type="submit" class="button--small button--primary" fa="fa-check">{{ phrase('sylphian_userpets_duel_action_accept') }}</xf:button>
+						</xf:form>
+						<xf:form action="{{ link('userpetsduel/rejectchallenge') }}" ajax="true">
+							<xf:hiddenval name="duel_id">{$duel.duel_id}</xf:hiddenval>
+							<xf:button type="submit" class="button--small" fa="fa-times">{{ phrase('sylphian_userpets_duel_action_reject') }}</xf:button>
+						</xf:form>
+					<xf:elseif is="$mode == 'outgoing'" />
+						<xf:form action="{{ link('userpetsduel/cancelchallenge') }}" ajax="true">
+							<xf:hiddenval name="duel_id">{$duel.duel_id}</xf:hiddenval>
+							<xf:button type="submit" class="button--small" fa="fa-ban">{{ phrase('sylphian_userpets_duel_action_cancel') }}</xf:button>
+						</xf:form>
+					<xf:elseif is="$mode == 'history'" />
+						<xf:if is="$duel.status == 'completed'">
+							<xf:if is="$duelItem.result == 'win'">
+								<span class="label label--green">{{ phrase('sylphian_userpets_duel_result_win') }}</span>
+							<xf:elseif is="$duelItem.result == 'loss'" />
+								<span class="label label--red">{{ phrase('sylphian_userpets_duel_result_loss') }}</span>
+							<xf:else />
+								<span class="label label--gray">{{ phrase('sylphian_userpets_duel_status_completed') }}</span>
+							</xf:if>
+						<xf:elseif is="$duel.status == 'pending'" />
+							<span class="label label--accent">{{ phrase('sylphian_userpets_duel_status_pending') }}</span>
+						<xf:elseif is="$duel.status == 'accepted'" />
+							<span class="label label--primary">{{ phrase('sylphian_userpets_duel_status_accepted') }}</span>
+						<xf:elseif is="$duel.status == 'declined'" />
+							<span class="label label--gray">{{ phrase('sylphian_userpets_duel_status_declined') }}</span>
+						<xf:elseif is="$duel.status == 'cancelled'" />
+							<span class="label label--gray">{{ phrase('sylphian_userpets_duel_status_cancelled') }}</span>
+						</xf:if>
+					</xf:if>
+				</div>
+			</div>
+		</div>
+	</div>
+</xf:macro>

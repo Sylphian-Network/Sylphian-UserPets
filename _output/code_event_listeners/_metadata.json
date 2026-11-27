@@ -2,11 +2,20 @@
     "criteria_user_a22a99adcd0fae81712c6773bf87d523.json": {
         "hash": "6c0eb8fde9207764046bdee14e949b25"
     },
+    "entity_post_delete_14b524d356c31e88cd62dd567591ee98.json": {
+        "hash": "30dd9dae2a274900adaef7cc93619b69"
+    },
+    "entity_post_delete_5854477ebd676437a7a088d4ba3e506f.json": {
+        "hash": "0d0a64d16fcad2470cc9bcd85cfd8c51"
+    },
     "entity_post_save_2bf8a5c103dd8af10663682058551735.json": {
         "hash": "61ad3dbc3dd16187891157bddbd6272a"
     },
     "entity_post_save_5bcb1a8385cbb6b8ae4b125de4515135.json": {
         "hash": "98148b75e91639215d7cadec4541d1b1"
+    },
+    "entity_post_save_61f3dde2af8e8e0d4a48f7a1fddb9142.json": {
+        "hash": "d90079d64258ef60497730268cac88bc"
     },
     "entity_post_save_7aff830c0d2271c9e234a6bc18aea53e.json": {
         "hash": "3a89c0af019ccb0289ce52ace1fdb2fc"
@@ -20,10 +29,16 @@
     "entity_post_save_d419d372af9128dbee867a5949acfd6f.json": {
         "hash": "e7a66141a585bee9605090008bde9603"
     },
+    "entity_pre_delete_b56dd723aa1708660048f0cca64a0f64.json": {
+        "hash": "26c05b72cb3860efebad0ebc28e28d97"
+    },
     "sylphian_leaderboard_providers_67d03f14defad5732cde2a1e6d670aad.json": {
         "hash": "caa02a7bf4626652b259ac39afc42f40"
     },
     "templater_macro_pre_render_c082843a6c070b78be4a44473c3395c9.json": {
         "hash": "d98ebd7b39b15982476313adcc534ceb"
+    },
+    "user_merge_combine_64983e812c1216a5b1776f856b327dbf.json": {
+        "hash": "faa7768aa4be5fc49f3aeebbc64ed42f"
     }
 }

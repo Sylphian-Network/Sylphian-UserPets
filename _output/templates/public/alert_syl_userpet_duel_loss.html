@@ -1,2 +1,7 @@
-Your pet lost the duel against {{ $extra.opponent_name }}.
-<xf:if is="{{ $extra.stats_lost > 0 }}"><br>Your pet's stats decreased by {{ $extra.stats_lost }} points.</xf:if>
+{{ phrase('sylphian_userpets_alert_duel_loss', {
+	'username': $extra.opponent_name ?: phrase('sylphian_userpets_unknown_user')
+}) }}
+<xf:if is="$extra.stats_lost > 0">
+	<br />{{ phrase('sylphian_userpets_alert_duel_loss_stats', {'stats': $extra.stats_lost|number}) }}
+</xf:if>
+<a href="{{ link('userpetsduel', null, {'history_filter': 'losses'}) }}" class="fauxBlockLink-blockLink"></a>

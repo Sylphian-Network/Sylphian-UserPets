@@ -19,7 +19,7 @@ class SpriteSheet extends AbstractOption
 		);
 	}
 
-	public static function verifyOption(&$value): bool
+	public static function verifyOption(&$value, Option $option): bool
 	{
 		$value = trim((string) $value);
 
@@ -30,26 +30,33 @@ class SpriteSheet extends AbstractOption
 
 		/** @var UserPetsRepository $repo */
 		$repo = \XF::repository('Sylphian\\UserPets:UserPets');
-		$choices = $repo->getAvailableSpriteSheets();
-
-		$id = strtolower(pathinfo($value, PATHINFO_FILENAME));
-
-		if (!array_key_exists($id, $choices))
+		$filename = $repo->resolveSpritesheetFilename($value);
+		if ($filename === null)
 		{
+			$option->error(\XF::phrase('please_enter_valid_value'), $option->option_id);
 			return false;
 		}
 
-		$value = $id;
+		$value = $repo->getSpritesheetChoiceId($filename);
 		return true;
 	}
 
 	protected static function getSelectData(Option $option, array $htmlParams): array
 	{
 		$choices = static::getSpritesheetOptions($option, $htmlParams);
+		$controlOptions = static::getControlOptions($option, $htmlParams);
+
+		/** @var UserPetsRepository $repository */
+		$repository = \XF::repository('Sylphian\UserPets:UserPets');
+		$selectedFilename = $repository->resolveSpritesheetFilename((string) ($controlOptions['value'] ?? ''));
+		if ($selectedFilename !== null)
+		{
+			$controlOptions['value'] = $repository->getSpritesheetChoiceId($selectedFilename);
+		}
 
 		return [
 			'choices' => $choices,
-			'controlOptions' => static::getControlOptions($option, $htmlParams),
+			'controlOptions' => $controlOptions,
 			'rowOptions' => static::getRowOptions($option, $htmlParams),
 		];
 	}

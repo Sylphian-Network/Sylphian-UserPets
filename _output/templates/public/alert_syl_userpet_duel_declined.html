@@ -1,1 +1,4 @@
-{{ $extra.opponent_name }} has declined your pet's duel challenge.
+{{ phrase('sylphian_userpets_alert_duel_declined', {
+	'username': username_link($user, false, {'defaultname': $extra.opponent_name ?: $alert.username})
+}) }}
+<a href="{{ link('userpetsduel', null, {'history_filter': 'declined'}) }}" class="fauxBlockLink-blockLink"></a>

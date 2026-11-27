@@ -2,7 +2,10 @@
 
 namespace Sylphian\UserPets\Duel\Algorithms;
 
-class ExpBasedAlgorithm implements DuelAlgorithmInterface
+/**
+ * Score = level + ln(1 + experience) + care (0..1); the chance is the share of both scores.
+ */
+class ExpBasedAlgorithm extends AbstractDuelAlgorithm
 {
 	public function getKey(): string
 	{
@@ -11,14 +14,18 @@ class ExpBasedAlgorithm implements DuelAlgorithmInterface
 
 	public function getLabel(): string
 	{
-		return 'Exp-based';
+		return (string) \XF::phrase('sylphian_userpets_duel_algorithm_exp_based');
 	}
 
-	public function calculateWinner(array $petA, array $petB): array
+	public function calculateWinChance(array $petA, array $petB): float
 	{
-		$scoreA = $petA['level'] + log($petA['experience'] + 1) + ($petA['happiness'] - $petA['hunger'] - $petA['sleepiness']) / 100;
-		$scoreB = $petB['level'] + log($petB['experience'] + 1) + ($petB['happiness'] - $petB['hunger'] - $petB['sleepiness']) / 100;
-		$probA = $scoreA / ($scoreA + $scoreB);
-		return (mt_rand() / mt_getrandmax()) < $probA ? $petA : $petB;
+		return static::chanceFromScores($this->getScore($petA), $this->getScore($petB));
+	}
+
+	public function getScore(array $pet): float
+	{
+		return static::getNumber($pet, 'level')
+			+ log1p(static::getNumber($pet, 'experience'))
+			+ static::getCareScore($pet);
 	}
 }

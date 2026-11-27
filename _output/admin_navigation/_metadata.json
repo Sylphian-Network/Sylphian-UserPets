@@ -1,8 +1,14 @@
 {
     "sylphian_userpets.json": {
-        "hash": "10db983e95e0e8dd559da39dc051143e"
+        "hash": "86f1a0eb592b7e5eee4f8802ce8b8c49"
+    },
+    "sylphian_userpets_rebuild_solution_xp.json": {
+        "hash": "c38a5c75adf6b768a76adc9259929662"
     },
     "sylphian_userpets_spritesheet_management.json": {
-        "hash": "2b9747764ac1a01890caafcdc1234b3f"
+        "hash": "4505f3c96d9fc44661806e40b7076e3c"
+    },
+    "sylphian_userpets_tournaments.json": {
+        "hash": "0389dad4869cbfabaff99eac776d4ff8"
     }
 }

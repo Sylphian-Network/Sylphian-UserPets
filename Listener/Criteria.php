@@ -9,11 +9,8 @@ use XF\Entity\User;
 class Criteria
 {
 	/**
-	 * criteria_user listener
-	 * @param string $rule
-	 * @param array $data
-	 * @param User $user
-	 * @param bool $returnValue
+	 * criteria_user listener. Duel counts are two indexed lookups (the user's pet ids, then a
+	 * count by winner_pet_id / loser_pet_id), cheap enough for notice and trophy checks.
 	 */
 	public static function onUserCriteria(string $rule, array $data, User $user, bool &$returnValue): void
 	{
@@ -21,35 +18,29 @@ class Criteria
 		{
 			case 'syl_userpets_duel_wins_at_least':
 				$min = (int) ($data['count'] ?? 0);
-				if ($min <= 0)
+				if ($min <= 0 || !$user->user_id)
 				{
 					$returnValue = false;
 					return;
 				}
 
-				/** @var UserPetsDuelRepository $repo */
-				$repo = \XF::repository('Sylphian\UserPets:UserPetsDuel');
-				$wins = $repo->getUserDuelWins($user->user_id);
-				$returnValue = ($wins >= $min);
+				$returnValue = self::getDuelRepo()->getUserDuelWins($user->user_id) >= $min;
 				return;
 
 			case 'syl_userpets_duel_losses_at_least':
 				$min = (int) ($data['count'] ?? 0);
-				if ($min <= 0)
+				if ($min <= 0 || !$user->user_id)
 				{
 					$returnValue = false;
 					return;
 				}
 
-				/** @var UserPetsDuelRepository $repo */
-				$repo = \XF::repository('Sylphian\UserPets:UserPetsDuel');
-				$losses = $repo->getUserDuelLosses($user->user_id);
-				$returnValue = ($losses >= $min);
+				$returnValue = self::getDuelRepo()->getUserDuelLosses($user->user_id) >= $min;
 				return;
 
 			case 'syl_userpets_pet_level_at_least':
 				$minLevel = (int) ($data['level'] ?? 0);
-				if ($minLevel <= 0)
+				if ($minLevel <= 0 || !$user->user_id)
 				{
 					$returnValue = false;
 					return;
@@ -61,5 +52,11 @@ class Criteria
 				$returnValue = ($pet && $pet->level >= $minLevel);
 				return;
 		}
+	}
+
+	protected static function getDuelRepo(): UserPetsDuelRepository
+	{
+		/** @var UserPetsDuelRepository */
+		return \XF::repository('Sylphian\UserPets:UserPetsDuel');
 	}
 }

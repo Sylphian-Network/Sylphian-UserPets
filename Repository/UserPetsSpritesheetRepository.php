@@ -2,8 +2,7 @@
 
 namespace Sylphian\UserPets\Repository;
 
-use Random\RandomException;
-use Sylphian\Library\Repository\UserFieldRepository;
+use Sylphian\Library\Repository\UserFieldRepository as LibraryUserFieldRepository;
 use Sylphian\UserPets\Entity\UserPetsSpritesheet;
 use Sylphian\UserPets\Repository\Traits\FileSystemTrait;
 use Sylphian\UserPets\Repository\Traits\MirrorOperationsTrait;
@@ -11,6 +10,7 @@ use Sylphian\UserPets\Repository\Traits\SpritesheetFinderTrait;
 use XF\Http\Upload;
 use XF\Mvc\Entity\Repository;
 use XF\PrintableException;
+use XF\Repository\UserFieldRepository;
 use XF\Util\File;
 
 class UserPetsSpritesheetRepository extends Repository
@@ -18,6 +18,8 @@ class UserPetsSpritesheetRepository extends Repository
 	use FileSystemTrait;
 	use MirrorOperationsTrait;
 	use SpritesheetFinderTrait;
+
+	public const USER_FIELD_ID = 'syl_userpets_spritesheet';
 
 	/**
 	 * Returns health info for the directories this repo uses.
@@ -28,18 +30,18 @@ class UserPetsSpritesheetRepository extends Repository
 	{
 		$targets = [
 			[
-				'key'   => 'primary',
-				'label' => 'Primary spritesheet storage (external data)',
-				'path'  => $this->getBasePath(),
+				'key'          => 'primary',
+				'label_phrase' => 'sylphian_userpets_primary_spritesheet_storage',
+				'path'         => $this->getBasePath(),
 			],
 		];
 
 		if ($this->isMirroringEnabled())
 		{
 			$targets[] = [
-				'key'   => 'mirror',
-				'label' => 'Dev mirror (add-on _files data)',
-				'path'  => $this->getDevMirrorPath(),
+				'key'          => 'mirror',
+				'label_phrase' => 'sylphian_userpets_dev_mirror_storage',
+				'path'         => $this->getDevMirrorPath(),
 			];
 		}
 
@@ -54,7 +56,7 @@ class UserPetsSpritesheetRepository extends Repository
 
 			$dirs[] = [
 				'key'      => $t['key'],
-				'label'    => $t['label'],
+				'label'    => (string) \XF::phrase($t['label_phrase']),
 				'path'     => $path,
 				'exists'   => $exists,
 				'readable' => $readable,
@@ -73,92 +75,66 @@ class UserPetsSpritesheetRepository extends Repository
 		];
 	}
 
-	/**
-	 * Get the absolute path to the primary spritesheet storage directory.
-	 *
-	 * @return string Absolute path under external data storage.
-	 */
 	protected function primaryPath(): string
 	{
 		return $this->getBasePath();
 	}
 
-	/**
-	 * Get the absolute path to the development mirror directory.
-	 *
-	 * @return string Absolute path to the dev mirror.
-	 */
 	protected function mirrorPath(): string
 	{
 		return $this->getDevMirrorPath();
 	}
 
+	public function getFileUrl(string $filename): string
+	{
+		return rtrim($this->getBaseUrl(), '/') . '/' . rawurlencode($filename);
+	}
+
 	/**
-	 * Build an index list combining database and filesystem entries.
-	 * Each entry includes:
-	 *   - name: string
-	 *   - url: string
-	 *   - size: int
-	 *   - mtime: int
-	 *   - entity: ?UserPetsSpritesheet
-	 *   - exists: bool
+	 * Registered spritesheets plus unregistered image files in the primary directory.
+	 * Each entry: name, url, size, mtime, entity (?UserPetsSpritesheet), exists.
 	 *
-	 * @return array<int,array<string,mixed>> List of spritesheet data for admin UI.
+	 * @return list<array{name:string, url:string, size:int, mtime:int, entity:?UserPetsSpritesheet, exists:bool}>
 	 */
 	public function buildIndexList(): array
 	{
 		$basePath = $this->getBasePath();
-		$baseUrl  = $this->getBaseUrl();
-
-		$dbRows = $this->finder('Sylphian\UserPets:UserPetsSpritesheet')->order(['title', 'filename'])->fetch();
-		$dbByFile = [];
-		/** @var UserPetsSpritesheet $row */
-		foreach ($dbRows AS $row)
-		{
-			$dbByFile[$row->filename] = $row;
-		}
 
 		$files = [];
-		$make = function (string $name, ?UserPetsSpritesheet $entity) use ($basePath, $baseUrl): array
+		$make = function (string $name, ?UserPetsSpritesheet $entity) use ($basePath): array
 		{
-			$full = $basePath . DIRECTORY_SEPARATOR . $name;
-			$exists = is_file($full);
-			$size  = $exists ? filesize($full) : 0;
-			$mtime = $exists ? filemtime($full) : 0;
+			$full = $this->resolvePathInDirectory($basePath, $name);
+			$exists = $full !== null && is_file($full);
+
 			return [
 				'name'   => $name,
-				'url'    => rtrim($baseUrl, '/') . '/' . rawurlencode($name),
-				'size'   => $size,
-				'mtime'  => $mtime,
+				'url'    => $this->getFileUrl($name),
+				'size'   => $exists ? (int) filesize($full) : 0,
+				'mtime'  => $exists ? (int) filemtime($full) : 0,
 				'entity' => $entity,
 				'exists' => $exists,
 			];
 		};
 
-		foreach ($dbByFile AS $filename => $entity)
+		/** @var UserPetsSpritesheet $row */
+		foreach ($this->finder('Sylphian\UserPets:UserPetsSpritesheet')->order(['title', 'filename'])->fetch() AS $row)
 		{
-			$files[$filename] = $make($filename, $entity);
+			$files[$row->filename] = $make($row->filename, $row);
 		}
 
 		if (is_dir($basePath))
 		{
-			$allow = ['png', 'gif', 'jpg', 'jpeg', 'webp'];
 			try
 			{
-				$it = new \DirectoryIterator($basePath);
-				foreach ($it AS $fi)
+				foreach (new \DirectoryIterator($basePath) AS $fileInfo)
 				{
-					if ($fi->isDot() || !$fi->isFile())
+					if ($fileInfo->isDot() || !$fileInfo->isFile())
 					{
 						continue;
 					}
-					$ext = strtolower($fi->getExtension());
-					if (!in_array($ext, $allow, true))
-					{
-						continue;
-					}
-					$name = $fi->getFilename();
-					if (!isset($files[$name]))
+
+					$name = $this->normalizeFilename($fileInfo->getFilename());
+					if ($name !== null && !isset($files[$name]))
 					{
 						$files[$name] = $make($name, null);
 					}
@@ -175,106 +151,118 @@ class UserPetsSpritesheetRepository extends Repository
 	}
 
 	/**
-	 * Prepare spritesheet edit data for the admin form.
-	 *
-	 * @param string $filename File name being edited.
-	 * @return array{
-	 *     entity: UserPetsSpritesheet,
-	 *     exists: bool,
-	 *     fileUrl: string
-	 * }
+	 * @return array{entity: UserPetsSpritesheet, exists: bool, fileUrl: string}|null null for a name that is not a plain image file name
 	 */
-	public function prepareEditData(string $filename): array
+	public function prepareEditData(string $filename): ?array
 	{
-		$filename = trim($filename);
-		$basePath = $this->getBasePath();
-		$baseUrl  = $this->getBaseUrl();
-		$full     = $basePath . DIRECTORY_SEPARATOR . $filename;
-		$exists   = is_file($full);
+		$name = $this->normalizeFilename($filename);
+		if ($name === null)
+		{
+			return null;
+		}
 
-		$entity = $this->findByFilename($filename);
+		$full = $this->resolvePathInDirectory($this->getBasePath(), $name);
+		$exists = $full !== null && is_file($full);
+
+		$entity = $this->findByFilename($name);
 		if (!$entity)
 		{
 			/** @var UserPetsSpritesheet $entity */
 			$entity = $this->em->create('Sylphian\UserPets:UserPetsSpritesheet');
-			$entity->filename = $filename;
-			$entity->title = pathinfo($filename, PATHINFO_FILENAME);
-			$entity->frame_width = 192;
-			$entity->frame_height = 192;
-			$entity->frames_per_animation = 4;
-			$entity->fps = 4;
-			$entity->last_modified = $exists ? (filemtime($full) ?: 0) : 0;
+			$entity->filename = $name;
+			$entity->title = pathinfo($name, PATHINFO_FILENAME);
+			$entity->last_modified = $exists ? (int) filemtime($full) : 0;
 		}
 
 		return [
 			'entity'  => $entity,
 			'exists'  => $exists,
-			'fileUrl' => rtrim($baseUrl, '/') . '/' . rawurlencode($filename),
+			'fileUrl' => $this->getFileUrl($name),
 		];
 	}
 
 	/**
-	 * Save or update a spritesheet entity and its corresponding file.
-	 *
-	 * Handles:
-	 *   - Renaming files.
-	 *   - Uploading replacements.
-	 *   - Validating extensions and filenames.
-	 *   - Syncing mirrors.
-	 *
-	 * Returns an array containing either:
-	 *   - `entity` => UserPetsSpritesheet on success
-	 *   - `error`  => string on failure
+	 * @return array{filename: string, exists: bool, url: string, entity: ?UserPetsSpritesheet}|null null for a name that is not a plain image file name
+	 */
+	public function prepareDeleteData(string $filename): ?array
+	{
+		$name = $this->normalizeFilename($filename);
+		if ($name === null)
+		{
+			return null;
+		}
+
+		$full = $this->resolvePathInDirectory($this->getBasePath(), $name);
+
+		return [
+			'filename' => $name,
+			'exists'   => $full !== null && is_file($full),
+			'url'      => $this->getFileUrl($name),
+			'entity'   => $this->findByFilename($name),
+		];
+	}
+
+	/**
+	 * Creates or updates a spritesheet record and its file: renames the file when the
+	 * name changes, replaces it when an image is uploaded and keeps the dev mirror in
+	 * step. Everything is validated before the first file is touched.
 	 *
 	 * @param int $id Existing entity ID (0 if new).
-	 * @param string $origFilename Previous filename (from form).
-	 * @param array<string,mixed> $input Form input fields.
-	 * @param Upload|null $upload Uploaded file instance or null.
-	 * @return array{entity?:UserPetsSpritesheet,error?:string}
+	 * @param string $origFilename File name the form was opened for ('' when adding).
+	 * @param array<string,mixed> $input filename, title, frame_width, frame_height, frames_per_animation, fps
+	 * @param Upload|null $upload Uploaded image, if any.
+	 *
+	 * @return array{entity?: UserPetsSpritesheet, errors?: array}
 	 */
 	public function saveSpritesheet(int $id, string $origFilename, array $input, ?Upload $upload): array
 	{
-		$allowedExts = ['png','gif','jpg','jpeg','webp'];
-		$sanitize = static function (string $name) use ($allowedExts): string
-		{
-			$name = trim($name);
-			$name = basename($name);
-			$name = preg_replace('/\s+/', ' ', $name);
-			$ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
-			if ($name === '' || !in_array($ext, $allowedExts, true))
-			{
-				return '';
-			}
-			return $name;
-		};
-
 		$basePath = $this->getBasePath();
 		File::createDirectory($basePath, false);
 
-		$newFilename = $sanitize($input['filename'] ?? $origFilename);
-		if ($newFilename === '')
+		$origName = null;
+		if (trim($origFilename) !== '')
 		{
-			return ['error' => 'Please provide a valid filename with an allowed image extension.'];
-		}
-
-		$origFull = $basePath . DIRECTORY_SEPARATOR . $origFilename;
-		$newFull  = $basePath . DIRECTORY_SEPARATOR . $newFilename;
-
-		if ($origFilename !== '')
-		{
-			$realBase = realpath($basePath) ?: $basePath;
-			$realOrig = file_exists($origFull) ? realpath($origFull) : $origFull;
-			$isUnder = $realOrig && str_starts_with($realOrig, rtrim($realBase, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR);
-			if (!$isUnder)
+			$origName = $this->normalizeFilename($origFilename);
+			if ($origName === null)
 			{
-				return ['error' => 'Invalid file path.'];
+				return $this->errors(\XF::phrase('sylphian_userpets_error_invalid_file_path'));
 			}
 		}
 
-		$entity = $this->findById($id);
-		if (!$entity && $origFilename !== '')
+		if ($upload)
 		{
-			$entity = $this->findByFilename($origFilename);
+			$upload->setAllowedExtensions($this->getAllowedExtensions());
+			$upload->requireImage();
+			$upload->setImageOptimize(false);
+			if (!$upload->isValid($uploadErrors))
+			{
+				return ['errors' => array_values($uploadErrors)];
+			}
+		}
+
+		$requested = trim((string) ($input['filename'] ?? ''));
+		if ($requested === '')
+		{
+			$requested = $upload ? (string) $upload->getFileName() : (string) $origName;
+		}
+
+		$newName = $this->normalizeFilename($requested);
+		if ($newName === null)
+		{
+			return $this->errors(\XF::phrase('sylphian_userpets_error_invalid_filename'));
+		}
+
+		$newFull = $this->resolvePathInDirectory($basePath, $newName);
+		$origFull = $origName !== null ? $this->resolvePathInDirectory($basePath, $origName) : null;
+		if ($newFull === null || ($origName !== null && $origFull === null))
+		{
+			return $this->errors(\XF::phrase('sylphian_userpets_error_invalid_file_path'));
+		}
+
+		$entity = $this->findById($id);
+		if (!$entity && $origName !== null)
+		{
+			$entity = $this->findByFilename($origName);
 		}
 		if (!$entity)
 		{
@@ -282,246 +270,395 @@ class UserPetsSpritesheetRepository extends Repository
 			$entity = $this->em->create('Sylphian\UserPets:UserPetsSpritesheet');
 		}
 
-		$hasUpload = ($upload instanceof Upload) && $upload->isValid();
-		if ($upload && !$upload->isValid())
+		$existing = $this->findByFilename($newName);
+		if ($existing && (!$entity->exists() || $existing->spritesheet_id !== $entity->spritesheet_id))
 		{
-			return ['error' => 'Uploaded file is not valid.'];
-		}
-		if ($hasUpload)
-		{
-			$clientName = $upload->getFileName();
-			$ext = strtolower(pathinfo($clientName, PATHINFO_EXTENSION));
-			if (!in_array($ext, $allowedExts, true))
-			{
-				return ['error' => 'Uploaded file type is not allowed.'];
-			}
+			return $this->errors(\XF::phrase('sylphian_userpets_error_spritesheet_filename_exists'));
 		}
 
-		$renaming  = ($newFilename !== $origFilename && $origFilename !== '');
-		$origExists = (file_exists($origFull));
+		$renaming = $origName !== null && $newName !== $origName;
+		$origExists = $origFull !== null && is_file($origFull);
 
 		if ($renaming && !$upload && !$origExists)
 		{
-			return ['error' => 'Cannot rename: original file not found on disk.'];
+			return $this->errors(\XF::phrase('sylphian_userpets_error_original_file_missing_for_rename'));
 		}
 
-		$hasUpload = ($upload instanceof Upload) && $upload->isValid();
-		if ($upload && !$upload->isValid())
+		if (($renaming || $origName === null) && file_exists($newFull))
 		{
-			return ['error' => 'Uploaded file is not valid.'];
+			return $this->errors(\XF::phrase('sylphian_userpets_error_new_filename_exists'));
 		}
 
-		if ($renaming && !$hasUpload && file_exists($newFull))
+		$entity->bulkSet([
+			'filename' => $newName,
+			'title' => (string) ($input['title'] ?? ''),
+			'frame_width' => max(1, (int) ($input['frame_width'] ?? 1)),
+			'frame_height' => max(1, (int) ($input['frame_height'] ?? 1)),
+			'frames_per_animation' => max(1, (int) ($input['frames_per_animation'] ?? 1)),
+			'fps' => max(1, (int) ($input['fps'] ?? 1)),
+		]);
+
+		$entity->preSave();
+		if ($entity->hasErrors())
 		{
-			return ['error' => 'A file with the new filename already exists.'];
+			return ['errors' => $entity->getErrors()];
 		}
 
-		if ($renaming && !$hasUpload)
+		if ($upload)
 		{
-			if (!@rename($origFull, $newFull))
-			{
-				return ['error' => 'Failed to rename the file on disk.'];
-			}
-
-			$this->mirrorRename($origFilename, $newFilename);
-		}
-
-		if ($hasUpload)
-		{
-			$tmp = $upload->getTempFile();
+			$tmpTarget = $newFull . '.tmp-' . $this->getTemporarySuffix();
 
 			try
 			{
-				$randSuffix = bin2hex(random_bytes(6));
-			}
-			catch (RandomException)
-			{
-				$randSuffix = uniqid('fallback_', true);
-			}
-
-			$tmpTarget = $newFull . '.tmp-' . $randSuffix;
-
-			try
-			{
-				if (file_exists($tmpTarget))
-				{
-					@unlink($tmpTarget);
-				}
-				File::copyFile($tmp, $tmpTarget);
-				if (file_exists($newFull))
-				{
-					@unlink($newFull);
-				}
-				if (!@rename($tmpTarget, $newFull))
-				{
-					// Cleanup temp file if rename failed
-					@unlink($tmpTarget);
-					return ['error' => 'Failed to write uploaded image atomically.'];
-				}
+				File::copyFile($upload->getTempFile(), $tmpTarget, false);
 			}
 			catch (\Throwable $e)
 			{
 				@unlink($tmpTarget);
-				return ['error' => 'Failed to save uploaded image: ' . $e->getMessage()];
+				\XF::logException($e, false, 'UserPets spritesheet upload failed: ');
+
+				return $this->errors(\XF::phrase('sylphian_userpets_error_save_uploaded_image', [
+					'error' => \XF::phrase('sylphian_userpets_spritesheet_path_error'),
+				]));
 			}
 
-			if ($renaming && $origExists && $origFull !== $newFull)
+			if (!@rename($tmpTarget, $newFull))
+			{
+				@unlink($tmpTarget);
+				return $this->errors(\XF::phrase('sylphian_userpets_error_atomic_write_failed'));
+			}
+
+			if ($renaming && $origExists)
 			{
 				@unlink($origFull);
 			}
 		}
-
-		if (file_exists($newFull))
+		elseif ($renaming)
 		{
-			$this->mirrorCopyFromPrimary($newFilename);
-			if ($renaming && $origFilename !== $newFilename)
+			if (!@rename($origFull, $newFull))
 			{
-				$this->mirrorDelete($origFilename);
+				return $this->errors(\XF::phrase('sylphian_userpets_error_rename_failed'));
 			}
+
+			$this->mirrorRename($origName, $newName);
 		}
 
-		$existing = $this->findByFilename($newFilename);
-		if ($existing && (!$entity->exists() || $existing->spritesheet_id !== $entity->spritesheet_id))
+		clearstatcache();
+		if (is_file($newFull))
 		{
-			return ['error' => 'A spritesheet with that filename already exists.'];
+			$this->mirrorCopyFromPrimary($newName);
+		}
+		if ($renaming)
+		{
+			$this->mirrorDelete($origName);
 		}
 
-		$entity->filename = $newFilename;
-		$entity->title = (string) ($input['title'] ?? '');
-		$entity->frame_width = max(1, (int) ($input['frame_width'] ?? 1));
-		$entity->frame_height = max(1, (int) ($input['frame_height'] ?? 1));
-		$entity->frames_per_animation = max(1, (int) ($input['frames_per_animation'] ?? 1));
-		$entity->fps = max(1, (int) ($input['fps'] ?? 1));
-		$entity->last_modified = file_exists($newFull) ? (filemtime($newFull) ?: 0) : 0;
+		$entity->set('last_modified', is_file($newFull) ? (int) filemtime($newFull) : 0, ['forceSet' => true]);
 
 		try
 		{
-			$entity->save(true, false);
-			try
-			{
-				$this->syncUserFieldOptions();
-			}
-			catch (\Throwable $e)
-			{
-				\XF::logException($e);
-			}
+			$entity->save();
 		}
-		catch (PrintableException|\Exception $e)
+		catch (PrintableException $e)
 		{
-			return ['error' => 'Could not save spritesheet: ' . $e->getMessage()];
+			return ['errors' => $e->getMessages()];
 		}
+		catch (\Exception $e)
+		{
+			\XF::logException($e, false, 'UserPets spritesheet save failed: ');
+
+			return $this->errors(\XF::phrase('sylphian_userpets_error_save_spritesheet', [
+				'error' => \XF::phrase('sylphian_userpets_unknown_error'),
+			]));
+		}
+
+		$this->syncUserFieldOptionsSafely($renaming ? [$origName => $newName] : []);
 
 		return ['entity' => $entity];
 	}
 
 	/**
-	 * Delete a spritesheet by filename from both disk and database.
+	 * Deletes a spritesheet file and its record. Only a plain file name directly
+	 * inside the spritesheet directory is accepted.
 	 *
-	 * @param string $filename File name (with extension).
-	 * @return true|string True on success, or error message on failure.
+	 * @return array list of errors; empty on success
 	 */
-	public function deleteByFilename(string $filename): true|string
+	public function deleteByFilename(string $filename): array
 	{
-		$filename = trim($filename);
-		if ($filename === '')
+		if (trim($filename) === '')
 		{
-			return 'No file specified.';
+			return [\XF::phrase('sylphian_userpets_no_file_specified')];
+		}
+
+		$name = $this->normalizeFilename($filename);
+		if ($name === null)
+		{
+			return [\XF::phrase('sylphian_userpets_error_invalid_file_path')];
 		}
 
 		$basePath = $this->getBasePath();
-		$fullPath = $basePath . DIRECTORY_SEPARATOR . $filename;
-
-		$realBase = realpath($basePath) ?: $basePath;
-		$realFile = realpath($fullPath);
-		$isUnderBase = $realFile && str_starts_with($realFile, rtrim($realBase, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR);
-
-		$entity = $this->findByFilename($filename);
-
-		$errors = [];
-		if ($isUnderBase && is_file($fullPath))
+		if (is_dir($basePath))
 		{
-			try
+			$fullPath = $this->resolvePathInDirectory($basePath, $name);
+			if ($fullPath === null)
 			{
-				@unlink($fullPath);
+				return [\XF::phrase('sylphian_userpets_error_invalid_file_path')];
 			}
-			catch (\Throwable $e)
+
+			if (is_file($fullPath) && !@unlink($fullPath))
 			{
-				$errors[] = 'Could not delete file from disk: ' . $e->getMessage();
+				return [\XF::phrase('sylphian_userpets_error_delete_file_from_disk', [
+					'error' => \XF::phrase('sylphian_userpets_spritesheet_path_error'),
+				])];
 			}
 		}
 
+		$entity = $this->findByFilename($name);
 		if ($entity)
 		{
 			try
 			{
-				$entity->delete();
+				if (!$entity->delete(false))
+				{
+					return $entity->getErrors() ?: [\XF::phrase('sylphian_userpets_error_delete_database_record', [
+						'error' => \XF::phrase('sylphian_userpets_unknown_error'),
+					])];
+				}
 			}
-			catch (\Throwable $e)
+			catch (PrintableException $e)
 			{
-				$errors[] = 'Could not delete database record: ' . $e->getMessage();
+				return $e->getMessages();
+			}
+			catch (\Exception $e)
+			{
+				\XF::logException($e, false, 'UserPets spritesheet delete failed: ');
+
+				return [\XF::phrase('sylphian_userpets_error_delete_database_record', [
+					'error' => \XF::phrase('sylphian_userpets_unknown_error'),
+				])];
 			}
 		}
 
-		$this->mirrorDelete($filename);
+		$this->mirrorDelete($name);
+		$this->syncUserFieldOptionsSafely();
 
-		if ($errors)
+		return [];
+	}
+
+	/**
+	 * Rebuilds the choices of the spritesheet user field and moves stored values that
+	 * still name a file (or a renamed sheet) onto the current choice ids.
+	 *
+	 * @param array<string, string> $renamedFilenames old file name => new file name
+	 */
+	public function syncUserFieldOptions(array $renamedFilenames = []): array
+	{
+		/** @var UserPetsRepository $petsRepo */
+		$petsRepo = $this->repository('Sylphian\UserPets:UserPets');
+		$petsRepo->clearSpritesheetCaches();
+		$choices = $petsRepo->getAvailableSpriteSheets();
+
+		/** @var LibraryUserFieldRepository $libraryFieldRepo */
+		$libraryFieldRepo = $this->repository('Sylphian\Library:UserFieldRepository');
+		$result = $libraryFieldRepo->updateChoicesIfChanged(self::USER_FIELD_ID, $choices);
+
+		$this->normalizeUserFieldValues($renamedFilenames);
+
+		return $result;
+	}
+
+	/**
+	 * Rewrites spritesheet user field values that are not a current choice id but name
+	 * a known sheet (file name, base name, a legacy id or a renamed sheet) to that
+	 * sheet's choice id, then rebuilds the custom field cache of the affected users.
+	 * Values already holding a choice id, and values matching nothing, are untouched.
+	 *
+	 * @param array<string, string> $renamedFilenames old file name => new file name
+	 *
+	 * @return int number of users whose value changed
+	 */
+	public function normalizeUserFieldValues(array $renamedFilenames = []): int
+	{
+		/** @var UserPetsRepository $petsRepo */
+		$petsRepo = $this->repository('Sylphian\UserPets:UserPets');
+
+		$choiceFiles = [];
+		foreach ($this->buildIndexList() AS $file)
 		{
-			return implode("\n", $errors);
+			$choiceFiles[$petsRepo->getSpritesheetChoiceId($file['name'])] = $file['name'];
 		}
 
+		if (!$choiceFiles)
+		{
+			return 0;
+		}
+
+		$aliases = $this->buildUserFieldAliases($choiceFiles, $renamedFilenames);
+
+		$db = $this->db();
+		$currentIds = [];
+		foreach (array_keys($choiceFiles) AS $choiceId)
+		{
+			$currentIds[] = 'CAST(' . $db->quote((string) $choiceId) . ' AS BINARY)';
+		}
+
+		$rows = $db->fetchAll(
+			'SELECT user_id, field_value
+			FROM xf_user_field_value
+			WHERE field_id = ?
+				AND LOWER(field_value) IN (' . $db->quote(array_map('strval', array_keys($aliases))) . ')
+				AND CAST(field_value AS BINARY) NOT IN (' . implode(', ', $currentIds) . ')',
+			self::USER_FIELD_ID
+		);
+
+		$userIdsByChoice = [];
+		foreach ($rows AS $row)
+		{
+			$choiceId = $aliases[mb_strtolower((string) $row['field_value'])] ?? null;
+			if ($choiceId !== null && $choiceId !== $row['field_value'])
+			{
+				$userIdsByChoice[$choiceId][] = (int) $row['user_id'];
+			}
+		}
+
+		if (!$userIdsByChoice)
+		{
+			return 0;
+		}
+
+		$changedUserIds = [];
+		foreach ($userIdsByChoice AS $choiceId => $userIds)
+		{
+			foreach (array_chunk($userIds, 500) AS $chunk)
+			{
+				$db->update(
+					'xf_user_field_value',
+					['field_value' => (string) $choiceId],
+					'field_id = ? AND user_id IN (' . $db->quote($chunk) . ')',
+					self::USER_FIELD_ID
+				);
+			}
+
+			$changedUserIds = array_merge($changedUserIds, $userIds);
+		}
+
+		$this->rebuildUserFieldValueCaches($changedUserIds);
+
+		return count($changedUserIds);
+	}
+
+	/**
+	 * @param list<int> $userIds
+	 */
+	protected function rebuildUserFieldValueCaches(array $userIds): void
+	{
+		/** @var UserFieldRepository $fieldRepo */
+		$fieldRepo = $this->repository('XF:UserField');
+		$db = $this->db();
+
+		foreach (array_chunk(array_values(array_unique($userIds)), 500) AS $chunk)
+		{
+			$db->beginTransaction();
+			foreach ($chunk AS $userId)
+			{
+				$fieldRepo->rebuildUserFieldValuesCache($userId);
+			}
+			$db->commit();
+		}
+	}
+
+	/**
+	 * Lower-cased alias => choice id. Exact names win over loose ones (base name, base
+	 * name with symbols replaced), and the first sheet wins a loose alias that two
+	 * sheets share, as UserPetsRepository::resolveSpritesheetFilename() resolves it.
+	 *
+	 * @param array<string, string> $choiceFiles choice id => file name
+	 * @param array<string, string> $renamedFilenames old file name => new file name
+	 *
+	 * @return array<string, string>
+	 */
+	protected function buildUserFieldAliases(array $choiceFiles, array $renamedFilenames): array
+	{
+		/** @var UserPetsRepository $petsRepo */
+		$petsRepo = $this->repository('Sylphian\UserPets:UserPets');
+
+		$aliases = [];
+		$add = static function (string $alias, string $choiceId) use (&$aliases): void
+		{
+			$alias = mb_strtolower(trim($alias));
+			if ($alias !== '' && !isset($aliases[$alias]))
+			{
+				$aliases[$alias] = $choiceId;
+			}
+		};
+
+		foreach ($choiceFiles AS $choiceId => $filename)
+		{
+			$add((string) $choiceId, (string) $choiceId);
+			$add($filename, (string) $choiceId);
+		}
+
+		$renamedChoices = [];
+		foreach ($renamedFilenames AS $oldName => $newName)
+		{
+			$newChoiceId = $petsRepo->getSpritesheetChoiceId((string) $newName);
+			if (!isset($choiceFiles[$newChoiceId]))
+			{
+				continue;
+			}
+
+			$add($petsRepo->getSpritesheetChoiceId((string) $oldName), $newChoiceId);
+			$add((string) $oldName, $newChoiceId);
+			$renamedChoices[(string) $oldName] = $newChoiceId;
+		}
+
+		foreach ($choiceFiles AS $choiceId => $filename)
+		{
+			foreach ($this->getLooseAliases($filename) AS $alias)
+			{
+				$add($alias, (string) $choiceId);
+			}
+		}
+
+		foreach ($renamedChoices AS $oldName => $choiceId)
+		{
+			foreach ($this->getLooseAliases($oldName) AS $alias)
+			{
+				$add($alias, $choiceId);
+			}
+		}
+
+		return $aliases;
+	}
+
+	/**
+	 * @return list<string>
+	 */
+	protected function getLooseAliases(string $filename): array
+	{
+		$base = pathinfo($filename, PATHINFO_FILENAME);
+		$safe = trim((string) preg_replace('/[^a-z0-9_]/i', '_', $base), '_');
+
+		return array_values(array_filter([$base, $safe], 'strlen'));
+	}
+
+	/**
+	 * @param array<string, string> $renamedFilenames
+	 */
+	protected function syncUserFieldOptionsSafely(array $renamedFilenames = []): void
+	{
 		try
 		{
-			$this->syncUserFieldOptions();
+			$this->syncUserFieldOptions($renamedFilenames);
 		}
 		catch (\Throwable $e)
 		{
-			\XF::logException($e);
+			\XF::logException($e, false, 'UserPets spritesheet user field sync failed: ');
 		}
-
-		return true;
 	}
 
-	public function syncUserFieldOptions(): array
+	protected function errors(\XF\Phrase $error): array
 	{
-		$choices = $this->buildSpritesheetChoices();
-		/** @var UserFieldRepository $sylRepo */
-		$sylRepo = $this->repository('Sylphian\\Library:UserFieldRepository');
-		return $sylRepo->updateChoicesIfChanged('syl_userpets_spritesheet', $choices);
+		return ['errors' => [$error]];
 	}
-
-	protected function buildSpritesheetChoices(): array
-	{
-		$choices = [];
-		$used = [];
-
-		$rows = $this->finder('Sylphian\\UserPets:UserPetsSpritesheet')
-			->order(['title', 'filename'])
-			->fetch();
-
-		foreach ($rows AS $row)
-		{
-			$label = $row->title ?: pathinfo($row->filename, PATHINFO_FILENAME);
-			$key = $this->makeSafeChoiceKey($row->filename, $used);
-			$choices[$key] = $label;
-		}
-
-		return $choices;
-	}
-
-	protected function makeSafeChoiceKey(string $filename, array &$used): string
-	{
-		$base = strtolower(preg_replace('/[^a-zA-Z0-9_]/', '_', pathinfo($filename, PATHINFO_FILENAME)));
-		$base = trim($base, '_') ?: 'sprite';
-
-		$key = $base;
-		$i = 1;
-		while (isset($used[$key]))
-		{
-			$key = $base . '_' . $i++;
-		}
-
-		$used[$key] = true;
-		return $key;
-	}
-
 }
