@@ -3,6 +3,7 @@
 namespace Sylphian\UserPets\Tutorial;
 
 use Sylphian\UserPets\Repository\UserPetsTutorialRepository;
+use XF\Phrase;
 
 /**
  * Represents a single tutorial in the system
@@ -10,19 +11,19 @@ use Sylphian\UserPets\Repository\UserPetsTutorialRepository;
 class Tutorial
 {
 	private string $id;
-	private string $title;
+	private string $titlePhrase;
 	private string $rewardExpOption;
 
-	private function __construct(string $id, string $title, string $rewardExpOption)
+	private function __construct(string $id, string $titlePhrase, string $rewardExpOption)
 	{
 		$this->id = $id;
-		$this->title = $title;
+		$this->titlePhrase = $titlePhrase;
 		$this->rewardExpOption = $rewardExpOption;
 	}
 
-	public static function create(string $id, string $title, string $rewardExpOption): self
+	public static function create(string $id, string $titlePhrase, string $rewardExpOption): self
 	{
-		return new self($id, $title, $rewardExpOption);
+		return new self($id, $titlePhrase, $rewardExpOption);
 	}
 
 	public function getId(): string
@@ -30,9 +31,9 @@ class Tutorial
 		return $this->id;
 	}
 
-	public function getTitle(): string
+	public function getTitle(): Phrase
 	{
-		return $this->title;
+		return \XF::phrase($this->titlePhrase);
 	}
 
 	public function getRewardExpOption(): string
@@ -44,7 +45,7 @@ class Tutorial
 	{
 		return [
 			'id' => $this->id,
-			'title' => $this->title,
+			'title' => $this->getTitle(),
 			'reward_exp_option' => $this->rewardExpOption,
 		];
 	}
@@ -71,7 +72,7 @@ class Tutorial
 	public function getMetadata(): array
 	{
 		return [
-			'title' => $this->title,
+			'title' => $this->getTitle(),
 			'reward_exp_option' => $this->rewardExpOption,
 		];
 	}

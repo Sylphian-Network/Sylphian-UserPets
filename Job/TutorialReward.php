@@ -5,7 +5,6 @@ namespace Sylphian\UserPets\Job;
 use Sylphian\Library\Logger\Logger;
 use Sylphian\UserPets\Helper\UserPetOptOut;
 use Sylphian\UserPets\Repository\UserPetsRepository;
-use Sylphian\UserPets\Tutorial\TutorialRegistry;
 use XF\Entity\User;
 use XF\Job\AbstractJob;
 use XF\Job\JobResult;
@@ -64,9 +63,6 @@ class TutorialReward extends AbstractJob
 			/** @var User $user */
 			$user = $this->app->em()->find('XF:User', $userId);
 
-			$tutorial = TutorialRegistry::get($tutorialKey);
-			$tutorialTitle = $tutorial ? $tutorial->getTitle() : 'Unknown Tutorial';
-
 			$alertRepo->alertFromUser(
 				$user,
 				$user,
@@ -76,7 +72,6 @@ class TutorialReward extends AbstractJob
 				[
 					'exp_amount' => $expAmount,
 					'tutorial_key' => $tutorialKey,
-					'tutorial_title' => $tutorialTitle,
 				],
 				['autoRead' => true]
 			);
@@ -85,7 +80,6 @@ class TutorialReward extends AbstractJob
 				'user_id' => $userId,
 				'exp_amount' => $expAmount,
 				'tutorial_key' => $tutorialKey,
-				'tutorial_title' => $tutorialTitle,
 			]);
 
 			return $this->complete();

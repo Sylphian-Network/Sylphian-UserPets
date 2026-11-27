@@ -563,6 +563,12 @@
         "version_string": "1.2.0",
         "hash": "e774fe04821d8fcba4c4bf9b84a93c48"
     },
+    "sylphian_userpets_alert_tutorial.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "891b671c3f8e7022753dee9afe5401dd"
+    },
     "sylphian_userpets_cannot_challenge_self.txt": {
         "global_cache": false,
         "version_id": 1020070,
@@ -845,11 +851,35 @@
         "version_string": "1.0.0 Alpha",
         "hash": "704fe14a859f55c6e7bb32304fae73c2"
     },
+    "sylphian_userpets_tutorial_complete_action.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "03e38d4909e00bcd67d713641de14c08"
+    },
+    "sylphian_userpets_tutorial_post_first_message.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "6c78fbecb308d414941f93cf245037cf"
+    },
+    "sylphian_userpets_tutorial_react_to_post.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "c01071180ede1a24af18b9a0c080ab92"
+    },
     "sylphian_userpets_tutorial_title.txt": {
         "global_cache": false,
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
         "hash": "23233554b14ffb1e2e9cf6b14f1ee97a"
+    },
+    "sylphian_userpets_tutorial_upload_pfp.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "504b49775977d997158ff8e7bfebaaba"
     },
     "sylphian_userpets_versus.txt": {
         "global_cache": false,
