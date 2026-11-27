@@ -475,9 +475,9 @@
     },
     "style_prop_group.syl_userpets.txt": {
         "global_cache": false,
-        "version_id": 1000010,
-        "version_string": "1.0.0 Alpha",
-        "hash": "ce9c0b4b2b88e2f2dce062523f5d574f"
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "f9da8f0c3bb27a464daeb8b1e79f1ab6"
     },
     "style_prop_group_desc.syl_userpets.txt": {
         "global_cache": false,
