@@ -767,6 +767,90 @@
         "version_string": "1.2.0",
         "hash": "077646740c82a471e98f1b68a2f952f2"
     },
+    "sylphian_userpets_error_delete_file_failed.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "ea8c5bbb4d1001a7b26159591d9a7934"
+    },
+    "sylphian_userpets_error_delete_record_failed.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "b16fb65def2cafc9013cdfd88c485d2a"
+    },
+    "sylphian_userpets_error_filename_exists.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "6f10a250f849a8027559340548b1bc8e"
+    },
+    "sylphian_userpets_error_invalid_file_path.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "3fe0c2c9a890bbbdf8a7d914c17ec6d9"
+    },
+    "sylphian_userpets_error_invalid_filename.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "5cd63cc57d0abaedfcb8866919a90a67"
+    },
+    "sylphian_userpets_error_no_file_specified.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "6a6e8ff9c2399bfba1c10b7f2ce62d38"
+    },
+    "sylphian_userpets_error_rename_failed.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "84b8ea6ae41e957677733c64263f03e6"
+    },
+    "sylphian_userpets_error_rename_original_missing.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "bc231c556c78fd1ecdd5595acef2947b"
+    },
+    "sylphian_userpets_error_save_failed.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "55dba1efcacdff99fc26393f61c24ce5"
+    },
+    "sylphian_userpets_error_save_image_failed.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "c38139f9e671260269235d938544f5f6"
+    },
+    "sylphian_userpets_error_spritesheet_exists.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "0265bf6445f9cdd9a3bb4a6fd2b8616d"
+    },
+    "sylphian_userpets_error_upload_invalid.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "b2cc40c8e33e0f25299b2ace20c9cae6"
+    },
+    "sylphian_userpets_error_upload_type_not_allowed.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "1b84171dcc1e222225cbc7362453ef2d"
+    },
+    "sylphian_userpets_error_write_failed.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "7e64725ce79c68750a1bbe4129da39d8"
+    },
     "sylphian_userpets_existing_spritesheets.txt": {
         "global_cache": false,
         "version_id": 1000010,
@@ -971,11 +1055,23 @@
         "version_string": "1.0.0 Alpha",
         "hash": "33d67d86e7aa1f04a603537bc5d07c01"
     },
+    "sylphian_userpets_path_mirror.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "41fdd3cb3c177c1e642e2f48813c958e"
+    },
     "sylphian_userpets_path_permissions.txt": {
         "global_cache": false,
         "version_id": 1020070,
         "version_string": "1.2.0",
         "hash": "47efdbdb0e069dc0ccf37301233a48de"
+    },
+    "sylphian_userpets_path_primary.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "e0a3276a2df4276a2ff79f84ff011e7d"
     },
     "sylphian_userpets_pet_not_found.txt": {
         "global_cache": false,
