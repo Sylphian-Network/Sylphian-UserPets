@@ -2,6 +2,8 @@
 
 namespace Sylphian\UserPets\Duel\Algorithms;
 
+use Sylphian\UserPets\Duel\CareScore;
+
 class WeightedAlgorithm implements DuelAlgorithmInterface
 {
 	public function getKey(): string
@@ -16,9 +18,15 @@ class WeightedAlgorithm implements DuelAlgorithmInterface
 
 	public function calculateWinner(array $petA, array $petB): array
 	{
-		$scoreA = $petA['level'] * (1 + ($petA['happiness'] - $petA['hunger'] - $petA['sleepiness']) / 100);
-		$scoreB = $petB['level'] * (1 + ($petB['happiness'] - $petB['hunger'] - $petB['sleepiness']) / 100);
-		$probA = $scoreA / ($scoreA + $scoreB);
+		$scoreA = $this->score($petA);
+		$scoreB = $this->score($petB);
+		$total = $scoreA + $scoreB;
+		$probA = $total > 0 ? $scoreA / $total : 0.5;
 		return (mt_rand() / mt_getrandmax()) < $probA ? $petA : $petB;
+	}
+
+	protected function score(array $pet): float
+	{
+		return max(1, $pet['level']) * (0.5 + CareScore::of($pet));
 	}
 }
