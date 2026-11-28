@@ -5,19 +5,19 @@
         "hash": "ef7ce308bf257dbb1983d8ce1486d697"
     },
     "admin/sylphian_userpets_spritesheets_add.html": {
-        "version_id": 1000010,
-        "version_string": "1.0.0 Alpha",
-        "hash": "a2a0a0fe84fa521512b415022c6ac36d"
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "b979f2d4951857d9520b89feecd30b4f"
     },
     "admin/sylphian_userpets_spritesheets_delete.html": {
-        "version_id": 1000010,
-        "version_string": "1.0.0 Alpha",
-        "hash": "51c792cd2f0d08e4fe119a5e381ee5c1"
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "4042277c2385747c9efdfa9f40e9ef76"
     },
     "admin/sylphian_userpets_spritesheets_edit.html": {
-        "version_id": 1000010,
-        "version_string": "1.0.0 Alpha",
-        "hash": "662df619033ad29aafbb1b467f908e3e"
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "bbdef3f24441cfba2ca59896e90f2045"
     },
     "admin/sylphian_userpets_spritesheets_list.html": {
         "version_id": 1020070,

@@ -677,6 +677,18 @@
         "version_string": "1.1.0 Beta",
         "hash": "dd978ca133788e1f39936e559b847b93"
     },
+    "sylphian_userpets_delete_spritesheet_confirm.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "7edd2cacb4921c53b512185e7a7913be"
+    },
+    "sylphian_userpets_delete_spritesheet_missing_file.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "123459e7058a305018173b06f97ba425"
+    },
     "sylphian_userpets_disabled_pet.txt": {
         "global_cache": false,
         "version_id": 1010030,
@@ -749,6 +761,12 @@
         "version_string": "1.2.0",
         "hash": "ff3c44265663ed68f5f94060dc227fab"
     },
+    "sylphian_userpets_edit_spritesheet_x.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "077646740c82a471e98f1b68a2f952f2"
+    },
     "sylphian_userpets_existing_spritesheets.txt": {
         "global_cache": false,
         "version_id": 1000010,
@@ -779,17 +797,47 @@
         "version_string": "1.2.0",
         "hash": "1351017ac6423911223bc19a8cb7c653"
     },
+    "sylphian_userpets_filename_explain.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "7a9c9ad6f1f847d313cb699280b483b8"
+    },
+    "sylphian_userpets_frame_height_px.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "79929774e65a71a080f7b90910eb799e"
+    },
     "sylphian_userpets_frame_size_x.txt": {
         "global_cache": false,
         "version_id": 1020070,
         "version_string": "1.2.0",
         "hash": "3839f3ade929d698620ca81b0f3138f3"
     },
+    "sylphian_userpets_frame_width_px.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "2db50aeea48818302238f1f6dff6af02"
+    },
+    "sylphian_userpets_frames_per_animation_columns.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "b806b1f3648e59e4d99c9b91e6c6eb9f"
+    },
     "sylphian_userpets_frames_per_animation_x.txt": {
         "global_cache": false,
         "version_id": 1020070,
         "version_string": "1.2.0",
         "hash": "15ffbe4655560017c345b040efcff70f"
+    },
+    "sylphian_userpets_frames_per_second_explain.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "5112f5424b8592869e574205a04a749a"
     },
     "sylphian_userpets_frames_per_second_x.txt": {
         "global_cache": false,
@@ -953,6 +1001,18 @@
         "version_string": "1.2.0",
         "hash": "584aac41024166be735b4e8b1b259e34"
     },
+    "sylphian_userpets_replace_image.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "f352ba638581d502632c58ebc08849bd"
+    },
+    "sylphian_userpets_replace_image_explain.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "3f454ff32f9d8bd6f53ecc33dbee6bed"
+    },
     "sylphian_userpets_required_experience.txt": {
         "global_cache": false,
         "version_id": 1000010,
@@ -976,6 +1036,12 @@
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
         "hash": "7d695c76230e3a4eb378bb2433375ef6"
+    },
+    "sylphian_userpets_spritesheet_image_explain.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "f095f50112f66308569210938e19982d"
     },
     "sylphian_userpets_spritesheet_management.txt": {
         "global_cache": false,
