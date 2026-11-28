@@ -773,6 +773,30 @@
         "version_string": "1.2.0",
         "hash": "01b8873d535befbc32122830a00d4968"
     },
+    "sylphian_userpets_filename.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "1351017ac6423911223bc19a8cb7c653"
+    },
+    "sylphian_userpets_frame_size_x.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "3839f3ade929d698620ca81b0f3138f3"
+    },
+    "sylphian_userpets_frames_per_animation_x.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "15ffbe4655560017c345b040efcff70f"
+    },
+    "sylphian_userpets_frames_per_second_x.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "62931ebaf37169bf6fcb5a823b628285"
+    },
     "sylphian_userpets_happiness.txt": {
         "global_cache": false,
         "version_id": 1000010,
@@ -898,6 +922,12 @@
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
         "hash": "33d67d86e7aa1f04a603537bc5d07c01"
+    },
+    "sylphian_userpets_path_permissions.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "47efdbdb0e069dc0ccf37301233a48de"
     },
     "sylphian_userpets_pet_not_found.txt": {
         "global_cache": false,

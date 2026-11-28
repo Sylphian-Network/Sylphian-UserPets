@@ -7,7 +7,7 @@
                 <xf:if is="!$ph.exists">
                     <li>{{ phrase_dynamic('sylphian_userpets_path_does_not_exist', {'path': $ph.path}) }}</li>
                     <xf:else />
-                    <li>{$ph.path} [readable: {{ $ph.readable ? 'yes' : 'no' }}, writable: {{ $ph.writable ? 'yes' : 'no' }}]</li>
+                    <li>{{ phrase('sylphian_userpets_path_permissions', {'path': $ph.path, 'readable': $ph.readable ? phrase('yes') : phrase('no'), 'writable': $ph.writable ? phrase('yes') : phrase('no')}) }}</li>
                 </xf:if>
             </xf:foreach>
         </ul>
@@ -29,7 +29,7 @@
             <xf:datalist>
                 <xf:datarow rowtype="header">
                     <xf:cell>{{ phrase('preview') }}</xf:cell>
-                    <xf:cell>{{ phrase('filename') }}</xf:cell>
+                    <xf:cell>{{ phrase('sylphian_userpets_filename') }}</xf:cell>
                     <xf:cell>{{ phrase('details') }}</xf:cell>
                     <xf:cell>{{ phrase('size') }}</xf:cell>
                     <xf:cell>{{ phrase('last_modified') }}</xf:cell>
@@ -60,12 +60,13 @@
                             <xf:main label="{$f.name}" />
 
                             <xf:cell>
-							  <span class="u-muted">{{ $f.entity
-								? ("Frame size: {$f.entity.frame_width}×{$f.entity.frame_height}<br>
-								  Frames per animation: {$f.entity.frames_per_animation}<br>
-								  Frames per second: {$f.entity.fps}")
-								: '—'
-							  }}</span>
+							  <xf:if is="$f.entity">
+								  <ul class="listPlain u-muted">
+									  <li>{{ phrase('sylphian_userpets_frame_size_x', {'width': $f.entity.frame_width, 'height': $f.entity.frame_height}) }}</li>
+									  <li>{{ phrase('sylphian_userpets_frames_per_animation_x', {'frames': $f.entity.frames_per_animation}) }}</li>
+									  <li>{{ phrase('sylphian_userpets_frames_per_second_x', {'fps': $f.entity.fps}) }}</li>
+								  </ul>
+							  </xf:if>
                             </xf:cell>
 
                             <xf:cell>{{ file_size($f.size) }}</xf:cell>
