@@ -1,8 +1,8 @@
 {
     "admin/sylphian_userpets_option_macros.html": {
-        "version_id": 1000010,
-        "version_string": "1.0.0 Alpha",
-        "hash": "8d2dcf379a9e79c58f27de9eaf989861"
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "ef7ce308bf257dbb1983d8ce1486d697"
     },
     "admin/sylphian_userpets_spritesheets_add.html": {
         "version_id": 1000010,

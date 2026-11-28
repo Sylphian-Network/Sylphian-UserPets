@@ -27,7 +27,7 @@ class MacroRender
 				$exp = $petLevelingService->getExperienceRequiredForLevel($level);
 
 				$expData[] = [
-					'label' => 'Level ' . $level,
+					'label' => \XF::phrase('sylphian_userpets_level_x', ['level' => $level])->render(),
 					'values' => ['experience' => $exp],
 					'averages' => ['experience' => $exp],
 				];

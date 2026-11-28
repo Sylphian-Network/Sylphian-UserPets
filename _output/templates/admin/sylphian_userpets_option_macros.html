@@ -16,7 +16,7 @@
 			
 			<div class="block">
 				<div class="block-container">
-					<h3 class="block-header">General Options</h3>
+					<h3 class="block-header">{{ phrase('general_options') }}</h3>
 					<div class="block-body">
 						<xf:foreach loop="$options" value="$option">
 							<xf:if is="$option.Relations.sylphian_userpets.display_order < 2000">
@@ -39,7 +39,7 @@
 			
 			<div class="block">
 				<div class="block-container">
-					<h3 class="block-header">Stat Options</h3>
+					<h3 class="block-header">{{ phrase('sylphian_userpets_options_stats') }}</h3>
 					<div class="block-body">
 						<xf:foreach loop="$options" value="$option">
 							<xf:if is="$option.Relations.sylphian_userpets.display_order >= 2000 && $option.Relations.sylphian_userpets.display_order < 3000">
@@ -62,7 +62,7 @@
 			
 			<div class="block">
 				<div class="block-container">
-					<h3 class="block-header u-alignCenter">Leveling Options</h3>
+					<h3 class="block-header u-alignCenter">{{ phrase('sylphian_userpets_options_leveling') }}</h3>
 					<div class="block-body">
                     <div class="block-row">
 						<div class="blockMessage blockMessage--warning blockMessage--iconic">
@@ -105,7 +105,7 @@
 			
 			<div class="block">
 				<div class="block-container">
-					<h3 class="block-header">Tutorial Options</h3>
+					<h3 class="block-header">{{ phrase('sylphian_userpets_options_tutorial') }}</h3>
 					<div class="block-body">
 						<xf:foreach loop="$options" value="$option">
 							<xf:if is="$option.Relations.sylphian_userpets.display_order >= 4000 && $option.Relations.sylphian_userpets.display_order < 5000">
@@ -128,7 +128,7 @@
 			
 			<div class="block">
 				<div class="block-container">
-					<h3 class="block-header">Duel Options</h3>
+					<h3 class="block-header">{{ phrase('sylphian_userpets_options_duel') }}</h3>
 					<div class="block-body">
 						<xf:foreach loop="$options" value="$option">
 							<xf:if is="$option.Relations.sylphian_userpets.display_order >= 5000 && $option.Relations.sylphian_userpets.display_order < 6000">

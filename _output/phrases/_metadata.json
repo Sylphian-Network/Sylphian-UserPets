@@ -821,6 +821,12 @@
         "version_string": "1.0.0 Alpha",
         "hash": "02c93212f90d1bcfe2c8261f7b119e7c"
     },
+    "sylphian_userpets_level_x.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "9f210ca73412865e255e1b79e4d29415"
+    },
     "sylphian_userpets_no_spritesheet.txt": {
         "global_cache": false,
         "version_id": 1000010,
@@ -838,6 +844,30 @@
         "version_id": 1000010,
         "version_string": "1.0.0 Alpha",
         "hash": "3b481299b1fe2ec9eb8bdcddf6f6a8df"
+    },
+    "sylphian_userpets_options_duel.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "43ee72c6bc2980c1bec39bcec8b4a6b2"
+    },
+    "sylphian_userpets_options_leveling.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "dcb883f23b960c508355cc19d26c7f39"
+    },
+    "sylphian_userpets_options_stats.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "eacf7d521a4180c6eb5df410a15a45d0"
+    },
+    "sylphian_userpets_options_tutorial.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "97bf0bd126e99dce40305b3017779b8e"
     },
     "sylphian_userpets_path_does_not_exist.txt": {
         "global_cache": false,
