@@ -10,7 +10,7 @@ class DefaultAlgorithm implements DuelAlgorithmInterface
 	}
 	public function getLabel(): string
 	{
-		return 'Default (50/50)';
+		return \XF::phrase('sylphian_userpets_algorithm_default')->render();
 	}
 
 	public function calculateWinner(array $petA, array $petB): array

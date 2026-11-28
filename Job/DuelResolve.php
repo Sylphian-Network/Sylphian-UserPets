@@ -112,8 +112,8 @@ class DuelResolve extends AbstractJob
 			/** @var User $loserUser */
 			$loserUser = $this->app->em()->find('XF:User', $loserPet->user_id);
 
-			$winnerUsername = $winnerUser ? $winnerUser->username : 'Unknown';
-			$loserUsername = $loserUser ? $loserUser->username : 'Unknown';
+			$winnerUsername = $winnerUser ? $winnerUser->username : '';
+			$loserUsername = $loserUser ? $loserUser->username : '';
 
 			$canAlertWinner = !UserPetOptOut::isDisabledByUserId($winnerPet->user_id);
 			$canAlertLoser  = !UserPetOptOut::isDisabledByUserId($loserPet->user_id);

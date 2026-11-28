@@ -1,0 +1,1 @@
+Frames per second used by the widgets for this spritesheet

@@ -1,0 +1,1 @@
+Your pet's stats decreased by {stats} points.

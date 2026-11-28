@@ -22,14 +22,14 @@ class UserPetsSpritesheetRepository extends Repository
 	/**
 	 * Returns health info for the directories this repo uses.
 	 *
-	 * @return array{dirs: array<int, array{key:string,label:string,path:string,exists:bool,readable:bool,writable:bool}>, hasIssues: bool}
+	 * @return array{dirs: array<int, array{key:string,label:\XF\Phrase,path:string,exists:bool,readable:bool,writable:bool}>, hasIssues: bool}
 	 */
 	public function getPathHealth(): array
 	{
 		$targets = [
 			[
 				'key'   => 'primary',
-				'label' => 'Primary spritesheet storage (external data)',
+				'label' => \XF::phrase('sylphian_userpets_path_primary'),
 				'path'  => $this->getBasePath(),
 			],
 		];
@@ -38,7 +38,7 @@ class UserPetsSpritesheetRepository extends Repository
 		{
 			$targets[] = [
 				'key'   => 'mirror',
-				'label' => 'Dev mirror (add-on _files data)',
+				'label' => \XF::phrase('sylphian_userpets_path_mirror'),
 				'path'  => $this->getDevMirrorPath(),
 			];
 		}
@@ -230,7 +230,7 @@ class UserPetsSpritesheetRepository extends Repository
 	 * @param string $origFilename Previous filename (from form).
 	 * @param array<string,mixed> $input Form input fields.
 	 * @param Upload|null $upload Uploaded file instance or null.
-	 * @return array{entity?:UserPetsSpritesheet,error?:string}
+	 * @return array{entity?:UserPetsSpritesheet,error?:\XF\Phrase}
 	 */
 	public function saveSpritesheet(int $id, string $origFilename, array $input, ?Upload $upload): array
 	{
@@ -254,7 +254,7 @@ class UserPetsSpritesheetRepository extends Repository
 		$newFilename = $sanitize($input['filename'] ?? $origFilename);
 		if ($newFilename === '')
 		{
-			return ['error' => 'Please provide a valid filename with an allowed image extension.'];
+			return ['error' => \XF::phrase('sylphian_userpets_error_invalid_filename')];
 		}
 
 		$origFull = $basePath . DIRECTORY_SEPARATOR . $origFilename;
@@ -267,7 +267,7 @@ class UserPetsSpritesheetRepository extends Repository
 			$isUnder = $realOrig && str_starts_with($realOrig, rtrim($realBase, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR);
 			if (!$isUnder)
 			{
-				return ['error' => 'Invalid file path.'];
+				return ['error' => \XF::phrase('sylphian_userpets_error_invalid_file_path')];
 			}
 		}
 
@@ -285,7 +285,7 @@ class UserPetsSpritesheetRepository extends Repository
 		$hasUpload = ($upload instanceof Upload) && $upload->isValid();
 		if ($upload && !$upload->isValid())
 		{
-			return ['error' => 'Uploaded file is not valid.'];
+			return ['error' => \XF::phrase('sylphian_userpets_error_upload_invalid')];
 		}
 		if ($hasUpload)
 		{
@@ -293,7 +293,7 @@ class UserPetsSpritesheetRepository extends Repository
 			$ext = strtolower(pathinfo($clientName, PATHINFO_EXTENSION));
 			if (!in_array($ext, $allowedExts, true))
 			{
-				return ['error' => 'Uploaded file type is not allowed.'];
+				return ['error' => \XF::phrase('sylphian_userpets_error_upload_type_not_allowed')];
 			}
 		}
 
@@ -302,25 +302,25 @@ class UserPetsSpritesheetRepository extends Repository
 
 		if ($renaming && !$upload && !$origExists)
 		{
-			return ['error' => 'Cannot rename: original file not found on disk.'];
+			return ['error' => \XF::phrase('sylphian_userpets_error_rename_original_missing')];
 		}
 
 		$hasUpload = ($upload instanceof Upload) && $upload->isValid();
 		if ($upload && !$upload->isValid())
 		{
-			return ['error' => 'Uploaded file is not valid.'];
+			return ['error' => \XF::phrase('sylphian_userpets_error_upload_invalid')];
 		}
 
 		if ($renaming && !$hasUpload && file_exists($newFull))
 		{
-			return ['error' => 'A file with the new filename already exists.'];
+			return ['error' => \XF::phrase('sylphian_userpets_error_filename_exists')];
 		}
 
 		if ($renaming && !$hasUpload)
 		{
 			if (!@rename($origFull, $newFull))
 			{
-				return ['error' => 'Failed to rename the file on disk.'];
+				return ['error' => \XF::phrase('sylphian_userpets_error_rename_failed')];
 			}
 
 			$this->mirrorRename($origFilename, $newFilename);
@@ -356,13 +356,13 @@ class UserPetsSpritesheetRepository extends Repository
 				{
 					// Cleanup temp file if rename failed
 					@unlink($tmpTarget);
-					return ['error' => 'Failed to write uploaded image atomically.'];
+					return ['error' => \XF::phrase('sylphian_userpets_error_write_failed')];
 				}
 			}
 			catch (\Throwable $e)
 			{
 				@unlink($tmpTarget);
-				return ['error' => 'Failed to save uploaded image: ' . $e->getMessage()];
+				return ['error' => \XF::phrase('sylphian_userpets_error_save_image_failed', ['error' => $e->getMessage()])];
 			}
 
 			if ($renaming && $origExists && $origFull !== $newFull)
@@ -383,7 +383,7 @@ class UserPetsSpritesheetRepository extends Repository
 		$existing = $this->findByFilename($newFilename);
 		if ($existing && (!$entity->exists() || $existing->spritesheet_id !== $entity->spritesheet_id))
 		{
-			return ['error' => 'A spritesheet with that filename already exists.'];
+			return ['error' => \XF::phrase('sylphian_userpets_error_spritesheet_exists')];
 		}
 
 		$entity->filename = $newFilename;
@@ -408,7 +408,7 @@ class UserPetsSpritesheetRepository extends Repository
 		}
 		catch (PrintableException|\Exception $e)
 		{
-			return ['error' => 'Could not save spritesheet: ' . $e->getMessage()];
+			return ['error' => \XF::phrase('sylphian_userpets_error_save_failed', ['error' => $e->getMessage()])];
 		}
 
 		return ['entity' => $entity];
@@ -425,7 +425,7 @@ class UserPetsSpritesheetRepository extends Repository
 		$filename = trim($filename);
 		if ($filename === '')
 		{
-			return 'No file specified.';
+			return \XF::phrase('sylphian_userpets_error_no_file_specified')->render();
 		}
 
 		$basePath = $this->getBasePath();
@@ -446,7 +446,7 @@ class UserPetsSpritesheetRepository extends Repository
 			}
 			catch (\Throwable $e)
 			{
-				$errors[] = 'Could not delete file from disk: ' . $e->getMessage();
+				$errors[] = \XF::phrase('sylphian_userpets_error_delete_file_failed', ['error' => $e->getMessage()])->render();
 			}
 		}
 
@@ -458,7 +458,7 @@ class UserPetsSpritesheetRepository extends Repository
 			}
 			catch (\Throwable $e)
 			{
-				$errors[] = 'Could not delete database record: ' . $e->getMessage();
+				$errors[] = \XF::phrase('sylphian_userpets_error_delete_record_failed', ['error' => $e->getMessage()])->render();
 			}
 		}
 

@@ -1,0 +1,1 @@
+A spritesheet with that filename already exists.

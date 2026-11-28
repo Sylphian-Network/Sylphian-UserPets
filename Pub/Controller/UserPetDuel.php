@@ -10,6 +10,7 @@ use XF\Mvc\Reply\Error;
 use XF\Mvc\Reply\Exception;
 use XF\Mvc\Reply\Redirect;
 use XF\Mvc\Reply\View;
+use XF\Phrase;
 use XF\Pub\Controller\AbstractController;
 
 class UserPetDuel extends AbstractController
@@ -173,7 +174,7 @@ class UserPetDuel extends AbstractController
 		if (!$result->isSuccess())
 		{
 			return $this->error(\XF::phrase('sylphian_userpets_duel_accept_failed', [
-				'error' => $result->getData()['error'] ?? 'Unknown error',
+				'error' => $result->getData()['error'] ?? \XF::phrase('sylphian_userpets_duel_error_unknown'),
 			]));
 		}
 
@@ -207,7 +208,7 @@ class UserPetDuel extends AbstractController
 		if (!$result->isSuccess())
 		{
 			return $this->error(\XF::phrase('sylphian_userpets_duel_reject_failed', [
-				'error' => $result->getData()['error'] ?? 'Unknown error',
+				'error' => $result->getData()['error'] ?? \XF::phrase('sylphian_userpets_duel_error_unknown'),
 			]));
 		}
 
@@ -218,21 +219,25 @@ class UserPetDuel extends AbstractController
 		return $reply;
 	}
 
-	private function formatRemainingTime(int $seconds): string
+	/**
+	 * Rounds up to whole minutes, so a wait of under a minute never renders as an empty string.
+	 */
+	private function formatRemainingTime(int $seconds): Phrase
 	{
-		$hours = floor($seconds / 3600);
-		$minutes = floor(($seconds % 3600) / 60);
+		$totalMinutes = max(1, (int) ceil($seconds / 60));
+		$hours = intdiv($totalMinutes, 60);
+		$minutes = $totalMinutes % 60;
 
-		$parts = [];
-		if ($hours > 0)
+		if ($hours && $minutes)
 		{
-			$parts[] = "{$hours} " . \XF::phrase('hours');
-		}
-		if ($minutes > 0)
-		{
-			$parts[] = "{$minutes} " . \XF::phrase('minutes');
+			return \XF::phrase('x_hours_y_minutes', ['hours' => $hours, 'minutes' => $minutes]);
 		}
 
-		return implode(', ', $parts);
+		if ($hours)
+		{
+			return \XF::phrase('x_hours', ['count' => $hours]);
+		}
+
+		return \XF::phrase('x_minutes', ['count' => $minutes]);
 	}
 }
