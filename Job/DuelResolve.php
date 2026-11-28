@@ -9,6 +9,7 @@ use Sylphian\UserPets\Entity\UserPetsDuel;
 use Sylphian\UserPets\Helper\UserPetOptOut;
 use Sylphian\UserPets\Repository\UserPetsDuelRepository;
 use Sylphian\UserPets\Repository\UserPetsRepository;
+use Sylphian\UserPets\Service\PetManager;
 use XF\Entity\User;
 use XF\Job\AbstractJob;
 use XF\Job\JobResult;
@@ -63,6 +64,11 @@ class DuelResolve extends AbstractJob
 					'opponent_pet_id' => $duel->opponent_pet_id,
 				]);
 				return $this->complete();
+			}
+
+			foreach ([$challengerPet, $opponentPet] AS $pet)
+			{
+				(new PetManager($pet))->updateStats();
 			}
 
 			$algorithm = AlgorithmRegistry::resolve();
