@@ -2,6 +2,8 @@
 
 namespace Sylphian\UserPets\Duel\Algorithms;
 
+use Sylphian\UserPets\Duel\CareScore;
+
 class CareBasedAlgorithm implements DuelAlgorithmInterface
 {
 	public function getKey(): string
@@ -15,9 +17,7 @@ class CareBasedAlgorithm implements DuelAlgorithmInterface
 
 	public function calculateWinner(array $petA, array $petB): array
 	{
-		$modifierA = ($petA['happiness'] - $petA['hunger'] - $petA['sleepiness']) / 200;
-		$modifierB = ($petB['happiness'] - $petB['hunger'] - $petB['sleepiness']) / 200;
-		$chanceA = 0.5 + $modifierA - $modifierB;
+		$chanceA = 0.5 + (CareScore::of($petA) - CareScore::of($petB)) / 2;
 		$chanceA = max(0.05, min(0.95, $chanceA));
 		return (mt_rand() / mt_getrandmax()) < $chanceA ? $petA : $petB;
 	}
