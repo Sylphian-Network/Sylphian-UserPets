@@ -17,21 +17,21 @@ class ExperienceProvider extends AbstractProvider
 	}
 	public function getTitle(): string
 	{
-		return 'Pet Level';
+		return \XF::phrase('sylphian_userpets_leaderboard_pet_level')->render();
 	}
 
 	public function getDescription(): ?string
 	{
-		return 'Users ranked by total pet experience.';
+		return \XF::phrase('sylphian_userpets_leaderboard_pet_level_desc')->render();
 	}
 
 	public function getColumns(): array
 	{
 		return [
-			['key' => 'position', 'label' => 'Position',  'width' => '10%'],
-			['key' => 'username', 'label' => 'User',      'width' => '40%'],
-			['key' => 'level',    'label' => 'Level',     'width' => '15%'],
-			['key' => 'exp',      'label' => 'Experience','width' => '35%'],
+			['key' => 'position', 'label' => \XF::phrase('position')->render(), 'width' => '10%'],
+			['key' => 'username', 'label' => \XF::phrase('user')->render(), 'width' => '40%'],
+			['key' => 'level', 'label' => \XF::phrase('sylphian_userpets_column_level')->render(), 'width' => '15%'],
+			['key' => 'exp', 'label' => \XF::phrase('sylphian_userpets_column_experience')->render(), 'width' => '35%'],
 		];
 	}
 

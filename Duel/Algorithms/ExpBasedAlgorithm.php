@@ -11,7 +11,7 @@ class ExpBasedAlgorithm implements DuelAlgorithmInterface
 
 	public function getLabel(): string
 	{
-		return 'Exp-based';
+		return \XF::phrase('sylphian_userpets_algorithm_exp_based')->render();
 	}
 
 	public function calculateWinner(array $petA, array $petB): array

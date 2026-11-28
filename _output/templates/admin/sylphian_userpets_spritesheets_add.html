@@ -1,4 +1,4 @@
-<xf:title>Add spritesheet</xf:title>
+<xf:title>{{ phrase('sylphian_userpets_add_spritesheet') }}</xf:title>
 
 <xf:form action="{{ link('sylphian_userpets/spritesheets/save') }}" ajax="true" class="block" enctype="multipart/form-data">
     <div class="block-container">
@@ -7,20 +7,20 @@
             <xf:hiddenval name="file" value="" />
 
             <xf:uploadrow name="image"
-                          label="Image"
+                          label="{{ phrase('image') }}"
                           required="required"
                           accept=".png,.gif,.jpg,.jpeg,.webp"
-                          explain="Upload the spritesheet image." />
+                          explain="{{ phrase('sylphian_userpets_spritesheet_image_explain') }}" />
 
-            <xf:textboxrow name="filename" value="" label="Filename"
-                           explain="Include the extension (e.g. my_sprite.png)." />
+            <xf:textboxrow name="filename" value="" label="{{ phrase('sylphian_userpets_filename') }}"
+                           explain="{{ phrase('sylphian_userpets_filename_explain') }}" />
 
-            <xf:textboxrow name="title" value="" label="Title" />
+            <xf:textboxrow name="title" value="" label="{{ phrase('title') }}" />
 
-            <xf:numberboxrow name="frame_width" value="{$entity.frame_width}" min="1" step="1" label="Frame width (px)" />
-            <xf:numberboxrow name="frame_height" value="{$entity.frame_height}" min="1" step="1" label="Frame height (px)" />
-            <xf:numberboxrow name="frames_per_animation" value="{$entity.frames_per_animation}" min="1" step="1" label="Frames per animation (columns)" />
-			<xf:numberboxrow name="fps" value="{$entity.fps}" min="1" max="120" step="1" label="Frames per second used by the widgets for this spritesheet" />
+            <xf:numberboxrow name="frame_width" value="{$entity.frame_width}" min="1" step="1" label="{{ phrase('sylphian_userpets_frame_width_px') }}" />
+            <xf:numberboxrow name="frame_height" value="{$entity.frame_height}" min="1" step="1" label="{{ phrase('sylphian_userpets_frame_height_px') }}" />
+            <xf:numberboxrow name="frames_per_animation" value="{$entity.frames_per_animation}" min="1" step="1" label="{{ phrase('sylphian_userpets_frames_per_animation_columns') }}" />
+			<xf:numberboxrow name="fps" value="{$entity.fps}" min="1" max="120" step="1" label="{{ phrase('sylphian_userpets_frames_per_second_explain') }}" />
 		</div>
 
         <xf:submitrow submit="{{ phrase('save') }}" icon="save" sticky="true" />

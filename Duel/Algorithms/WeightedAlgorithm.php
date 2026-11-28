@@ -11,7 +11,7 @@ class WeightedAlgorithm implements DuelAlgorithmInterface
 
 	public function getLabel(): string
 	{
-		return 'Weighted';
+		return \XF::phrase('sylphian_userpets_algorithm_weighted')->render();
 	}
 
 	public function calculateWinner(array $petA, array $petB): array

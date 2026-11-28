@@ -1,28 +1,28 @@
 {
     "admin/sylphian_userpets_option_macros.html": {
-        "version_id": 1000010,
-        "version_string": "1.0.0 Alpha",
-        "hash": "8d2dcf379a9e79c58f27de9eaf989861"
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "ef7ce308bf257dbb1983d8ce1486d697"
     },
     "admin/sylphian_userpets_spritesheets_add.html": {
-        "version_id": 1000010,
-        "version_string": "1.0.0 Alpha",
-        "hash": "a2a0a0fe84fa521512b415022c6ac36d"
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "b979f2d4951857d9520b89feecd30b4f"
     },
     "admin/sylphian_userpets_spritesheets_delete.html": {
-        "version_id": 1000010,
-        "version_string": "1.0.0 Alpha",
-        "hash": "51c792cd2f0d08e4fe119a5e381ee5c1"
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "4042277c2385747c9efdfa9f40e9ef76"
     },
     "admin/sylphian_userpets_spritesheets_edit.html": {
-        "version_id": 1000010,
-        "version_string": "1.0.0 Alpha",
-        "hash": "662df619033ad29aafbb1b467f908e3e"
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "bbdef3f24441cfba2ca59896e90f2045"
     },
     "admin/sylphian_userpets_spritesheets_list.html": {
-        "version_id": 1010070,
-        "version_string": "1.1.0",
-        "hash": "4b8e4c50a7320955259d5c33458ed3b8"
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "273f9f109e36822bedcacead180fea97"
     },
     "admin/widget_def_options_sylphian_userpets_widget.html": {
         "version_id": 1000010,
@@ -30,39 +30,39 @@
         "hash": "d41d8cd98f00b204e9800998ecf8427e"
     },
     "public/alert_syl_userpet_duel_challenge.html": {
-        "version_id": 1000010,
-        "version_string": "1.0.0 Alpha",
-        "hash": "6037f72601025dbb3a6338411501f6a0"
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "1edc335f1b1d22c2011b679d04896f20"
     },
     "public/alert_syl_userpet_duel_declined.html": {
-        "version_id": 1000010,
-        "version_string": "1.0.0 Alpha",
-        "hash": "334e6722cb702a5a130f943bb452cfbd"
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "a3aa2c543e0942b103199407d574d1cb"
     },
     "public/alert_syl_userpet_duel_loss.html": {
-        "version_id": 1000010,
-        "version_string": "1.0.0 Alpha",
-        "hash": "b0a1d58659c0765ddf4f6ee09a434865"
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "69fdaa5f0c3e9b3a69817a74f1256f7d"
     },
     "public/alert_syl_userpet_duel_win.html": {
-        "version_id": 1000010,
-        "version_string": "1.0.0 Alpha",
-        "hash": "9b7e28c65e7ff973165fa13b6f6be5e7"
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "b55f02a379673dd056359923b9dc6097"
     },
     "public/alert_syl_userpet_levelup.html": {
-        "version_id": 1000010,
-        "version_string": "1.0.0 Alpha",
-        "hash": "acad9275281f9ad0ace6260a12e0a398"
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "f9788162a1942c25ec39eb7a82687443"
     },
     "public/alert_syl_userpet_tutorial.html": {
-        "version_id": 1000010,
-        "version_string": "1.0.0 Alpha",
-        "hash": "3cd8995711ed5b08de62e524854a6521"
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "8bbb95d058224a3e84010d88fe3e327f"
     },
     "public/sylphian_userpets_duel_challenge.html": {
-        "version_id": 1000010,
-        "version_string": "1.0.0 Alpha",
-        "hash": "543ae265241a0c6be94745ffd7d8fd1a"
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "f813790e52f96239de52c82abd7f2545"
     },
     "public/sylphian_userpets_other_widget.html": {
         "version_id": 1000010,
@@ -70,8 +70,8 @@
         "hash": "b0bec0e951444670ba38380e7e292599"
     },
     "public/sylphian_userpets_own_widget.html": {
-        "version_id": 1010030,
-        "version_string": "1.1.0 Beta",
-        "hash": "2a5b37a8fd8a5bf418f3c0f2759feda4"
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "3879efe88130c6e04a36a0adf8a5f11a"
     }
 }

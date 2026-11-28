@@ -83,7 +83,7 @@ class SpritesheetManagement extends AbstractController
 		$filename = $this->filter('file', 'str');
 		if ($filename === '')
 		{
-			return $this->error('No file specified.');
+			return $this->error(\XF::phrase('sylphian_userpets_error_no_file_specified'));
 		}
 
 		$repo = $this->repo();

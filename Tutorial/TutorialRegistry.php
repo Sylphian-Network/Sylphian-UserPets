@@ -24,25 +24,25 @@ class TutorialRegistry
 
 		self::register(
 			TutorialId::COMPLETE_ACTION,
-			'Complete your first pet action',
+			'sylphian_userpets_tutorial_complete_action',
 			'sylphian_userpets_tutorial_exp_complete_action'
 		);
 
 		self::register(
 			TutorialId::UPLOAD_PFP,
-			'Upload a profile picture',
+			'sylphian_userpets_tutorial_upload_pfp',
 			'sylphian_userpets_tutorial_exp_upload_pfp'
 		);
 
 		self::register(
 			TutorialId::POST_FIRST_MESSAGE,
-			'Post your first message',
+			'sylphian_userpets_tutorial_post_first_message',
 			'sylphian_userpets_tutorial_exp_post_first_message'
 		);
 
 		self::register(
 			TutorialId::REACT_TO_POST,
-			'React to a post',
+			'sylphian_userpets_tutorial_react_to_post',
 			'sylphian_userpets_tutorial_exp_react_to_post'
 		);
 	}
@@ -50,9 +50,9 @@ class TutorialRegistry
 	/**
 	 * Register a new tutorial
 	 */
-	private static function register(TutorialId $id, string $title, string $rewardExpOption): void
+	private static function register(TutorialId $id, string $titlePhrase, string $rewardExpOption): void
 	{
-		self::$tutorials[$id->value] = Tutorial::create($id->value, $title, $rewardExpOption);
+		self::$tutorials[$id->value] = Tutorial::create($id->value, $titlePhrase, $rewardExpOption);
 	}
 
 	/**
