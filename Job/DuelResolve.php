@@ -4,6 +4,7 @@ namespace Sylphian\UserPets\Job;
 
 use Sylphian\Library\Logger\Logger;
 use Sylphian\UserPets\Duel\AlgorithmRegistry;
+use Sylphian\UserPets\Duel\Algorithms\DefaultAlgorithm;
 use Sylphian\UserPets\Entity\UserPetsDuel;
 use Sylphian\UserPets\Helper\UserPetOptOut;
 use Sylphian\UserPets\Repository\UserPetsDuelRepository;
@@ -76,7 +77,24 @@ class DuelResolve extends AbstractJob
 				$opponentPet->toArray()
 			);
 
-			$winnerPet = ($result['pet_id'] === $challengerPet->pet_id) ? $challengerPet : $opponentPet;
+			$winnerPetId = (int) ($result['pet_id'] ?? 0);
+			if ($winnerPetId !== $challengerPet->pet_id && $winnerPetId !== $opponentPet->pet_id)
+			{
+				// A third-party algorithm that returns neither pet must not leave the duel unresolved.
+				Logger::error('Duel algorithm returned neither pet, falling back to the default algorithm', [
+					'duel_id' => $duelId,
+					'algorithm_class' => get_class($algorithm),
+					'returned_pet_id' => $result['pet_id'] ?? null,
+				]);
+
+				$result = (new DefaultAlgorithm())->calculateWinner(
+					$challengerPet->toArray(),
+					$opponentPet->toArray()
+				);
+				$winnerPetId = (int) $result['pet_id'];
+			}
+
+			$winnerPet = ($winnerPetId === $challengerPet->pet_id) ? $challengerPet : $opponentPet;
 			$loserPet = ($winnerPet->pet_id === $challengerPet->pet_id) ? $opponentPet : $challengerPet;
 
 			$winExp = \XF::options()->sylphian_userpets_duel_win_exp;
@@ -158,12 +176,13 @@ class DuelResolve extends AbstractJob
 
 			return $this->complete();
 		}
-		catch (\Exception $e)
+		catch (\Throwable $e)
 		{
 			if ($this->data['attempts'] >= 5)
 			{
 				Logger::error('Failed to resolve duel after multiple attempts', [
 					'duel_id' => $duelId,
+					'error_class' => get_class($e),
 					'error' => $e->getMessage(),
 				]);
 				return $this->complete();
