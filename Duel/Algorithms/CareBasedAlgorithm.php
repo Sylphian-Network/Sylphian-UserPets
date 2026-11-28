@@ -10,7 +10,7 @@ class CareBasedAlgorithm implements DuelAlgorithmInterface
 	}
 	public function getLabel(): string
 	{
-		return 'Care-based';
+		return \XF::phrase('sylphian_userpets_algorithm_care_based')->render();
 	}
 
 	public function calculateWinner(array $petA, array $petB): array

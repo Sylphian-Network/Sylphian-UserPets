@@ -569,6 +569,30 @@
         "version_string": "1.2.0",
         "hash": "891b671c3f8e7022753dee9afe5401dd"
     },
+    "sylphian_userpets_algorithm_care_based.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "48f799822e9bd1b08fecca7ac6f90cd2"
+    },
+    "sylphian_userpets_algorithm_default.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "c64229f94955d6870c95ce6791424f7f"
+    },
+    "sylphian_userpets_algorithm_exp_based.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "f7a580051913968135e8fc089af8154d"
+    },
+    "sylphian_userpets_algorithm_weighted.txt": {
+        "global_cache": false,
+        "version_id": 1020070,
+        "version_string": "1.2.0",
+        "hash": "582368ac8232617ead14ac74ccc40ea9"
+    },
     "sylphian_userpets_cannot_challenge_self.txt": {
         "global_cache": false,
         "version_id": 1020070,
